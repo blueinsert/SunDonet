@@ -1,0 +1,8 @@
+Temp
+Library
+obj
+Packages
+*.vs
+bin
+Release/
+Logs/
