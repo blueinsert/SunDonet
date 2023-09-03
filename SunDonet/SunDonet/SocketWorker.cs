@@ -51,7 +51,7 @@ namespace SunDonet
 
         public void RemoveEvent(Conn conn)
         {
-            Console.WriteLine(string.Format("SocketWorker:RemoveEvent {0}", conn.m_socket.RemoteEndPoint.ToString()));
+            //Console.WriteLine(string.Format("SocketWorker:RemoveEvent {0}", conn.m_socket.RemoteEndPoint.ToString()));
             lock (m_connList)
             {
                 m_connList.Remove(conn);
@@ -158,7 +158,7 @@ namespace SunDonet
                         {
                             byte[] data = new byte[conn.m_event.BytesTransferred];
                             Array.Copy(conn.m_event.Buffer, conn.m_event.Offset, data, 0, data.Length);//从e.Buffer块中复制数据出来，保证它可重用
-                            Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(data)));
+                            //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(data)));
                             //向服务发送消息
                             SunNet.Instance.Send(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_data = data});
                         }
@@ -166,7 +166,7 @@ namespace SunDonet
                     else
                     {
                         //客户端主动断开连接
-                        Console.WriteLine(String.Format("客户 {0} BytesTransferred==0", conn.m_socket.RemoteEndPoint.ToString()));
+                        Console.WriteLine(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
                         SunNet.Instance.CloseConn(conn.m_socket);
                         //向服务发送消息
                         SunNet.Instance.Send(conn.m_serviceId, new SocketDisconnectMsg() { m_type = MsgBase.MsgType.Socket_Disconnect, m_client = conn.m_socket });

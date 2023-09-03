@@ -29,8 +29,8 @@ namespace SunDonet
 
         private object m_globalQueueLock = new object();
         private Queue<ServiceBase> m_globalServiceQueue = new Queue<ServiceBase>();//有消息要处理的服务
-        
 
+        private Semaphore m_workerSeamphore;
         private List<Worker> m_workers = new List<Worker>();
         public SocketWorker m_socketWorker = new SocketWorker();
         private BufferManager m_bufferManager;
@@ -58,6 +58,7 @@ namespace SunDonet
 
         public void Init()
         {
+            m_workerSeamphore = new Semaphore(0, 100);
             m_bufferManager = new BufferManager(1024 * 128, 1024);
             //m_globalQueueSemaphore = new SemaphoreSlim(0);
             m_bufferManager.InitBuffer();
@@ -200,6 +201,7 @@ namespace SunDonet
             {
                 m_globalServiceQueue.Enqueue(service);
             }
+            CheckAndWeakUp();
         }
 
         public ServiceBase PopGlobalQueue()
@@ -218,7 +220,13 @@ namespace SunDonet
         //Worker线程调用，进入休眠
         public void WorkerWait()
         {
-            Thread.Sleep(100);//todo
+            //Thread.Sleep(100);//todo
+            m_workerSeamphore.WaitOne();
+        }
+
+        public void CheckAndWeakUp()
+        {
+            m_workerSeamphore.Release();
         }
     }
 

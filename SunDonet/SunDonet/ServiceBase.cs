@@ -17,38 +17,38 @@ namespace SunDonet
         public virtual void OnInit() { }   
         public virtual void OnExit() { }
 
-        public virtual void OnClientConnect(Socket s)
+        public virtual async Task OnClientConnect(Socket s)
         {
 
         }
 
-        public virtual void OnClientData(Socket s, byte[] data) { }
+        public virtual async Task OnClientData(Socket s, byte[] data) { }
 
-        public virtual void OnClientDisconnect(Socket s)
+        public virtual async Task OnClientDisconnect(Socket s)
         {
 
         }
 
-        public virtual void OnServiceMsg(ServiceMsg msg)
+        public virtual async Task OnServiceMsg(ServiceMsg msg)
         {
-
+            
         }
 
-        private void OnMsg(MsgBase msg) {
+        private async Task OnMsg(MsgBase msg) {
             switch (msg.m_type)
             {
                 case MsgBase.MsgType.Service:
-                    OnServiceMsg(msg as ServiceMsg);
+                    await OnServiceMsg(msg as ServiceMsg);
                     break;
                 case MsgBase.MsgType.Socket_Accept:
-                    OnClientConnect((msg as SocketAcceptMsg).m_client);
+                    await OnClientConnect((msg as SocketAcceptMsg).m_client);
                     break;
                 case MsgBase.MsgType.Socket_Disconnect:
-                    OnClientDisconnect((msg as SocketDisconnectMsg).m_client);
+                    await OnClientDisconnect((msg as SocketDisconnectMsg).m_client);
                     break;
                 case MsgBase.MsgType.Socket_Data:
                     var clientDataMsg = msg as SocketDataMsg;
-                    OnClientData(clientDataMsg.m_socket, clientDataMsg.m_data);
+                    await OnClientData(clientDataMsg.m_socket, clientDataMsg.m_data);
                     break;
             }
         }
@@ -79,12 +79,12 @@ namespace SunDonet
             return msg;
         }
 
-        private bool ProcessMsg()
+        private async Task<bool> ProcessMsg()
         {
             var msg = PopMsg();
             if (msg != null)
             {
-                OnMsg(msg);
+                await OnMsg(msg);
                 return true;
             }
             else
@@ -93,11 +93,11 @@ namespace SunDonet
             }
         }
 
-        public void ProcessMsgs(int max)
+        public async Task ProcessMsgs(int max)
         {
             for(int i = 0; i < max; i++)
             {
-                if (!ProcessMsg())
+                if (! (await ProcessMsg()))
                     break;
             }
         }

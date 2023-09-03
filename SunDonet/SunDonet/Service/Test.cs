@@ -24,28 +24,24 @@ namespace SunDonet
             base.OnExit();
         }
 
-        public override void OnClientConnect(Socket s)
+        public override async Task OnClientConnect(Socket s)
         {
             Console.WriteLine("Test:OnClientConnect id:" + m_id);
-            base.OnClientConnect(s);
         }
 
-        public override void OnClientDisconnect(Socket s)
+        public override async Task OnClientDisconnect(Socket s)
         {
             Console.WriteLine("Test:OnClientDisconnect id:" + m_id);
-            base.OnClientDisconnect(s);
         }
 
-        public override void OnClientData(Socket s, byte[] data)
+        public override async Task OnClientData(Socket s, byte[] data)
         {
             Console.WriteLine(string.Format("Test:OnClientData id:{0} msg:{1}",m_id, System.Text.Encoding.UTF8.GetString(data)));
-            base.OnClientData(s, data);
         }
 
-        public override void OnServiceMsg(ServiceMsg msg)
+        public override async Task OnServiceMsg(ServiceMsg msg)
         {
             Console.WriteLine("Test:OnServiceMsg id:" + m_id);
-            base.OnServiceMsg(msg);
         }
     }
 

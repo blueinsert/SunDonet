@@ -15,7 +15,7 @@ namespace SunDonet
 
         public void StartWorkerTask()
         {
-            m_task = Task.Run(() => { WorkerProcess(); });
+            m_task = Task.Run(() => { WorkerProcess().Wait(); });
         }
 
         private void CheckAndPutGlobal(ServiceBase service)
@@ -34,18 +34,20 @@ namespace SunDonet
             }
         }
 
-        public void WorkerProcess()
+        public async Task WorkerProcess()
         {
             while (true)
             {
                var service =  SunNet.Instance.PopGlobalQueue();
                 if (service == null)
                 {
+                    Console.WriteLine(string.Format("worker id:{0} wait", m_id));
                     SunNet.Instance.WorkerWait();
                 }
                 else
                 {
-                    service.ProcessMsgs(m_eachNum);
+                    Console.WriteLine(string.Format("worker id:{0} process", m_id));
+                    await service.ProcessMsgs(m_eachNum);
                     CheckAndPutGlobal(service);
                 }
             }
