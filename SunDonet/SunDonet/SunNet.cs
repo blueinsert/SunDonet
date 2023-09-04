@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace SunDonet
 {
@@ -26,6 +27,7 @@ namespace SunDonet
         private int m_maxId = 1;
         private object m_servicesLock = new object();
         private Dictionary<int, ServiceBase> m_serviceDic = new Dictionary<int, ServiceBase>();
+        private Dictionary<string, List<ServiceBase>> m_servicesByName = new Dictionary<string, List<ServiceBase>>();
 
         private object m_globalQueueLock = new object();
         private Queue<ServiceBase> m_globalServiceQueue = new Queue<ServiceBase>();//有消息要处理的服务
@@ -35,6 +37,8 @@ namespace SunDonet
         public SocketWorker m_socketWorker = new SocketWorker();
         private BufferManager m_bufferManager;
         private ClassLoader m_classLoader;
+        private AwaitableHandleManager m_awaitableHandleManager;
+        private ThreadTimer m_timer;
 
         private void StartSocketWorker()
         {
@@ -45,10 +49,11 @@ namespace SunDonet
 
         private void StartWorker()
         {
-            for(int i = 0; i < 2; i++)
+            for(int i = 0; i < 5; i++)
             {
                 var worker = new Worker();
                 worker.m_id = i;
+                //延迟和效率统一
                 worker.m_eachNum = 2 << i;
                 worker.StartWorkerTask();
                 Console.WriteLine("StartWorker id:" + i);
@@ -68,6 +73,16 @@ namespace SunDonet
             {
                 m_classLoader.AddAssembly(assembly);
             }
+            m_awaitableHandleManager = new AwaitableHandleManager();
+            m_timer = new ThreadTimer(300);
+            m_timer.AddTimer(AwaitableHandleManagerTimerCallBack, m_awaitableHandleManager, 0, 500);
+            m_timer.StartTask();
+
+        }
+
+        private void AwaitableHandleManagerTimerCallBack(Object obj)
+        {
+            m_awaitableHandleManager.Tick();
         }
 
         public void Start()
@@ -136,8 +151,7 @@ namespace SunDonet
 
         //"Test","lua-test"
         public int NewService(string name)
-        {
-            Console.WriteLine("SunNet:NewService " + name);
+        {  
             if (name.StartsWith("lua-"))
             {
                 //todo
@@ -155,7 +169,13 @@ namespace SunDonet
                             int id = m_maxId++;
                             service.m_id = id;
                             m_serviceDic.Add(id, service);
+                            if (!m_servicesByName.ContainsKey(name))
+                            {
+                                m_servicesByName.Add(name, new List<ServiceBase>());
+                            }
+                            m_servicesByName[name].Add(service);
                         }
+                        Console.WriteLine("SunNet:NewService {0} id:{1}", name, service.m_id);
                         service.OnInit();
                         return service.m_id;
                     }
@@ -168,7 +188,7 @@ namespace SunDonet
 
         }
 
-        public ServiceBase GetService(int id)
+        private ServiceBase GetService(int id)
         {
             ServiceBase service = null;
             lock (m_servicesLock)
@@ -178,6 +198,27 @@ namespace SunDonet
             return service;
         }
 
+        public int FindSingletonServiceByName(string name)
+        {
+            if (m_servicesByName.ContainsKey(name))
+            {
+                if (m_servicesByName[name].Count > 1)
+                {
+                    //debug.error
+                }
+                if (m_servicesByName[name].Count == 1)
+                {
+                    return m_servicesByName[name][0].m_id;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// 发送给本地服务
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="msg"></param>
         public void Send(int to, MsgBase msg)
         {
             var service = GetService(to);
@@ -193,6 +234,25 @@ namespace SunDonet
                     }
                 }
             }
+        }
+
+        public void SendLocalAck(int to, LocalAwaitableServiceMsgAck ack)
+        {
+            var token = ack.m_token;
+            m_awaitableHandleManager.SetResult(token, ack);
+        }
+
+        public async Task<TAck> SendLocalAwaitable<TReq,TAck>(int to, TReq req) where TReq: LocalAwaitableServiceMsgReq where TAck: LocalAwaitableServiceMsgAck
+        {
+            var handle = m_awaitableHandleManager.AllocHandle(1);
+            req.m_token = handle.Token;
+            Send(to, req);
+            await handle.WaitAsync();
+            if(!handle.IsTimeOut && !handle.IsCancel)
+            {
+                return handle.GetResult<TAck>();
+            }
+            return null;
         }
 
         public void PushGlobalQueue(ServiceBase service)
@@ -291,5 +351,212 @@ namespace SunDonet
             m_freeIndexPool.Push(args.Offset);
             args.SetBuffer(null, 0, 0);
         }
+    }
+
+    /// <summary>
+    /// 可等待句柄
+    /// </summary>
+    public class AwaitableHandle
+    {
+        /// <summary>
+        /// 构造器
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="timeoutSeconds"></param>
+        public AwaitableHandle(Int32 token, int timeoutSeconds = 10)
+        {
+            Token = token;
+            TimeoutTime = timeoutSeconds > 0 ? DateTime.Now.AddSeconds(timeoutSeconds) : DateTime.MaxValue;
+            IsTimeOut = false;
+        }
+
+        /// <summary>
+        /// 发起等待
+        /// </summary>
+        /// <returns></returns>
+        public async Task WaitAsync()
+        {
+            await m_tcs.Task;
+        }
+
+        /// <summary>
+        /// 设置结果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        public void SetResult<T>(T result)
+            where T : class
+        {
+            m_result = result;
+            m_tcs.SetResult(true);
+        }
+
+        /// <summary>
+        /// 获取结果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetResult<T>()
+            where T : class
+        {
+            return m_result as T;
+        }
+
+        /// <summary>
+        /// 设置超时
+        /// </summary>
+        public void SetTimeout()
+        {
+            IsTimeOut = true;
+            m_tcs.SetResult(true);
+        }
+
+        /// <summary>
+        /// 设置取消
+        /// </summary>
+        public void SetCancel()
+        {
+            IsCancel = true;
+            m_tcs.SetResult(true);
+        }
+
+        /// <summary>
+        /// 用来标识一次rpccall的现场
+        /// </summary>
+        public Int32 Token { get; private set; }
+
+        /// <summary>
+        /// 超时时间
+        /// </summary>
+        public DateTime TimeoutTime { get; private set; }
+
+        /// <summary>
+        /// 是否已经超时
+        /// </summary>
+        public bool IsTimeOut { get; private set; }
+
+        /// <summary>
+        /// 是否取消
+        /// </summary>
+        public bool IsCancel { get; private set; }
+
+        /// <summary>
+        /// Task await 支持
+        /// </summary>
+        private TaskCompletionSource<bool> m_tcs = new TaskCompletionSource<bool>();
+
+        /// <summary>
+        /// 用来保存等待后得到的结果数据
+        /// </summary>
+        private Object m_result;
+    }
+
+    /// <summary>
+    /// AwaitableHandle 的管理器
+    /// </summary>
+    public class AwaitableHandleManager
+    {
+        /// <summary>
+        /// 分配一个AwaitableHandle
+        /// </summary>
+        /// <param name="timeoutSeconds"></param>
+        /// <returns></returns>
+        public AwaitableHandle AllocHandle(int timeoutSeconds)
+        {
+            Int32 token = Interlocked.Increment(ref m_tokenSeed);
+            AwaitableHandle handle = new AwaitableHandle(token, timeoutSeconds);
+            m_token2AwaitableHandleDict[token] = handle;
+            return handle;
+        }
+
+        /// <summary>
+        /// 设置取消
+        /// </summary>
+        /// <param name="token"></param>
+        public bool Cancel(int token)
+        {
+            AwaitableHandle handle = null;
+            if (m_token2AwaitableHandleDict.TryRemove(token, out handle))
+            {
+                Console.WriteLine("AwaitableHandleManager handle Cancel token={0}", token);
+
+                handle.SetCancel();
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 设置完成结果
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool SetResult(int token, Object result)
+        {
+            AwaitableHandle handle = null;
+            if (m_token2AwaitableHandleDict.TryRemove(token, out handle))
+            {
+                handle.SetResult(result);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// tick处理超时
+        /// </summary>
+        public void Tick()
+        {
+            DateTime currTime = DateTime.Now;
+            //Console.WriteLine(string.Format("AwaitableHandleManager tick:{0}", currTime));
+
+            foreach (var item in m_token2AwaitableHandleDict)
+            {
+                if (item.Value.TimeoutTime <= currTime)
+                {
+                    m_tobeRemove.Add(item.Key);
+                }
+            }
+            foreach (var token in m_tobeRemove)
+            {
+                AwaitableHandle handle;
+                if (m_token2AwaitableHandleDict.TryRemove(token, out handle))
+                {
+                    Console.WriteLine(
+                        "AwaitableHandleManager handle time out token={0}", token);
+
+                    handle.SetTimeout();
+                }
+            }
+            m_tobeRemove.Clear();
+        }
+
+        /// <summary>
+        /// 停止
+        /// </summary>
+        public void Stop()
+        {
+            foreach (var item in m_token2AwaitableHandleDict)
+            {
+                item.Value.SetTimeout();
+            }
+            m_token2AwaitableHandleDict.Clear();
+        }
+
+        /// <summary>
+        /// token和AwaitableHandle的关联字典
+        /// </summary>
+        private ConcurrentDictionary<Int32, AwaitableHandle> m_token2AwaitableHandleDict = new ConcurrentDictionary<int, AwaitableHandle>();
+
+        /// <summary>
+        /// 需要移除的token
+        /// </summary>
+        private List<Int32> m_tobeRemove = new List<int>();
+
+        /// <summary>
+        /// token种子
+        /// </summary>
+        private Int32 m_tokenSeed = 0;
     }
 }

@@ -21,12 +21,6 @@ namespace SunDonet
         public MsgType m_type;
     }
 
-    public class ServiceMsg : MsgBase
-    {
-        public int m_source;
-        public byte[] m_data;
-    }
-
     public class SocketAcceptMsg : MsgBase
     {
         public Socket m_listen;
@@ -43,4 +37,36 @@ namespace SunDonet
         public Socket m_socket;
         public byte[] m_data;
     }
+
+    public abstract class ServiceMsg : MsgBase
+    {
+        public int m_source;
+    }
+
+    public abstract class LocalServiceMsg : ServiceMsg
+    {
+
+    }
+
+    public abstract class LocalAwaitableServiceMsgReq : ServiceMsg
+    {
+        public int m_token;
+    }
+
+    public abstract class LocalAwaitableServiceMsgAck : ServiceMsg
+    {
+        public int m_token;
+    }
+
+    public abstract class RemoteServiceMsg : ServiceMsg
+    {
+        byte[] m_data;
+    }
+
+    public abstract class RemoteAwaitableServiceMsg : ServiceMsg
+    {
+        public int m_token;
+        byte[] m_data;
+    }
+
 }

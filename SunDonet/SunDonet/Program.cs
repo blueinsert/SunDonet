@@ -16,7 +16,7 @@ namespace SunDonet
         {
             SunNet.CreateInstance();
             SunNet.Instance.Start();
-            SunNet.Instance.NewService("Test");
+            SunNet.Instance.NewService("Main");
             SunNet.Instance.Wait();
         }
     }
