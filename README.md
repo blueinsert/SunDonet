@@ -1,2 +1,2 @@
 # SunDonet
-lit net library
+lite net library
