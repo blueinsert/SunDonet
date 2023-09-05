@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="NVelocity" href="http://nvelocity.sourceforge.net">
+
+    <title>NVelocity</title>
+    <logo href="/images/logo.gif">NVelocity</logo>
+
+    <body>
+    <menu name="About">
+        <item name="Overview"               	href="/index.html"/>
+        <item name="Download"               	href="http://sourceforge.net/project/showfiles.php?group_id=58632"/>
+        <item name="ChangeLog"              	href="/changelog.html"/>
+    </menu>
+    <menu name="Community">
+	<item name="Project Summary"	    	href="http://sourceforge.net/projects/nvelocity" />
+        <item name="Mailing Lists"          	href="http://sourceforge.net/mail/?group_id=58632"/>
+        <item name="CVS Repositories"       	href="http://sourceforge.net/cvs/?group_id=58632"/>
+    </menu>
+    <menu name="Docs">
+        <item name="API Specs"                	href="/api/overview-summary.html"/>
+	<item name="NAnt Tasks"			href="/nant/index.html"/>
+	<item name="VTL Reference Guide"	href="http://jakarta.apache.org/velocity/vtl-reference-guide.html"/>
+    </menu>
+<!--    <menu name="Tools">
+        <item name="Anakia : XML->doc tool"	href="/nant/anakia.html"/>
+        <item name="Texen : text generation"	href="/nant/texen.html"/>
+        <item name="DVSL : XML xformation"    	href="/nant/dvsl.html"/>
+    </menu>
+-->
+    <menu name="Related Sites">
+        <item name="Velocity (the original)"	href="http://jakarta.apache.org/velocity"/>
+        <item name="Maverick.Net"		href="http://sourceforge.net/projects/mavnet"/>
+	<item name="NAnt"			href="http://sourceforge.net/projects/nant"/>
+    </menu>
+    </body>
+</project>

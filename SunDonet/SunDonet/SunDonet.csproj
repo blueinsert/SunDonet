@@ -48,9 +48,13 @@
     <Compile Include="Msg.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
     <Compile Include="ServiceBase.cs" />
     <Compile Include="Service\Agent.cs" />
     <Compile Include="Service\AgentMgr.cs" />
+    <Compile Include="Service\Encoder\Encoder.cs" />
+    <Compile Include="Service\Encoder\GoogleProtobufHelper.cs" />
+    <Compile Include="Service\Encoder\Msg.cs" />
     <Compile Include="Service\Gateway.cs" />
     <Compile Include="Service\Login\Login.cs" />
     <Compile Include="Service\Main.cs" />
@@ -97,10 +101,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Service\Protocol\Proto\test1.proto" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Service\Admin\" />
-    <Folder Include="Service\Encoder\" />
+    <Folder Include="Service\Protocol\AutoGen\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">
+      <Project>{76ebb14c-b6ad-4c0d-bbb5-a1d6c2686827}</Project>
+      <Name>Google.Protobuf</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+ <properties>
+  <title>NVelocity</title>
+  <author email="cort@xmission.com">Cort Schaefer</author>
+  <stylesheet>/css/nant-task.css</stylesheet>
+ </properties>
+
+  <body>
+    <nanttask name="dvsl">
+	<description>
+	<p>Processes a set of XML documents using a stylesheet written in DVSL (Declarative Velocity Style Language).</p>
+	<p>This is useful for building views of XML based documentation, or for generating code, etc. Conceptually, this task performs the same function 
+	as the &lt;style&gt; task included with the Ant distribution but using a stylesheet with DVSL syntax instead of XSLT. </p>
+	</description>
+	<parameters>
+		<parameter name="destdir" required="true">Directory in which to store the results.</parameter>
+		<parameter name="extension" required="false">This is the extension that is appended to the end of your .xml file. For example, with an extension of ".html", index.xml would be converted into index.html. By default, the extension is .html.</parameter>
+		<parameter name="style" required="true">This is the path to the .vsl template</parameter>
+		<parameter name="force" required="false">Recreate target files, even if they are newer than their corresponding source files or the stylesheet.</parameter>
+		<parameter name="outputencoding" required="false">encoding to be used for output files. If not specified, the default is UTF-8</parameter>
+		<parameter name="logfile" required="false">log file for Velocity messages. The default is to log through Ant's logging system but limit output based on Ant's logging level. Specifying this attribute causes all Velocity messages to be sent to the specified file instead.</parameter>
+		<parameter name="toolboxfile" required="false">specifies the toolbox properties file name.</parameter>
+		<parameter name="validatingparser" required="false">specifies that the parser for the input XML should validate. Boolean valued, default is false.</parameter>
+	</parameters>
+	<context>
+		<object name="$context.GetAppValue($String)">Used to expose application specific values, including "infilename" and "outfilename" which represent file names without path for the input and output files.</object>
+	</context>
+	<example>
+	    <p class="i1">This is the task definition to create the NVelocity site documentation</p>
+	    <pre class="code">
+&lt;dvsl style="xdocs/example1.dvsl"
+      destdir="output"
+      extention=".html"
+      force="false"
+      logfile="dvsl.log"&gt;
+	&lt;fileset basedir="xdocs"&gt;
+                &lt;includes name="*.xml"/&gt;
+	&lt;/fileset&gt;
+&lt;/dvsl&gt;
+ </pre>
+	</example>
+    </nanttask>
+  </body>
+</document>

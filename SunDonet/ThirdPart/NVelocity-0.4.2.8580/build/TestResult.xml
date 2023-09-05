@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="c:\data\work\SourceForge\NVelocity\build\NVelocity.Test.dll" total="13" failures="0" not-run="1" date="10/29/2003" time="12:37 AM">
+  <test-suite name="c:\data\work\SourceForge\NVelocity\build\NVelocity.Test.dll" success="True" time="1.1216128">
+    <results>
+      <test-suite name="NVelocity" success="True" time="1.1115984">
+        <results>
+          <test-suite name="Test" success="True" time="1.1115984">
+            <results>
+              <test-suite name="Dvsl" success="True" time="0.3104464">
+                <results>
+                  <test-suite name="TransformTest" success="True" time="0.2303312">
+                    <results>
+                      <test-case name="NVelocity.Test.Dvsl.TransformTest.testSelection" executed="True" success="True" time="0.230" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="XPathTest" success="True" time="0.0801152">
+                    <results>
+                      <test-case name="NVelocity.Test.Dvsl.XPathTest.testUNION" executed="True" success="True" time="0.040" />
+                      <test-case name="NVelocity.Test.Dvsl.XPathTest.testCDATA" executed="True" success="True" time="0.040" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite name="CommonsExtPropTestCase" success="True" time="0.0400576">
+                <results>
+                  <test-case name="NVelocity.Test.CommonsExtPropTestCase.Test_run" executed="True" success="True" time="0.040" />
+                </results>
+              </test-suite>
+              <test-suite name="CommonsTest" success="True" time="0.0100144">
+                <results>
+                  <test-case name="NVelocity.Test.CommonsTest.Test_ExtendedProperties" executed="True" success="True" time="0.010" />
+                </results>
+              </test-suite>
+              <test-suite name="IntrospectorTest" success="True" time="0.0100144">
+                <results>
+                  <test-case name="NVelocity.Test.IntrospectorTest.Test_Evaluate" executed="True" success="True" time="0.010" />
+                </results>
+              </test-suite>
+              <test-suite name="ParserTest" success="True" time="0.0400576">
+                <results>
+                  <test-case name="NVelocity.Test.ParserTest.Test_VelocityCharStream" executed="True" success="True" time="0.000" />
+                  <test-case name="NVelocity.Test.ParserTest.Test_Parse" executed="True" success="True" time="0.010" />
+                  <test-case name="NVelocity.Test.ParserTest.Test_RuntimeServices" executed="False">
+                    <reason>
+                      <message><![CDATA[TODO: running this as well as Example1 will cause the runtime instance to load the properties file twice]]></message>
+                    </reason>
+                  </test-case>
+                  <test-case name="NVelocity.Test.ParserTest.Test_Example1" executed="True" success="True" time="0.020" />
+                </results>
+              </test-suite>
+              <test-suite name="TemplateTestCase" success="True" time="0.6709648">
+                <results>
+                  <test-case name="NVelocity.Test.TemplateTestCase.Test_Run" executed="True" success="True" time="0.671" />
+                </results>
+              </test-suite>
+              <test-suite name="VelocimacroTestCase" success="True" time="0.0100144">
+                <results>
+                  <test-case name="NVelocity.Test.VelocimacroTestCase.Test_Run" executed="True" success="True" time="0.010" />
+                </results>
+              </test-suite>
+              <test-suite name="VelocityAppTestCase" success="True" time="0">
+                <results>
+                  <test-case name="NVelocity.Test.VelocityAppTestCase.Test_Run" executed="True" success="True" time="0.000" />
+                </results>
+              </test-suite>
+              <test-suite name="VelocityTest" success="True" time="0.0100144">
+                <results>
+                  <test-case name="NVelocity.Test.VelocityTest.Test_Evaluate" executed="True" success="True" time="0.010" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BlackJack.Protocol;
+using BlackJack.ServerFramework.Protocol;
+
+namespace ${namespace}
+{
+    /// <summary>
+    /// 协议字典类
+    /// </summary>
+    public class #{name}ProtocolDictionary : ProtocolDictionaryBase
+    {
+	    /// <summary>
+        /// 生成字典
+        /// </summary>
+        public #{name}ProtocolDictionary()
+        {
+			#foreach($message in $idMapingInfo)
+			#set($msgName = $message.Key)
+			#set($msgId = $message.Value)
+			
+			m_idTypeMap[${msgId}] = typeof(${msgName});
+			#end
+			
+            foreach (KeyValuePair<Int32, Type> entity in m_idTypeMap)
+            {
+                m_typeIdMap[entity.Value] = entity.Key;
+            }
+        }
+
+        #foreach($message in $idMapingInfo)
+		#set($msgName = $message.Key)
+		#set($msgId = $message.Value)
+		
+		public const Int32 MsgId_${msgName} = ${msgId};
+		#end
+		
+    }
+}

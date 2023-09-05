@@ -34,7 +34,7 @@ namespace SunDonet
             
         }
 
-        public virtual async Task<ServiceMsgAck> OnLocalServiceMsgWithReturn(ServiceMsgReq Req)
+        public virtual async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
         {
             return null;
         }
@@ -46,7 +46,7 @@ namespace SunDonet
                 {
                     var req = msg as ServiceMsgReq;
                     var token = req.m_token;
-                    var ack = await OnLocalServiceMsgWithReturn(req);
+                    var ack = await OnServiceCall(req);
                     ack.m_token = token;
                     SunNet.Instance.SetAck(-1, ack);
                 }

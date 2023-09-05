@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE xsl:stylesheet [ <!ENTITY nbsp "&#160;"> ]>
+
+<document>
+ <properties>
+  <title>NVelocity</title>
+  <author email="cort@xmission.com">Cort Schaefer</author>
+ </properties>
+
+ <body>
+
+	<h1>NAnt Tasks</h1>
+	<p>NAnt is a build tool built specifically for .Net applications and like NVelocity is 
+	based on work done by a Java open source proejct.  It offers the ability to extend its
+	functionality by the definition of new tasks.</p>
+	<p>The following tasks were Ant tasks ported from Velocity and are now availbe as NAnt tasks:</p>
+		<ul>
+<li><a href="anakia.html">Anakia : XML->doc tool</a>&nbsp;&nbsp;&nbsp;[<a href="http://jakarta.apache.org/velocity/anakia.html">Velocity site documentation</a>]</li>
+<li><a href="texen.html">Texen : text generation</a>&nbsp;&nbsp;&nbsp;[<a href="http://jakarta.apache.org/velocity/texen.html">Velocity site documentation</a>]</li>
+<li><a href="dvsl.html">DVSL : XML xformation</a>&nbsp;&nbsp;&nbsp;[<a href="http://jakarta.apache.org/velocity/dvsl/index.html">Velocity site documentation</a>]</li>
+</ul>
+
+ </body>
+ </document>
+
+
+
+
+

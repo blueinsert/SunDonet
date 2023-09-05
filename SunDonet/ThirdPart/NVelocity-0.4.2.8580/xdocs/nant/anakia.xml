@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+ <properties>
+  <title>NVelocity</title>
+  <author email="cort@xmission.com">Cort Schaefer</author>
+  <stylesheet>/css/nant-task.css</stylesheet>
+ </properties>
+
+  <body>
+    <nanttask name="anakia">
+	<description>
+	Anakia is a XML transformation tool that uses NVelocity templates merged with XML documents to transform XML into the format of your choice.  This page was generated using the AnakiaTask.
+	</description>
+	<parameters>
+		<parameter name="destdir" required="true">Directory in which to store the results.</parameter>
+		<parameter name="extension" required="false">This is the extension that is appended to the end of your .xml file. For example, with an extension of ".html", index.xml would be converted into index.html. By default, the extension is .html.</parameter>
+		<parameter name="style" required="true">This is the path to the .vsl template</parameter>
+		<parameter name="projectFile" required="false">This is the path to a "project" file. This file is an XML file that can be used as a "navigation" file. If you look at the Anakia example in the NVelocity/examples/anakia directory, you can see the project.xml file being used in the .vsl file.</parameter>
+		<parameter name="lastModifiedCheck" required="false">This turns on or off the ability to check the last modified date on files in order to determine whether or not they need to be re-rendered or not. The value of this attribute can be "true, false, yes, no". By default, it is true, meaning that the last modified date should be checked and if the original .xml file, project file, or .vsl file have not changed, then don't process the page. This accelerates processing because pages that have not changed will not get reprocessed.</parameter>
+		<parameter name="templatePath" required="true">This is the path to the templateRoot which is the directory where your site.vsl file is located. This can be defined in the nvelocity.properties or it can be defined here. It it an optional argument if it is defined in the NVelocity properties file already. However, if defined, this value will override the path defined in the nvelocity.properties file.</parameter>
+		<parameter name="propertiesFile" required="false">This is the path to the nvelocity.properties file. It is an optional argument and by default is set to find the properties file in the same directory that the JVM was started in.</parameter>
+	</parameters>
+	<context>
+		<object name="$root">This contains the root XmlElement to your .xml document. When this (or any other variable containing an element) are simply placed into template output, their XML form is rendered.</object>
+		<object name="$project">This contains the root XmlElement to your project.xml document. If you have not specified a project.xml document, then this variable will not be in the context.</object>
+		<object name="$escape.GetText($string)">This context object will convert HTML Entities in the $string that is passed into it and it will return the converted String. This is good for dealing with CDATA. The entities that are converted are: " -&gt; &amp;quot; | &lt; -&gt; &amp;lt; | &gt; -&gt; &amp;gt; | &amp; - &gt; &amp;amp; </object>
+		<object name="$relativePath">This contains a String which is the relative path to your .xml document from the BaseDirectory of the fileset that was specified in your NAnt task attributes. Please see the examples/anakia .vsl document for example usage of this String.</object>
+		<object name="$date">This is an instance of System.Date.Now. Useful for putting the current date/time into a page.</object>
+	</context>
+	<example>
+	    <p class="i1">This is the task definition to create the NVelocity site documentation</p>
+	    <pre class="code">&lt;anakia basedir="../xdocs" 
+    destdir="../wwwsite"
+    extension=".html" 
+    style="../xdocs/stylesheets/site.vsl"
+    projectFile="../xdocs/stylesheets/project.xml"
+    templatePath="../xdocs/stylesheets"
+    lastModifiedCheck="true"&gt;
+	&lt;fileset basedir="../xdocs"&gt;
+                &lt;includes name="**/*.xml"/&gt;
+		&lt;excludes name="**/stylesheets/*" /&gt;
+	&lt;/fileset&gt;
+&lt;/anakia&gt;
+ </pre>
+	</example>
+    </nanttask>
+  </body>
+</document>

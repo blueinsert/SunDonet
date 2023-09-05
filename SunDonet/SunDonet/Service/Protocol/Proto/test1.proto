@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+package SunDonet.Protocol;
+
+//import "CommonDefine.proto";
+
+message ClientLoginReq
+{
+	string UserName = 1;
+	string UserPassword = 2;
+}
+
+message ClientLoginAck
+{
+	int32 Result = 1;
+}

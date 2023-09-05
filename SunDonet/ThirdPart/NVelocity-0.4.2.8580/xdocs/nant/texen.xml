@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+ <properties>
+  <title>NVelocity</title>
+  <author email="cort@xmission.com">Cort Schaefer</author>
+  <stylesheet>/css/nant-task.css</stylesheet>
+ </properties>
+
+  <body>
+    <nanttask name="texen">
+	<description>
+	Texen is a general purpose text generating utility. It is capable of producing almost any sort of text output. Driven by NAnt, essentially an NAnt Task, Texen uses a control template, an optional set of worker templates, and control context to govern the generated output. Although TexenTask can be used directly, it is usually subclassed to initialize your control context before generating any output. 
+	</description>
+	<parameters>
+		<parameter name="controltemplate" required="true">Set the control template for the generating process.</parameter>
+		<parameter name="outputdirectory" required="false">The directory where new files will be created.</parameter>
+		<parameter name="templatepath" required="true">This is the path to the templateRoot which is the directory where your site.vsl file is located. This can be defined in the nvelocity.properties or it can be defined here. It it an optional argument if it is defined in the NVelocity properties file already. However, if defined, this value will override the path defined in the nvelocity.properties file.</parameter>
+		<parameter name="outputfile" required="false">This is the file where the generated text will be placed.</parameter>
+	</parameters>
+	<context>
+		<object name="$strings">NVelocity.Util.StringUtils tool, loaded by default texen.properties.</object>
+		<object name="$files">NVelocity.NAnt.Texen.FileUtil tool, loaded by default texen.properties.</object>
+		<object name="$properties">NVelocity.NAnt.Texen.PropertiesUtil tool, loaded by default texen.properties.</object>
+	</context>
+	<example>
+	    <p class="i1"></p>
+	    <pre class="code">
+&lt;texen
+      controlTemplate="Control.vm"
+      outputDirectory="."
+      templatePath="."
+      outputFile="generation.report"
+    /&gt;
+ </pre>
+	</example>
+    </nanttask>
+  </body>
+</document>

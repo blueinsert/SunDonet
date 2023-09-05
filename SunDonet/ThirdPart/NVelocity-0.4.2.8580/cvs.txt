@@ -1,0 +1,17 @@
+HOWTO add syncmail to your cvs server
+
+Get syncmail script from https://sourceforge.net/projects/cvs-syncmail
+cvs co CVSROOT
+cp syncmail .
+chmod a+x syncmail
+cvs add syncmail
+cvs commit -m "add syncmail for cvs commit messages" syncmail
+edit checkoutlist, add: syncmail
+cvs commit -m "add syncmail for cvs commit messages" checkoutlist
+edit loginfo, add:
+        CVSROOT $CVSROOT/CVSROOT/syncmail %{sVv} username@users.sourceforge.net
+        DEFAULT $CVSROOT/CVSROOT/syncmail %{sVv} projectname-listname@lists.sourceforge.net
+cvs commit -m "add syncmail for cvs commit messages" loginfo
+
+
+that is it.
