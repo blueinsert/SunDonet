@@ -60,6 +60,8 @@
     <Compile Include="Service\Main.cs" />
     <Compile Include="Service\Login\Msg.cs" />
     <Compile Include="Service\NodeMgr.cs" />
+    <Compile Include="Service\Protocol\AutoGen\test1.cs" />
+    <Compile Include="Service\Protocol\AutoGen\TestProtocolDictionary.cs" />
     <Compile Include="Service\Test.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />
@@ -105,7 +107,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Service\Admin\" />
-    <Folder Include="Service\Protocol\AutoGen\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">

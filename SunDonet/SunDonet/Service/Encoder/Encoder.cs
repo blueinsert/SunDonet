@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Google.Protobuf;
+using SunDonet.Protocol;
 
 namespace SunDonet
 {
@@ -16,6 +17,13 @@ namespace SunDonet
         /// 协议头部长度
         /// </summary>
         public const int ProtocolHeaderLen = sizeof(uint) * 2;
+        private ProtocolDictionaryBase m_protocolDictionary;
+
+        public override void OnInit()
+        {
+            base.OnInit();
+            m_protocolDictionary = new TestProtocolDictionary();
+        }
 
         public override async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
         {
@@ -29,7 +37,7 @@ namespace SunDonet
             return null;
         }
 
-        private EncodeAck EncodeGoogleProtobuf(IMessage imessage)
+        public static EncodeAck EncodeGoogleProtobuf(IMessage imessage, ProtocolDictionaryBase protocolDictionary)
         {
 
             byte[] buff = new byte[8 * 1024 * 5];
@@ -49,7 +57,7 @@ namespace SunDonet
                     using (var writer = new BinaryWriter(headerStream))
                     {
                         //获取协议id
-                        uint protocolId = 0;
+                        uint protocolId = (uint)protocolDictionary.GetIdByType(imessage.GetType());
                         writer.Write(pkgLen);
                         writer.Write(protocolId);
                     }
@@ -67,7 +75,7 @@ namespace SunDonet
         {
             if (req.m_protocolType == EncodeProtocol.Protobuf)
             {
-                return EncodeGoogleProtobuf(req.m_dataObj as IMessage);
+                return EncodeGoogleProtobuf(req.m_dataObj as IMessage, m_protocolDictionary);
             }
             return null;
         }
@@ -104,7 +112,7 @@ namespace SunDonet
             dataOffset += uintLength;
             try{
                 //获取消息类型
-                //todo
+                msgType = m_protocolDictionary.GetTypeById((int)msgId);
                 int protoLength = (int)( msgFullLength - ProtocolHeaderLen);
                 deserializeBuff = new MemoryStream(data, dataOffset, protoLength);
                 deserializeObject = GoogleProtobufHelper.DeserializeMsgByType(msgType, deserializeBuff);

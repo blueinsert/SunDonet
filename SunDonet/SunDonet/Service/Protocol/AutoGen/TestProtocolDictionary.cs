@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BlackJack.Protocol;
-using BlackJack.ServerFramework.Protocol;
 
 namespace SunDonet.Protocol
 {
     /// <summary>
     /// 协议字典类
     /// </summary>
-    public class #{name}ProtocolDictionary : ProtocolDictionaryBase
+    public class TestProtocolDictionary : ProtocolDictionaryBase
     {
 	    /// <summary>
         /// 生成字典
         /// </summary>
-        public #{name}ProtocolDictionary()
+        public TestProtocolDictionary()
         {
 						
 			m_idTypeMap[1] = typeof(ClientLoginReq);

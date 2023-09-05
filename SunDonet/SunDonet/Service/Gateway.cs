@@ -14,10 +14,14 @@ namespace SunDonet
 
         }
 
+        private int m_encoderService = -1;
+
         public override void OnInit()
         {
             base.OnInit();
+            m_encoderService = SunNet.Instance.NewService("Encoder");
             SunNet.Instance.Listen(8888,this.m_id);
+
         }
 
         public override async Task OnClientConnect(Socket s)
@@ -32,24 +36,22 @@ namespace SunDonet
 
         public override async Task OnClientData(Socket s, byte[] data)
         {
-            var msg = System.Text.Encoding.UTF8.GetString(data);
-            Console.WriteLine(string.Format("Gateway:OnClientData id:{0} msg:{1}", m_id, msg));
-            if(msg == "login")
+            DecodeReq req = new DecodeReq()
             {
-                var sid = SunNet.Instance.FindSingletonServiceByName("Login");
-                if (sid != -1)
+                m_protocolType = EncodeProtocol.Protobuf,
+                m_data = data,
+            };
+            DecodeAck ack = await SunNet.Instance.Call<DecodeReq, DecodeAck>(m_encoderService, req);
+            if (ack.m_byteHandled != 0)
+            {
+                if (ack.m_dataObj != null)
                 {
-                    var req = new LoginReq() { };
-                    var ack = await SunNet.Instance.Call<LoginReq,LoginAck>(sid, req);
-                    if(ack != null && ack.m_res == 0)
-                    {
-                        Console.WriteLine("Gateway:LoginSuccess");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Gateway:LoginFailed");
-                    }
+                    Console.WriteLine("Gateway:OnClientData " + ack.m_dataObj.GetType());
                 }
+            }
+            else
+            {
+                //
             }
         }
     }

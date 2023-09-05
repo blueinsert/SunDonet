@@ -32,7 +32,7 @@ namespace SunDonet
         public int m_dataLen;
     }
 
-    public class DecodeAck : ServiceMsgReq
+    public class DecodeAck : ServiceMsgAck
     {
         public object m_dataObj;
         public int m_byteHandled;
