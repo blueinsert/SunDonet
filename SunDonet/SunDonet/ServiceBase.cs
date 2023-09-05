@@ -22,7 +22,7 @@ namespace SunDonet
 
         }
 
-        public virtual async Task OnClientData(Socket s, byte[] data) { }
+        public virtual async Task OnClientData(Socket s, ClientBuffer buff) { }
 
         public virtual async Task OnClientDisconnect(Socket s)
         {
@@ -47,6 +47,11 @@ namespace SunDonet
                     var req = msg as ServiceMsgReq;
                     var token = req.m_token;
                     var ack = await OnServiceCall(req);
+                    if (ack == null)
+                    {
+                        ack = new NullServiceMsgAck();
+                        Console.WriteLine("OnServiceCall req:{0} ruturn null", req.GetType());
+                    }
                     ack.m_token = token;
                     SunNet.Instance.SetAck(-1, ack);
                 }
@@ -65,7 +70,7 @@ namespace SunDonet
                     break;
                 case MsgBase.MsgType.Socket_Data:
                     var clientDataMsg = msg as SocketDataMsg;
-                    await OnClientData(clientDataMsg.m_socket, clientDataMsg.m_data);
+                    await OnClientData(clientDataMsg.m_socket, clientDataMsg.m_buff);
                     break;
             }
         }

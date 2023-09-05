@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BufferManager.cs" />
     <Compile Include="ClassLoader.cs" />
     <Compile Include="Conn.cs" />
     <Compile Include="LuaService.cs" />

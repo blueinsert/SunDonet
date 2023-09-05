@@ -35,7 +35,7 @@ namespace SunDonet
     public class SocketDataMsg : MsgBase
     {
         public Socket m_socket;
-        public byte[] m_data;
+        public ClientBuffer m_buff;
     }
 
     public abstract class ServiceMsg : MsgBase
@@ -51,6 +51,11 @@ namespace SunDonet
     public abstract class ServiceMsgAck : ServiceMsg
     {
         public int m_token;
+    }
+
+    public  class NullServiceMsgAck: ServiceMsgAck
+    {
+
     }
 
     public abstract class RemoteServiceMsg : ServiceMsg

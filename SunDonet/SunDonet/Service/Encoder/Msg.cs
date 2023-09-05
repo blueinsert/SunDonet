@@ -28,8 +28,7 @@ namespace SunDonet
     public class DecodeReq : ServiceMsgReq
     {
         public EncodeProtocol m_protocolType;
-        public byte[] m_data;
-        public int m_dataLen;
+        public ClientBuffer m_buff;
     }
 
     public class DecodeAck : ServiceMsgAck

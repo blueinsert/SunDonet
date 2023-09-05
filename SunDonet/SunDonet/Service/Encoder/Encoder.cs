@@ -29,10 +29,12 @@ namespace SunDonet
         {
             if (req is EncodeReq)
             {
-                await HandleEncodeReq(req as EncodeReq);
+                var ack =  await HandleEncodeReq(req as EncodeReq);
+                return ack;
             }else if(req is DecodeReq)
             {
-                await HandleDecodeReq(req as DecodeReq);
+                var ack = await HandleDecodeReq(req as DecodeReq);
+                return ack;
             }
             return null;
         }
@@ -131,7 +133,7 @@ namespace SunDonet
         {
             if (req.m_protocolType == EncodeProtocol.Protobuf)
             {
-                return DecodeGoogleProtobuf(req.m_data, req.m_dataLen);
+                return DecodeGoogleProtobuf(req.m_buff.m_buffer, req.m_buff.m_dataLen);
             }
             return null;
         }

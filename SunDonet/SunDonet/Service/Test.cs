@@ -34,11 +34,6 @@ namespace SunDonet
             Console.WriteLine("Test:OnClientDisconnect id:" + m_id);
         }
 
-        public override async Task OnClientData(Socket s, byte[] data)
-        {
-            Console.WriteLine(string.Format("Test:OnClientData id:{0} msg:{1}",m_id, System.Text.Encoding.UTF8.GetString(data)));
-        }
-
         public override async Task OnServiceMsg(ServiceMsg msg)
         {
             Console.WriteLine("Test:OnServiceMsg id:" + m_id);

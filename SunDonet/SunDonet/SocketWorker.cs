@@ -156,11 +156,12 @@ namespace SunDonet
                     {
                         if (conn.m_socket.Available == 0)
                         {
-                            byte[] data = new byte[conn.m_event.BytesTransferred];
-                            Array.Copy(conn.m_event.Buffer, conn.m_event.Offset, data, 0, data.Length);//从e.Buffer块中复制数据出来，保证它可重用
+                            ClientBuffer buffer = ClientBuffer.GetBuffer(conn.m_event.BytesTransferred);
+                            Array.Copy(conn.m_event.Buffer, conn.m_event.Offset, buffer.m_buffer, 0, conn.m_event.BytesTransferred);
+                            buffer.m_dataLen = conn.m_event.BytesTransferred;
                             //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(data)));
                             //向服务发送消息
-                            SunNet.Instance.Send(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_data = data});
+                            SunNet.Instance.Send(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data,m_socket = conn.m_socket, m_buff = buffer});
                         }
                     }
                     else

@@ -22,7 +22,17 @@ namespace TestClient
             };
             ProtocolDictionaryBase m_protocolDictionary = new TestProtocolDictionary();
             var ack = SunDonet.Encoder.EncodeGoogleProtobuf(req, m_protocolDictionary);
-            client.GetStream().Write(ack.m_data, 0, ack.m_data.Length);
+            client.GetStream().Write(ack.m_data, 0, ack.m_dataLen);
+
+
+            var exitEvent = new System.Threading.ManualResetEvent(false);
+            Console.CancelKeyPress += (sender, eventArgs) =>
+            {
+                eventArgs.Cancel = true;
+                exitEvent.Set();
+            };
+
+            exitEvent.WaitOne();
 
             client.Close();
         }
