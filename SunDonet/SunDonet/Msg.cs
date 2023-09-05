@@ -43,17 +43,12 @@ namespace SunDonet
         public int m_source;
     }
 
-    public abstract class LocalServiceMsg : ServiceMsg
-    {
-
-    }
-
-    public abstract class LocalAwaitableServiceMsgReq : ServiceMsg
+    public abstract class ServiceMsgReq : ServiceMsg
     {
         public int m_token;
     }
 
-    public abstract class LocalAwaitableServiceMsgAck : ServiceMsg
+    public abstract class ServiceMsgAck : ServiceMsg
     {
         public int m_token;
     }

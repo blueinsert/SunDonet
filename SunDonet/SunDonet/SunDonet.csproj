@@ -52,19 +52,55 @@
     <Compile Include="Service\Agent.cs" />
     <Compile Include="Service\AgentMgr.cs" />
     <Compile Include="Service\Gateway.cs" />
-    <Compile Include="Service\Login.cs" />
+    <Compile Include="Service\Login\Login.cs" />
     <Compile Include="Service\Main.cs" />
-    <Compile Include="Service\Msg.cs" />
+    <Compile Include="Service\Login\Msg.cs" />
     <Compile Include="Service\NodeMgr.cs" />
     <Compile Include="Service\Test.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />
+    <Compile Include="ThirdPart\UniLua\ByteString.cs" />
+    <Compile Include="ThirdPart\UniLua\Coder.cs" />
+    <Compile Include="ThirdPart\UniLua\Common.cs" />
+    <Compile Include="ThirdPart\UniLua\Do.cs" />
+    <Compile Include="ThirdPart\UniLua\Dump.cs" />
+    <Compile Include="ThirdPart\UniLua\LLex.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaAPI.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaAuxLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaBaseLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaBitLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaCoroLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaDebug.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaDebugLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaEncLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaFFILib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaFile.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaFunc.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaIOLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaMathLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaObject.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaOsLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaPkgLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaState.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaStrLib.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaTable.cs" />
+    <Compile Include="ThirdPart\UniLua\LuaTableLib.cs" />
+    <Compile Include="ThirdPart\UniLua\OpCodes.cs" />
+    <Compile Include="ThirdPart\UniLua\Parser.cs" />
+    <Compile Include="ThirdPart\UniLua\TagMethod.cs" />
+    <Compile Include="ThirdPart\UniLua\ULDebug.cs" />
+    <Compile Include="ThirdPart\UniLua\Undump.cs" />
+    <Compile Include="ThirdPart\UniLua\Util.cs" />
+    <Compile Include="ThirdPart\UniLua\VM.cs" />
     <Compile Include="ThreadTimer.cs" />
     <Compile Include="Worker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Service\Admin\" />
+    <Folder Include="Service\Encoder\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -20,7 +20,7 @@ namespace SunDonet
             base.OnInit();
         }
 
-        public override async Task<LocalAwaitableServiceMsgAck> OnLocalServiceMsgWithReturn(LocalAwaitableServiceMsgReq req)
+        public override async Task<ServiceMsgAck> OnLocalServiceMsgWithReturn(ServiceMsgReq req)
         {
             if(req is LoginReq)
             {

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
-   public class LoginReq : LocalAwaitableServiceMsgReq
+   public class LoginReq : ServiceMsgReq
     {
         public string m_name;
         public string m_password;
     }
 
-    public class LoginAck : LocalAwaitableServiceMsgAck
+    public class LoginAck : ServiceMsgAck
     {
         public int m_res;
     }

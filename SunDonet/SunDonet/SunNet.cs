@@ -236,13 +236,13 @@ namespace SunDonet
             }
         }
 
-        public void SendLocalAck(int to, LocalAwaitableServiceMsgAck ack)
+        public void SetAck(int to, ServiceMsgAck ack)
         {
             var token = ack.m_token;
             m_awaitableHandleManager.SetResult(token, ack);
         }
 
-        public async Task<TAck> SendLocalAwaitable<TReq,TAck>(int to, TReq req) where TReq: LocalAwaitableServiceMsgReq where TAck: LocalAwaitableServiceMsgAck
+        public async Task<TAck> Call<TReq,TAck>(int to, TReq req) where TReq: ServiceMsgReq where TAck: ServiceMsgAck
         {
             var handle = m_awaitableHandleManager.AllocHandle(1);
             req.m_token = handle.Token;

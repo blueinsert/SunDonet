@@ -40,7 +40,7 @@ namespace SunDonet
                 if (sid != -1)
                 {
                     var req = new LoginReq() { };
-                    var ack = await SunNet.Instance.SendLocalAwaitable<LoginReq,LoginAck>(sid, req);
+                    var ack = await SunNet.Instance.Call<LoginReq,LoginAck>(sid, req);
                     if(ack != null && ack.m_res == 0)
                     {
                         Console.WriteLine("Gateway:LoginSuccess");

@@ -34,7 +34,7 @@ namespace SunDonet
             
         }
 
-        public virtual async Task<LocalAwaitableServiceMsgAck> OnLocalServiceMsgWithReturn(LocalAwaitableServiceMsgReq Req)
+        public virtual async Task<ServiceMsgAck> OnLocalServiceMsgWithReturn(ServiceMsgReq Req)
         {
             return null;
         }
@@ -42,13 +42,13 @@ namespace SunDonet
         private async Task OnMsg(MsgBase msg) {
             if(msg.m_type == MsgBase.MsgType.Service)
             {
-                if(msg is LocalAwaitableServiceMsgReq)
+                if(msg is ServiceMsgReq)
                 {
-                    var req = msg as LocalAwaitableServiceMsgReq;
+                    var req = msg as ServiceMsgReq;
                     var token = req.m_token;
                     var ack = await OnLocalServiceMsgWithReturn(req);
                     ack.m_token = token;
-                    SunNet.Instance.SendLocalAck(-1, ack);
+                    SunNet.Instance.SetAck(-1, ack);
                 }
                 else
                 {
