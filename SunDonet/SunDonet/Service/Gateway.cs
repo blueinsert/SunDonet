@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Google.Protobuf;
 
 namespace SunDonet
 {
@@ -17,6 +18,8 @@ namespace SunDonet
         private int m_encoderService = -1;
 
         private Dictionary<Socket, ClientBuffer> m_clientBuffDic = new Dictionary<Socket, ClientBuffer>();
+        //socket - agent id
+        private Dictionary<Socket, int> m_players = new Dictionary<Socket, int>();
 
         public override void OnInit()
         {
@@ -49,24 +52,33 @@ namespace SunDonet
             Array.Copy(buff.m_buffer, 0, sumBuff.m_buffer, sumBuff.m_dataLen, buff.m_dataLen);
             sumBuff.m_dataLen += buff.m_dataLen;
             ClientBuffer.BackBuffer(buff);
-            DecodeReq req = new DecodeReq()
+            bool doNext = false;
+            do
             {
-                m_protocolType = EncodeProtocol.Protobuf,
-                m_buff = sumBuff,
-            };
-            DecodeAck ack = await SunNet.Instance.Call<DecodeReq, DecodeAck>(m_encoderService, req);
-            if (ack!=null && ack.m_byteHandled != 0)
-            {
-                if (ack.m_dataObj != null)
+                DecodeReq req = new DecodeReq()
                 {
-                    Console.WriteLine("Gateway:OnClientData " + ack.m_dataObj.GetType());
+                    m_protocolType = EncodeProtocol.Protobuf,
+                    m_buff = sumBuff,
+                };
+                DecodeAck ack = await SunNet.Instance.Call<DecodeReq, DecodeAck>(m_encoderService, req);
+                doNext = false;
+                if (ack != null && ack.m_byteHandled != 0 && ack.m_dataObj != null)
+                {
+                    HandleClientMsg(ack.m_dataObj as IMessage);
+                    Array.Copy(sumBuff.m_buffer, ack.m_byteHandled, sumBuff.m_buffer, 0, sumBuff.m_dataLen - ack.m_byteHandled);
+                    sumBuff.m_dataLen -= ack.m_byteHandled;
+                    if(sumBuff.m_dataLen > Encoder.ProtocolHeaderLen)
+                    {
+                        doNext = true;
+                    }
                 }
-            }
-            else
-            {
-                //
-            }
+            } while (doNext);
             
+        }
+
+        private void HandleClientMsg(IMessage msg)
+        {
+            Console.WriteLine(string.Format("GateWay:HandleClientMsg {0} {1}", msg.GetType(),msg.ToString()));
         }
     }
 }

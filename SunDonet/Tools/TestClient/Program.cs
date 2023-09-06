@@ -23,7 +23,11 @@ namespace TestClient
             ProtocolDictionaryBase m_protocolDictionary = new TestProtocolDictionary();
             var ack = SunDonet.Encoder.EncodeGoogleProtobuf(req, m_protocolDictionary);
             client.GetStream().Write(ack.m_data, 0, ack.m_dataLen);
-
+            Console.WriteLine("Send req");
+            client.GetStream().Write(ack.m_data, 0, ack.m_dataLen);
+            Console.WriteLine("Send req");
+            client.GetStream().Write(ack.m_data, 0, ack.m_dataLen);
+            Console.WriteLine("Send req");
 
             var exitEvent = new System.Threading.ManualResetEvent(false);
             Console.CancelKeyPress += (sender, eventArgs) =>

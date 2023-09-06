@@ -32,6 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\ThirdPart\MongoDB\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\ThirdPart\MongoDB\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver.Core">
+      <HintPath>..\ThirdPart\MongoDB\MongoDB.Driver.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,13 +55,22 @@
     <Compile Include="ClassLoader.cs" />
     <Compile Include="Conn.cs" />
     <Compile Include="LuaService.cs" />
+    <Compile Include="MongoDBHelper.cs" />
     <Compile Include="Msg.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
     <Compile Include="ServiceBase.cs" />
-    <Compile Include="Service\Agent.cs" />
+    <Compile Include="Service\Agent\Agent.cs" />
     <Compile Include="Service\AgentMgr.cs" />
+    <Compile Include="Service\Agent\ComponentBase.cs" />
+    <Compile Include="Service\Agent\Component\Base\PlayerBasicInfoComponentCommon.cs" />
+    <Compile Include="Service\Agent\Component\Server\PlayerBasicInfoComponent.cs" />
+    <Compile Include="Service\Agent\DataSectionBase.cs" />
+    <Compile Include="Service\Agent\DataSection\DataSectionPlayerBasicInfo.cs" />
+    <Compile Include="Service\Agent\DB\DBCollections.cs" />
+    <Compile Include="Service\Agent\DB\DBConstDefine.cs" />
+    <Compile Include="Service\Agent\DB\DBStructure.cs" />
     <Compile Include="Service\Encoder\Encoder.cs" />
     <Compile Include="Service\Encoder\GoogleProtobufHelper.cs" />
     <Compile Include="Service\Encoder\Msg.cs" />

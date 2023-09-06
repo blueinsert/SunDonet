@@ -1,0 +1,33 @@
+﻿syntax = "proto3";
+package SunDonet.Protocol;
+
+//import "CommonDefine.proto";
+
+message LoginReq
+{
+	string UserName = 1;
+	string UserPassword = 2;
+}
+
+message LoginAck
+{
+	int32 Result = 1;
+}
+
+message CreateAccountReq{
+	string UserName = 1;
+	string UserPassword = 2;
+}
+
+message CreateAccountAck{
+	int32 Result = 1;
+}
+
+message PlayerBasicInfoNtf{
+	string Name = 1;
+	int32 PlayerLevel = 2;
+	int32 Exp = 3;
+	int32 Energy = 4;
+	int32 Gold = 5;
+	int32 Version = 6;
+}

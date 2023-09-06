@@ -1,0 +1,42 @@
+﻿using SunDonet.DB;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SunDonet
+{
+    public class PlayerBasicInfoComponent: PlayerBasicInfoComponentCommon
+    {
+        public override void DeSerialize<T>(T source)
+        {
+            DBCollectionPlayer player = source as DBCollectionPlayer;
+            if (player == null)
+                return;
+            var basicInfoDB = player.BasicInfo;
+            m_basicInfoDS.Name = basicInfoDB.Name;
+            m_basicInfoDS.PlayerLevel = basicInfoDB.PlayerLevel;
+            m_basicInfoDS.Exp = basicInfoDB.Exp;
+            m_basicInfoDS.Energy = basicInfoDB.Energy;
+            m_basicInfoDS.Gold = basicInfoDB.Gold;
+            m_basicInfoDS.InitVersion(basicInfoDB.Version);
+        }
+
+        public override bool Serialize<T>(T dest)
+        {
+            if (!m_basicInfoDS.NeedSync2DB())
+                return false;
+            var updateBuilder = dest as MongoPartialDBUpdateDocumentBuilder<DBCollectionPlayer>;
+            DBStructurePlayerBasicInfo dbBasicInfo = new DBStructurePlayerBasicInfo();
+            dbBasicInfo.Name = m_basicInfoDS.Name;
+            dbBasicInfo.PlayerLevel = m_basicInfoDS.PlayerLevel;
+            dbBasicInfo.Exp = m_basicInfoDS.Exp;
+            dbBasicInfo.Energy = m_basicInfoDS.Energy;
+            dbBasicInfo.Gold = m_basicInfoDS.Gold;
+            dbBasicInfo.Version = m_basicInfoDS.Version;
+            updateBuilder.Set<DBStructurePlayerBasicInfo>((m) => m.BasicInfo, dbBasicInfo);
+            return true;
+        }
+    }
+}

@@ -114,7 +114,7 @@ namespace SunDonet
                                 }
                                 m_tasksLock.Release();
                             }
-                            
+
                         }
                         else
                         {
@@ -143,7 +143,7 @@ namespace SunDonet
             {
                 var s = conn.m_event.AcceptSocket;
                 Console.WriteLine(String.Format("客户 {0} 连入", s.RemoteEndPoint.ToString()));
-                var clientConn = SunNet.Instance.AddConn(s, SocketType.Normal,conn.m_serviceId);
+                var clientConn = SunNet.Instance.AddConn(s, SocketType.Normal, conn.m_serviceId);
                 this.AddEvent(clientConn);
                 //向服务发送onAccept消息
                 SunNet.Instance.Send(conn.m_serviceId, new SocketAcceptMsg() { m_type = MsgBase.MsgType.Socket_Accept, m_listen = conn.m_socket, m_client = s });
@@ -154,15 +154,12 @@ namespace SunDonet
                 {
                     if (conn.m_event.BytesTransferred > 0)
                     {
-                        if (conn.m_socket.Available == 0)
-                        {
-                            ClientBuffer buffer = ClientBuffer.GetBuffer(conn.m_event.BytesTransferred);
-                            Array.Copy(conn.m_event.Buffer, conn.m_event.Offset, buffer.m_buffer, 0, conn.m_event.BytesTransferred);
-                            buffer.m_dataLen = conn.m_event.BytesTransferred;
-                            //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(data)));
-                            //向服务发送消息
-                            SunNet.Instance.Send(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data,m_socket = conn.m_socket, m_buff = buffer});
-                        }
+                        ClientBuffer buffer = ClientBuffer.GetBuffer(conn.m_event.BytesTransferred);
+                        Array.Copy(conn.m_event.Buffer, conn.m_event.Offset, buffer.m_buffer, 0, conn.m_event.BytesTransferred);
+                        buffer.m_dataLen = conn.m_event.BytesTransferred;
+                        //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(data)));
+                        //向服务发送消息
+                        SunNet.Instance.Send(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_socket = conn.m_socket, m_buff = buffer });
                     }
                     else
                     {

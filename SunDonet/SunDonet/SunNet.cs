@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
+using SunDonet.DB;
 
 namespace SunDonet
 {
@@ -39,6 +40,9 @@ namespace SunDonet
         private ClassLoader m_classLoader;
         private AwaitableHandleManager m_awaitableHandleManager;
         private ThreadTimer m_timer;
+
+        public MongoDBHelper DBHelper { get { return m_dbHelper; } }
+        private MongoDBHelper m_dbHelper = null;
 
         private void StartSocketWorker()
         {
@@ -78,6 +82,23 @@ namespace SunDonet
             m_timer.AddTimer(AwaitableHandleManagerTimerCallBack, m_awaitableHandleManager, 0, 500);
             m_timer.StartTask();
 
+            MongoDBConfigInfo dbcfg = new MongoDBConfigInfo()
+            {
+                DataBase = "Test",
+                ConnectHost = "127.0.0.1",
+                Port = "27017",
+                //UserName = "bluebean",
+                //Password = "1234",
+            };
+            try
+            {
+                m_dbHelper = new MongoDBHelper(dbcfg);
+            }catch(Exception e)
+            {
+                Console.WriteLine("MongoDB connect failed");
+                throw e;
+            }
+            
         }
 
         private void AwaitableHandleManagerTimerCallBack(Object obj)

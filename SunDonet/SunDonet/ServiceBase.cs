@@ -117,10 +117,16 @@ namespace SunDonet
 
         public async Task ProcessMsgs(int max)
         {
-            for(int i = 0; i < max; i++)
+            try
             {
-                if (! (await ProcessMsg()))
-                    break;
+                for (int i = 0; i < max; i++)
+                {
+                    if (!(await ProcessMsg()))
+                        break;
+                }
+            }catch(Exception e)
+            {
+                Console.WriteLine(string.Format("ServiceBase:ProcessMsgs exception: {0} \n{1}", e.ToString(), e.StackTrace));
             }
         }
     }
