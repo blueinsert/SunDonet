@@ -22,7 +22,7 @@ namespace SunDonet
         public override void OnInit()
         {
             base.OnInit();
-            m_protocolDictionary = new TestProtocolDictionary();
+            m_protocolDictionary = new SunDonetProtocolDictionary();
         }
 
         public override async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
