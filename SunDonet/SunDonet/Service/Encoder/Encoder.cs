@@ -24,8 +24,8 @@ namespace SunDonet
             base.OnInit();
             m_protocolDictionary = SunNet.Instance.ProtocolDic;
 
-            RegisterMsgCallHandler<S2SEncodeReq, S2SEncodeAck>(HandleEncodeReq);
-            RegisterMsgCallHandler<S2SDecodeReq, S2SDecodeAck>(HandleDecodeReq);
+            RegisterServiceMsgCallHandler<S2SEncodeReq, S2SEncodeAck>(HandleEncodeReq);
+            RegisterServiceMsgCallHandler<S2SDecodeReq, S2SDecodeAck>(HandleDecodeReq);
         }
 
         public static S2SEncodeAck EncodeGoogleProtobuf(IMessage imessage, ProtocolDictionaryBase protocolDictionary)

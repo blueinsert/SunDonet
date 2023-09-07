@@ -157,7 +157,7 @@ namespace SunDonet
                         ClientBuffer buffer = ClientBuffer.GetBuffer(conn.m_event.BytesTransferred);
                         Array.Copy(conn.m_event.Buffer, conn.m_event.Offset, buffer.m_buffer, 0, conn.m_event.BytesTransferred);
                         buffer.m_dataLen = conn.m_event.BytesTransferred;
-                        //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(data)));
+                        //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(buffer.m_buffer)));
                         //向服务发送消息
                         SunNet.Instance.Send(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_socket = conn.m_socket, m_buff = buffer });
                     }

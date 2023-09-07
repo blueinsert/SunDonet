@@ -33,10 +33,20 @@ namespace TestClient
                 UserName = "abc",
                 UserPassword = "123",
             };
-            Console.Write(string.Format("loginReq:{0}", req));
+            Console.WriteLine(string.Format("loginReq:{0}", req));
             var ack = Send<SunDonet.Protocol.LoginReq, SunDonet.Protocol.LoginAck>(client,req);
-            Console.Write(string.Format("loginAck:{0}", ack));
-           
+            Console.WriteLine(string.Format("loginAck:{0}", ack));
+           if(ack.Result == ErrorCode.LoginAccountNotExist)
+            {
+                Console.WriteLine(string.Format("send create Req"));
+                var createAck = Send<SunDonet.Protocol.CreateAccountReq, SunDonet.Protocol.CreateAccountAck>(client, new CreateAccountReq() { 
+                    UserName = "abc",
+                    UserPassword = "123",
+                });
+                Console.WriteLine(string.Format("createAck:{0}", createAck));
+                ack = Send<SunDonet.Protocol.LoginReq, SunDonet.Protocol.LoginAck>(client, req);
+                Console.WriteLine(string.Format("loginAck:{0}", ack));
+            }
             var exitEvent = new System.Threading.ManualResetEvent(false);
             Console.CancelKeyPress += (sender, eventArgs) =>
             {

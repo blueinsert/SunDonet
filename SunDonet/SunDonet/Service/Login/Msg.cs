@@ -16,4 +16,15 @@ namespace SunDonet
     {
         public int m_res;
     }
+
+    public class S2SCreateAccountReq : ServiceMsgReq
+    {
+        public string m_name;
+        public string m_password;
+    }
+
+    public class S2SCreateAccountAck : ServiceMsgAck
+    {
+        public int m_res;
+    }
 }

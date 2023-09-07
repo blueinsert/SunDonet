@@ -94,16 +94,27 @@ namespace SunDonet
 
         private async Task HandleClientMsg(Socket s, IMessage msg)
         {
-            Console.WriteLine(string.Format("GateWay:HandleClientMsg {0} {1}", msg.GetType(),msg.ToString()));
             var msgId = SunNet.Instance.ProtocolDic.GetIdByType(msg.GetType());
             IMessage ack = null;
-            switch (msgId)
+            if(msgId == SunDonetProtocolDictionary.MsgId_LoginReq)
             {
-                case SunDonetProtocolDictionary.MsgId_LoginReq:
-                    ack = await HandleLoginReq(msg as LoginReq);
-                    break;
-                case SunDonetProtocolDictionary.MsgId_CreateAccountReq:
-                    break;
+                ack = await HandleLoginReq(s, msg as LoginReq);
+            }
+            else if(msgId == SunDonetProtocolDictionary.MsgId_CreateAccountReq)
+            {
+                ack = await HandleCreateReq(s,msg as CreateAccountReq);
+            }
+            else
+            {
+                if (m_players.ContainsKey(s))
+                {
+                    int agentId = m_players[s];
+                    var handleAck = await SunNet.Instance.Call<S2SClientMsgHandleReq, S2SClientMsgHandleAck>(agentId, new S2SClientMsgHandleReq()
+                    {
+                        m_req = msg,
+                    });
+                    ack = handleAck.m_ack;
+                }
             }
             if (ack != null)
             {
@@ -111,7 +122,7 @@ namespace SunDonet
             }
         }
 
-        private async Task<LoginAck> HandleLoginReq(LoginReq req)
+        private async Task<LoginAck> HandleLoginReq(Socket s, LoginReq req)
         {
             Console.WriteLine(string.Format("GateWay:HandleLoginReq {0}", req.ToString()));
             var loginAck = await SunNet.Instance.Call<S2SLoginReq, S2SLoginAck>(m_loginService, new S2SLoginReq()
@@ -122,6 +133,30 @@ namespace SunDonet
             LoginAck ack = new LoginAck()
             {
                 Result = loginAck.m_res,
+            };
+            if(ack.Result == ErrorCode.OK)
+            {
+                var agentId = SunNet.Instance.NewService("Agent");
+                m_players.Add(s, agentId);
+                await SunNet.Instance.Call<S2SAgentInitReq, S2SAgentInitAck>(agentId, new S2SAgentInitReq() {
+                    m_userId = req.UserName,
+                });
+            }
+            Console.WriteLine(string.Format("GateWay:HandleLoginReq ack:{0}", ack.ToString()));
+            return ack;
+        }
+
+        private async Task<CreateAccountAck> HandleCreateReq(Socket s, CreateAccountReq req)
+        {
+            Console.WriteLine(string.Format("GateWay:HandleCreateReq {0}", req.ToString()));
+            var createAccountAck = await SunNet.Instance.Call<S2SCreateAccountReq, S2SCreateAccountAck>(m_loginService, new S2SCreateAccountReq()
+            {
+                m_name = req.UserName,
+                m_password = req.UserPassword,
+            });
+            CreateAccountAck ack = new CreateAccountAck()
+            {
+                Result = createAccountAck.m_res,
             };
             return ack;
         }

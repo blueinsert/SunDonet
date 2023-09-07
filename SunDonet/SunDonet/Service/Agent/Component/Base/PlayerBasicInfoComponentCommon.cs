@@ -1,4 +1,5 @@
-﻿using SunDonet.DB;
+﻿using MongoDB.Driver;
+using SunDonet.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,8 @@ namespace SunDonet
 {
     public class PlayerBasicInfoComponentCommon : IComponent, IDataSectionOwner
     {
-        public IComponentOwner Owner { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        private IComponentOwner m_owner;
+        public IComponentOwner Owner { get => m_owner; set => m_owner = value; }
 
         protected DataSectionPlayerBasicInfo m_basicInfoDS = new DataSectionPlayerBasicInfo();
 
@@ -17,7 +19,7 @@ namespace SunDonet
 
         public string GetName()
         {
-            throw new NotImplementedException();
+            return "PlayerBasicInfo";
         }
 
         public void Init()

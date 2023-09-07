@@ -88,7 +88,7 @@ namespace SunDonet
 
             MongoDBConfigInfo dbcfg = new MongoDBConfigInfo()
             {
-                DataBase = "Test",
+                DataBase = "MyDB",
                 ConnectHost = "127.0.0.1",
                 Port = "27017",
                 //UserName = "bluebean",

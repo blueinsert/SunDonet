@@ -24,14 +24,14 @@ namespace SunDonet
         public virtual void OnInit() { }   
         public virtual void OnExit() { }
 
-        protected void RegisterMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegate handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
-        {
-            m_callableMsgTypePair.Add(typeof(TReq), new KeyValuePair<Type, Type>(typeof(TReq), typeof(TAck)));
-            //var h = handler as ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>;
-            m_msgCallHandleDictionary.Add(typeof(TReq), handler);
-        }
+        //protected void RegisterMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegate handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
+        //{
+        //    m_callableMsgTypePair.Add(typeof(TReq), new KeyValuePair<Type, Type>(typeof(TReq), typeof(TAck)));
+         //   //var h = handler as ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>;
+         //   m_msgCallHandleDictionary.Add(typeof(TReq), handler);
+        //}
 
-        protected void RegisterMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegateFullType<TReq,TAck> handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
+        protected void RegisterServiceMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegateFullType<TReq,TAck> handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
         {
             m_callableMsgTypePair.Add(typeof(TReq), new KeyValuePair<Type, Type>(typeof(TReq), typeof(TAck)));
             //var h = handler as ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>;
