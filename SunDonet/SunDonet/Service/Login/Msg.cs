@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
-   public class LoginReq : ServiceMsgReq
+   public class S2SLoginReq : ServiceMsgReq
     {
         public string m_name;
         public string m_password;
     }
 
-    public class LoginAck : ServiceMsgAck
+    public class S2SLoginAck : ServiceMsgAck
     {
         public int m_res;
     }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
 using SunDonet.DB;
+using SunDonet.Protocol;
 
 namespace SunDonet
 {
@@ -43,6 +44,9 @@ namespace SunDonet
 
         public MongoDBHelper DBHelper { get { return m_dbHelper; } }
         private MongoDBHelper m_dbHelper = null;
+
+        public ProtocolDictionaryBase ProtocolDic { get { return m_protocolDic; } }
+        private ProtocolDictionaryBase m_protocolDic = null;
 
         private void StartSocketWorker()
         {
@@ -98,7 +102,8 @@ namespace SunDonet
                 Console.WriteLine("MongoDB connect failed");
                 throw e;
             }
-            
+
+            m_protocolDic = new SunDonetProtocolDictionary();
         }
 
         private void AwaitableHandleManagerTimerCallBack(Object obj)
@@ -274,6 +279,18 @@ namespace SunDonet
                 return handle.GetResult<TAck>();
             }
             return null;
+        }
+
+        /// <summary>
+        /// 发送给客户端
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="buff"></param>
+        public void Send(Socket s, ClientBuffer buff)
+        {
+            //todo
+            s.Send(buff.m_buffer, buff.m_dataLen, SocketFlags.None);
+            ClientBuffer.BackBuffer(buff);
         }
 
         public void PushGlobalQueue(ServiceBase service)

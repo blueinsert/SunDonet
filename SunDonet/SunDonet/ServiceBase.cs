@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
+    public delegate Task<TAck> ServericeCallHandleDelegateFullType<TReq, TAck>(TReq req) where TReq : ServiceMsgReq where TAck : ServiceMsgAck;
+    public delegate Task<ServiceMsgAck> ServericeCallHandleDelegate(ServiceMsgReq req);
+    public delegate void ServericeMsgHandleDelegate<TReq>(TReq req) where TReq : ServiceMsgNtf;
+
     public abstract class ServiceBase
     {
         public int m_id;
@@ -14,8 +18,28 @@ namespace SunDonet
         public Queue<MsgBase> m_msgQueue = new Queue<MsgBase>();
         public bool m_isInGlobal = false;
 
+        private Dictionary<Type, ServericeCallHandleDelegate> m_msgCallHandleDictionary = new Dictionary<Type, SunDonet.ServericeCallHandleDelegate>();
+        private Dictionary<Type, KeyValuePair<Type, Type>> m_callableMsgTypePair = new Dictionary<Type, KeyValuePair<Type, Type>>();
+
         public virtual void OnInit() { }   
         public virtual void OnExit() { }
+
+        protected void RegisterMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegate handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
+        {
+            m_callableMsgTypePair.Add(typeof(TReq), new KeyValuePair<Type, Type>(typeof(TReq), typeof(TAck)));
+            //var h = handler as ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>;
+            m_msgCallHandleDictionary.Add(typeof(TReq), handler);
+        }
+
+        protected void RegisterMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegateFullType<TReq,TAck> handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
+        {
+            m_callableMsgTypePair.Add(typeof(TReq), new KeyValuePair<Type, Type>(typeof(TReq), typeof(TAck)));
+            //var h = handler as ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>;
+            m_msgCallHandleDictionary.Add(typeof(TReq), async (req)=> {
+                var ack = await handler(req as TReq) as TAck;
+                return ack;
+            });
+        }
 
         public virtual async Task OnClientConnect(Socket s)
         {
@@ -34,9 +58,18 @@ namespace SunDonet
             
         }
 
-        public virtual async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
+        private async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
         {
-            return null;
+            ServericeCallHandleDelegate callback = null;
+            if(m_msgCallHandleDictionary.TryGetValue(req.GetType(), out callback))
+            {
+                return await callback(req);
+            }
+            else
+            {
+                Console.WriteLine(string.Format("{0} OnServiceCall msg:{1} not find handler", this.GetType().Name, req.GetType().Name));
+                return null;
+            }
         }
 
         private async Task OnMsg(MsgBase msg) {

@@ -43,6 +43,11 @@ namespace SunDonet
         public int m_source;
     }
 
+    //不需要回复
+    public abstract class ServiceMsgNtf : ServiceMsg
+    {
+    }
+
     public abstract class ServiceMsgReq : ServiceMsg
     {
         public int m_token;

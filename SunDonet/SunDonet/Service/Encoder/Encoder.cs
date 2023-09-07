@@ -22,39 +22,28 @@ namespace SunDonet
         public override void OnInit()
         {
             base.OnInit();
-            m_protocolDictionary = new SunDonetProtocolDictionary();
+            m_protocolDictionary = SunNet.Instance.ProtocolDic;
+
+            RegisterMsgCallHandler<S2SEncodeReq, S2SEncodeAck>(HandleEncodeReq);
+            RegisterMsgCallHandler<S2SDecodeReq, S2SDecodeAck>(HandleDecodeReq);
         }
 
-        public override async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
-        {
-            if (req is EncodeReq)
-            {
-                var ack =  await HandleEncodeReq(req as EncodeReq);
-                return ack;
-            }else if(req is DecodeReq)
-            {
-                var ack = await HandleDecodeReq(req as DecodeReq);
-                return ack;
-            }
-            return null;
-        }
-
-        public static EncodeAck EncodeGoogleProtobuf(IMessage imessage, ProtocolDictionaryBase protocolDictionary)
+        public static S2SEncodeAck EncodeGoogleProtobuf(IMessage imessage, ProtocolDictionaryBase protocolDictionary)
         {
 
-            byte[] buff = new byte[8 * 1024 * 5];
-            int headLen = sizeof(uint) * 2;
+            ClientBuffer buff = ClientBuffer.GetBuffer(8 * 1024 * 5);
+            int headLen = ProtocolHeaderLen;
             uint pkgLen;
             int dataOffset = 0;
             {
                 dataOffset += headLen;
-                using (var stream = new MemoryStream(buff, dataOffset, buff.Length - dataOffset))
+                using (var stream = new MemoryStream(buff.m_buffer, dataOffset, buff.m_buffer.Length - dataOffset))
                 {
                     GoogleProtobufHelper.SerializeObject(imessage, stream);
                     pkgLen = (uint)(stream.Position + headLen);
                     dataOffset += (int)stream.Position;
                 }
-                using (var headerStream = new MemoryStream(buff, 0, headLen))
+                using (var headerStream = new MemoryStream(buff.m_buffer, 0, headLen))
                 {
                     using (var writer = new BinaryWriter(headerStream))
                     {
@@ -65,15 +54,21 @@ namespace SunDonet
                     }
                 }
             }
-            EncodeAck ack = new EncodeAck()
+            buff.m_dataLen = dataOffset;
+            S2SEncodeAck ack = new S2SEncodeAck()
             {
-                m_data = buff,
-                m_dataLen = dataOffset,
+                m_buffer = buff,
             };
             return ack;
         }
 
-        private async Task<EncodeAck> HandleEncodeReq(EncodeReq req)
+        //private async Task<ServiceMsgAck> HandleEncodeReq_(ServiceMsgReq req)
+        //{
+        //    return await HandleEncodeReq(req as S2SEncodeReq);
+        //}
+
+
+        private async Task<S2SEncodeAck> HandleEncodeReq(S2SEncodeReq req)
         {
             if (req.m_protocolType == EncodeProtocol.Protobuf)
             {
@@ -82,19 +77,19 @@ namespace SunDonet
             return null;
         }
 
-        private DecodeAck DecodeGoogleProtobuf(byte[] data,int dataLen)
+        public static S2SDecodeAck DecodeGoogleProtobuf(byte[] data, int dataLen, ProtocolDictionaryBase protocolDictionary)
         {
-            DecodeAck ack = new DecodeAck()
+            S2SDecodeAck ack = new S2SDecodeAck()
             {
                 m_byteHandled = 0,
                 m_dataObj = null,
             };
-            if(data==null || dataLen < 1)
+            if (data == null || dataLen < 1)
             {
                 return ack;
             }
             int dataOffset = 0;
-            if(dataLen - dataOffset < ProtocolHeaderLen)
+            if (dataLen - dataOffset < ProtocolHeaderLen)
             {
                 return ack;
             }
@@ -103,7 +98,7 @@ namespace SunDonet
             MemoryStream deserializeBuff = null;
 
             var msgFullLength = BitConverter.ToUInt32(data, dataOffset);
-            if(dataLen < msgFullLength)
+            if (dataLen < msgFullLength)
             {
                 ack.m_byteHandled = 0;
                 return ack;
@@ -112,10 +107,11 @@ namespace SunDonet
             dataOffset += uintLength;
             var msgId = BitConverter.ToUInt32(data, dataOffset);
             dataOffset += uintLength;
-            try{
+            try
+            {
                 //获取消息类型
-                msgType = m_protocolDictionary.GetTypeById((int)msgId);
-                int protoLength = (int)( msgFullLength - ProtocolHeaderLen);
+                msgType = protocolDictionary.GetTypeById((int)msgId);
+                int protoLength = (int)(msgFullLength - ProtocolHeaderLen);
                 deserializeBuff = new MemoryStream(data, dataOffset, protoLength);
                 deserializeObject = GoogleProtobufHelper.DeserializeMsgByType(msgType, deserializeBuff);
 
@@ -124,16 +120,21 @@ namespace SunDonet
             }
             catch (Exception e)
             {
-                Console.WriteLine(string.Format("Wrong Msg Id:{0} {1}", msgId,e.ToString()));
+                Console.WriteLine(string.Format("Wrong Msg Id:{0} {1}", msgId, e.ToString()));
             }
             return ack;
         }
 
-        private async Task<DecodeAck> HandleDecodeReq(DecodeReq req)
+        //private async Task<ServiceMsgAck> HandleDecodeReq_(ServiceMsgReq req)
+        //{
+        //    return await HandleDecodeReq(req as S2SDecodeReq);
+        //}
+
+        private async Task<S2SDecodeAck> HandleDecodeReq(S2SDecodeReq req)
         {
             if (req.m_protocolType == EncodeProtocol.Protobuf)
             {
-                return DecodeGoogleProtobuf(req.m_buff.m_buffer, req.m_buff.m_dataLen);
+                return DecodeGoogleProtobuf(req.m_buff.m_buffer, req.m_buff.m_dataLen, m_protocolDictionary);
             }
             return null;
         }

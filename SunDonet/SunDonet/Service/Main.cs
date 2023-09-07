@@ -16,8 +16,10 @@ namespace SunDonet
         public override void OnInit()
         {
             base.OnInit();
-            SunNet.Instance.NewService("Gateway");
+            SunNet.Instance.NewService("Encoder");
             SunNet.Instance.NewService("Login");
+            SunNet.Instance.NewService("Gateway");
+   
         }
     }
 }

@@ -18,21 +18,18 @@ namespace SunDonet
         public override void OnInit()
         {
             base.OnInit();
+            RegisterMsgCallHandler<S2SLoginReq, S2SLoginAck>(HandleLoginReq);
         }
 
-        public override async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
+        private async Task<ServiceMsgAck> HandleLoginReq_(ServiceMsgReq req)
         {
-            if(req is LoginReq)
-            {
-                return await HandleLoginReq(req as LoginReq);
-            }
-            return null;
+            return await HandleLoginReq(req as S2SLoginReq);
         }
 
-        public async Task<LoginAck> HandleLoginReq(LoginReq req)
+        private async Task<S2SLoginAck> HandleLoginReq(S2SLoginReq req)
         {
             Console.WriteLine("LoginService:HandleLoginReq");
-            LoginAck ack = new LoginAck() { m_res = 0 };
+            S2SLoginAck ack = new S2SLoginAck() { m_res = 0 };
             //Thread.Sleep(3000);
             return ack;
         }

@@ -13,25 +13,24 @@ namespace SunDonet
         Text,
     }
 
-    public class EncodeReq : ServiceMsgReq
+    public class S2SEncodeReq : ServiceMsgReq
     {
         public object m_dataObj;
         public EncodeProtocol m_protocolType;
     }
 
-    public class EncodeAck : ServiceMsgAck
+    public class S2SEncodeAck : ServiceMsgAck
     {
-        public byte[] m_data;
-        public int m_dataLen;
+        public ClientBuffer m_buffer;
     }
 
-    public class DecodeReq : ServiceMsgReq
+    public class S2SDecodeReq : ServiceMsgReq
     {
         public EncodeProtocol m_protocolType;
         public ClientBuffer m_buff;
     }
 
-    public class DecodeAck : ServiceMsgAck
+    public class S2SDecodeAck : ServiceMsgAck
     {
         public object m_dataObj;
         public int m_byteHandled;
