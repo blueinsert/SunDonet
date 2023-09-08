@@ -6,25 +6,19 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
-   public class S2SLoginReq : ServiceMsgReq
+   public class S2SLoginNtf : ServiceMsgNtf
     {
+        public int m_gatewayId;
         public string m_name;
         public string m_password;
     }
 
-    public class S2SLoginAck : ServiceMsgAck
-    {
-        public int m_res;
-    }
 
-    public class S2SCreateAccountReq : ServiceMsgReq
+    public class S2SCreateAccountNtf : ServiceMsgNtf
     {
+        public int m_gatewayId;
         public string m_name;
         public string m_password;
     }
 
-    public class S2SCreateAccountAck : ServiceMsgAck
-    {
-        public int m_res;
-    }
 }

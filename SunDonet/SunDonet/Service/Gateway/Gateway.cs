@@ -9,7 +9,9 @@ using SunDonet.Protocol;
 
 namespace SunDonet
 {
-
+    /// <summary>
+    /// 网关服务，负责发包和收包分发
+    /// </summary>
     public class Gateway : ServiceBase
     {
         public Gateway(int id) : base(id)
@@ -21,8 +23,6 @@ namespace SunDonet
         private int m_loginService = -1;
 
         private Dictionary<Socket, ClientBuffer> m_clientBuffDic = new Dictionary<Socket, ClientBuffer>();
-        //socket - agent id
-        private Dictionary<Socket, int> m_players = new Dictionary<Socket, int>();
 
         public override void OnInit()
         {
@@ -32,7 +32,8 @@ namespace SunDonet
 
             SunNet.Instance.Listen(8888,this.m_id);
 
-            //RegisterMsgCallHandler<LoginReq, LoginAck>(HandleLoginReq);
+            RegisterServiceMsgNtfHandler<S2SGatewaySendPackageNtf>(HandleSendPackage);
+            RegisterServiceMsgNtfHandler<S2SGatewaySendPackageListNtf>(HandleSendPackageList);
         }
 
         public override async Task OnClientConnect(Socket s)
@@ -71,7 +72,7 @@ namespace SunDonet
                 doNext = false;
                 if (ack != null && ack.m_byteHandled != 0 && ack.m_dataObj != null)
                 {
-                    await HandleClientMsg(s, ack.m_dataObj as IMessage);
+                    await DispatchClientMsg(s, ack.m_dataObj as IMessage);
                     Array.Copy(sumBuff.m_buffer, ack.m_byteHandled, sumBuff.m_buffer, 0, sumBuff.m_dataLen - ack.m_byteHandled);
                     sumBuff.m_dataLen -= ack.m_byteHandled;
                     if(sumBuff.m_dataLen > Encoder.ProtocolHeaderLen)
@@ -114,44 +115,41 @@ namespace SunDonet
             
         }
 
-        private async Task HandleClientMsg(Socket s, IMessage msg)
+        private async Task DispatchClientMsg(Socket s, IMessage msg)
         {
             //Console.WriteLine(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
             var msgId = SunNet.Instance.ProtocolDic.GetIdByType(msg.GetType());
-            IMessage ack = null;
             if(msgId == SunDonetProtocolDictionary.MsgId_LoginReq)
             {
-                ack = await HandleLoginReq(s, msg as LoginReq);
-                await SendPackageIml(s, ack);
+                
+                await DispatchLoginReq(s, msg as LoginReq);
             }
             else if(msgId == SunDonetProtocolDictionary.MsgId_CreateAccountReq)
             {
-                ack = await HandleCreateReq(s,msg as CreateAccountReq);
-                await SendPackageIml(s, ack);
+                await DispatchCreateReq(s,msg as CreateAccountReq);
             }
             else
             {
                 if (m_players.ContainsKey(s))
                 {
                     int agentId = m_players[s];
-                    var handleAck = await SunNet.Instance.Call<S2SClientMsgHandleReq, S2SClientMsgHandleAck>(agentId, new S2SClientMsgHandleReq()
+                    SunNet.Instance.Send(agentId, new S2SClientMsgHandleNtf()
                     {
                         m_req = msg,
                     });
-                    if(handleAck.m_acks!=null && handleAck.m_acks.Count != 0)
-                    {
-                        await SendPackageList(s, handleAck.m_acks);
-                    }else if (handleAck.m_ack != null)
-                    {
-                        await SendPackageIml(s, handleAck.m_ack);
-                    }
                 }
             }
         }
 
-        private async Task<LoginAck> HandleLoginReq(Socket s, LoginReq req)
+        private async Task<LoginAck> DispatchLoginReq(Socket s, LoginReq req)
         {
             Console.WriteLine(string.Format("GateWay:HandleLoginReq {0}", req.ToString()));
+            SunNet.Instance.Send(m_loginService, new S2SLoginNtf()
+            {
+                m_name = req.UserName,
+                m_password = req.UserPassword,
+            });
+
             var loginAck = await SunNet.Instance.Call<S2SLoginReq, S2SLoginAck>(m_loginService, new S2SLoginReq()
             {
                 m_name = req.UserName,
@@ -173,9 +171,14 @@ namespace SunDonet
             return ack;
         }
 
-        private async Task<CreateAccountAck> HandleCreateReq(Socket s, CreateAccountReq req)
+        private async Task<CreateAccountAck> DispatchCreateReq(Socket s, CreateAccountReq req)
         {
             Console.WriteLine(string.Format("GateWay:HandleCreateReq {0}", req.ToString()));
+            SunNet.Instance.Send(m_loginService, new S2SCreateAccountNtf()
+            {
+                m_name = req.UserName,
+                m_password = req.UserPassword,
+            });
             var createAccountAck = await SunNet.Instance.Call<S2SCreateAccountReq, S2SCreateAccountAck>(m_loginService, new S2SCreateAccountReq()
             {
                 m_name = req.UserName,
@@ -186,6 +189,18 @@ namespace SunDonet
                 Result = createAccountAck.m_res,
             };
             return ack;
+        }
+
+        private async Task HandleSendPackage(S2SGatewaySendPackageNtf ntf)
+        {
+            var socket = m_player2SocketDic[ntf.AgentId];
+            SendPackageIml(socket, ntf.Msg);
+        }
+
+        private async Task HandleSendPackageList(S2SGatewaySendPackageListNtf ntf)
+        {
+            var socket = m_player2SocketDic[ntf.AgentId];
+            SendPackageList(socket, ntf.MsgList);
         }
     }
 }

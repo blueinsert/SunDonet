@@ -29,6 +29,13 @@ namespace SunDonet
 
         protected PlayerBasicInfoComponent m_basicInfoComponent = null;
 
+        private Agent m_agent;
+
+        public void SetAgent(Agent agent)
+        {
+            m_agent = agent;
+        }
+
         public PlayerContext() {
             m_components = new ComponenetManager<IServerComponent>(this);
             m_collectionUpdateBuilder = new MongoPartialDBUpdateDocumentBuilder<DBCollectionPlayer>();
@@ -195,26 +202,36 @@ namespace SunDonet
             }
         }
 
-        public async Task<S2SClientMsgHandleAck> HandlePlayerInfoInitAck(PlayerInfoInitReq req)
+        private void SendPackage(IMessage msg)
         {
-            S2SClientMsgHandleAck ackWarp = new S2SClientMsgHandleAck();
-            ackWarp.m_acks = new List<Google.Protobuf.IMessage>();
+            m_agent.SendPackage(msg);
+        }
+
+        private void SendPackageList(List<IMessage> msgList)
+        {
+            m_agent.SendPackageList(msgList);
+        }
+
+        public async Task HandlePlayerInfoInitAck(PlayerInfoInitReq req)
+        {
+            Console.WriteLine(string.Format("PlayerContext:HandlePlayerInfoInitAck {0}", req));
             PlayerInfoInitAck ack = new PlayerInfoInitAck() { Result = 0};
-            ackWarp.m_acks.Add(ack);
+            SendPackage(ack);
 
             List<object> messageList = new List<object>();
 
             m_basicInfoComponent.SyncInitDataToClient(messageList);
             //...
 
-            foreach(var msg in messageList)
+            List<IMessage> msgList = new List<IMessage>();
+            foreach(var obj in messageList)
             {
-                ackWarp.m_acks.Add(msg as IMessage);
+                msgList.Add(obj as IMessage);
             }
+            SendPackageList(msgList);
 
             PlayerInfoInitEndNtf endNtf = new PlayerInfoInitEndNtf() { Result = 0 };
-            ackWarp.m_acks.Add(endNtf);
-            return ackWarp;
+            SendPackage(endNtf);
         }
     }
 }

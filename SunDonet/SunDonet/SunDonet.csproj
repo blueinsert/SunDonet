@@ -66,7 +66,7 @@
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
     <Compile Include="ServiceBase.cs" />
     <Compile Include="Service\Agent\Agent.cs" />
-    <Compile Include="Service\AgentMgr.cs" />
+    <Compile Include="Service\AgentMgr\AgentMgr.cs" />
     <Compile Include="Service\Agent\ComponentBase.cs" />
     <Compile Include="Service\Agent\Component\Base\PlayerBasicInfoComponentCommon.cs" />
     <Compile Include="Service\Agent\Component\Server\IServerComponent.cs" />
@@ -87,7 +87,6 @@
     <Compile Include="Service\Main.cs" />
     <Compile Include="Service\Login\Msg.cs" />
     <Compile Include="Service\NodeMgr.cs" />
-    <Compile Include="Service\Test.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />
     <Compile Include="ThirdPart\UniLua\ByteString.cs" />

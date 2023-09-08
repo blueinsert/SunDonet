@@ -10,6 +10,7 @@ namespace SunDonet
     public class S2SAgentInitReq : ServiceMsgReq
     {
         public string m_userId;
+        public int m_gatewayId;
     }
 
     public class S2SAgentInitAck : ServiceMsgAck
@@ -17,14 +18,9 @@ namespace SunDonet
         public int res;
     }
 
-    public class S2SClientMsgHandleReq : ServiceMsgReq
+    public class S2SClientMsgHandleNtf : ServiceMsgNtf
     {
         public IMessage m_req;
     }
 
-    public class S2SClientMsgHandleAck : ServiceMsgAck
-    {
-        public IMessage m_ack = null;
-        public List<IMessage> m_acks = null;
-    }
 }

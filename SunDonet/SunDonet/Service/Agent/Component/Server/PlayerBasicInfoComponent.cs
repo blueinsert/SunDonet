@@ -1,4 +1,5 @@
-﻿using SunDonet.DB;
+﻿using Google.Protobuf;
+using SunDonet.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
-    public class PlayerBasicInfoComponent: PlayerBasicInfoComponentCommon,IServerComponent
+    public class PlayerBasicInfoComponent: PlayerBasicInfoComponentCommon, IServerComponent
     {
         public override void DeSerialize<T>(T source)
         {

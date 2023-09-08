@@ -18,11 +18,15 @@ namespace SunDonet
 
         private PlayerContext m_playerContext;
 
+        private string m_userId;
+        private int m_gatewayId;
+
         public override void OnInit()
         {
             base.OnInit();
            
             RegisterServiceMsgCallHandler<S2SAgentInitReq, S2SAgentInitAck>(HandleAgentInitReq);
+            RegisterServiceMsgNtfHandler<S2SClientMsgHandleNtf>(HandleClientNtf);
 
             m_playerContext = new PlayerContext();
 
@@ -36,35 +40,51 @@ namespace SunDonet
             await m_playerContext.OnTick(deltaTime);
         }
 
+        public void SendPackage(IMessage msg)
+        {
+            SunNet.Instance.Send(m_gatewayId, new S2SGatewaySendPackageNtf()
+            {
+                Msg = msg,
+                AgentId = this.m_id,
+            });
+        }
+
+        public void SendPackageList(List<IMessage> msgList)
+        {
+            SunNet.Instance.Send(m_gatewayId, new S2SGatewaySendPackageListNtf()
+            {
+                MsgList = msgList,
+                AgentId = this.m_id,
+            });
+        }
+
         private async Task<S2SAgentInitAck> HandleAgentInitReq(S2SAgentInitReq req)
         {
             Console.WriteLine(string.Format("Agent:HandleAgentInitReq {0}", req.m_userId));
+            this.m_gatewayId = req.m_gatewayId;
+            this.m_userId = req.m_userId;
             m_playerContext.m_gameUserId = req.m_userId;
+            m_playerContext.SetAgent(this);
             await m_playerContext.OnLoginOK();
             return new S2SAgentInitAck() { };
         }
 
-        private async Task<S2SClientMsgHandleAck> HandleClientReq(S2SClientMsgHandleReq req)
+        private async Task HandleClientNtf(S2SClientMsgHandleNtf reqWarp)
         {
-            Console.WriteLine(string.Format("Agent:HandleClientReq {0}", req.m_req));
-            int id = SunNet.Instance.ProtocolDic.GetIdByType(req.m_req.GetType());
-            S2SClientMsgHandleAck ack = null;
+            var req = reqWarp.m_req;
+            Console.WriteLine(string.Format("Agent:HandleClientReq {0}", req));
+            int id = SunNet.Instance.ProtocolDic.GetIdByType(req.GetType());
             switch (id)
             {
                 case SunDonetProtocolDictionary.MsgId_PlayerInfoInitReq:
-                    ack = await HandlePlayerInfoInitAck(req.m_req as PlayerInfoInitReq);
+                    await HandlePlayerInfoInitAck(req as PlayerInfoInitReq);
                     break;
             }
-            if (ack == null)
-            {
-                Console.WriteLine("Agent:HandleClientReq ack==null");
-            }
-            return ack;
         }
 
-        private async Task<S2SClientMsgHandleAck> HandlePlayerInfoInitAck(PlayerInfoInitReq req)
+        private async Task HandlePlayerInfoInitAck(PlayerInfoInitReq req)
         {
-            return await m_playerContext.HandlePlayerInfoInitAck(req);
+            await m_playerContext.HandlePlayerInfoInitAck(req);
         }
     }
 }

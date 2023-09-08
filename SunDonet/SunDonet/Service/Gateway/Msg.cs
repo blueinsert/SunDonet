@@ -9,7 +9,13 @@ namespace SunDonet
 {
     public class S2SGatewaySendPackageNtf : ServiceMsgNtf
     {
-        public IMessage m_msg;
-        //todo
+        public int AgentId;
+        public IMessage Msg;
+    }
+
+    public class S2SGatewaySendPackageListNtf : ServiceMsgNtf
+    {
+        public int AgentId;
+        public List<IMessage> MsgList;
     }
 }
