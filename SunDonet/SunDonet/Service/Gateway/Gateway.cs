@@ -9,6 +9,7 @@ using SunDonet.Protocol;
 
 namespace SunDonet
 {
+
     public class Gateway : ServiceBase
     {
         public Gateway(int id) : base(id)
@@ -36,18 +37,19 @@ namespace SunDonet
 
         public override async Task OnClientConnect(Socket s)
         {
-            Console.WriteLine("Gateway:OnClientConnect id:" + m_id);
+            Console.WriteLine("Gateway:OnClientConnect " + s.RemoteEndPoint.ToString());
             m_clientBuffDic.Add(s, ClientBuffer.GetBuffer(8 * 1024 * 5));
         }
 
         public override async Task OnClientDisconnect(Socket s)
         {
-            Console.WriteLine("Gateway:OnClientDisconnect id:" + m_id);
+            Console.WriteLine("Gateway:OnClientDisconnect " + s.RemoteEndPoint.ToString());
             m_clientBuffDic.Remove(s);
         }
 
         public override async Task OnClientData(Socket s, ClientBuffer buff)
         {
+            //Console.WriteLine("Gateway:OnClientData len:" + buff.m_dataLen);
             var sumBuff = m_clientBuffDic[s];
             if(sumBuff.m_dataLen + buff.m_dataLen > sumBuff.m_buffer.Length)
             {
@@ -77,12 +79,18 @@ namespace SunDonet
                         doNext = true;
                     }
                 }
+                else
+                {
+                    Console.WriteLine("Gateway:OnClientData decode failed or ignore");
+                }
             } while (doNext);
             
         }
 
-        private async Task SendPackage(Socket s, IMessage msg)
+        private async Task SendPackageIml(Socket s, IMessage msg)
         {
+            if (msg == null)
+                return;
             S2SEncodeReq req = new S2SEncodeReq()
             {
                 m_dataObj = msg,
@@ -92,17 +100,34 @@ namespace SunDonet
             SunNet.Instance.Send(s, encodeAck.m_buffer);
         }
 
+        private async Task SendPackageList(Socket s, List<IMessage> msgList)
+        {
+            if (msgList.Count == 0)
+                return;
+            foreach(var msg in msgList)
+            {
+                if (msg != null)
+                {
+                    await SendPackageIml(s, msg);
+                }
+            }
+            
+        }
+
         private async Task HandleClientMsg(Socket s, IMessage msg)
         {
+            //Console.WriteLine(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
             var msgId = SunNet.Instance.ProtocolDic.GetIdByType(msg.GetType());
             IMessage ack = null;
             if(msgId == SunDonetProtocolDictionary.MsgId_LoginReq)
             {
                 ack = await HandleLoginReq(s, msg as LoginReq);
+                await SendPackageIml(s, ack);
             }
             else if(msgId == SunDonetProtocolDictionary.MsgId_CreateAccountReq)
             {
                 ack = await HandleCreateReq(s,msg as CreateAccountReq);
+                await SendPackageIml(s, ack);
             }
             else
             {
@@ -113,12 +138,14 @@ namespace SunDonet
                     {
                         m_req = msg,
                     });
-                    ack = handleAck.m_ack;
+                    if(handleAck.m_acks!=null && handleAck.m_acks.Count != 0)
+                    {
+                        await SendPackageList(s, handleAck.m_acks);
+                    }else if (handleAck.m_ack != null)
+                    {
+                        await SendPackageIml(s, handleAck.m_ack);
+                    }
                 }
-            }
-            if (ack != null)
-            {
-                await SendPackage(s, ack);
             }
         }
 

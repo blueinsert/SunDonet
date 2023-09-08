@@ -40,7 +40,9 @@ namespace SunDonet
         private BufferManager m_bufferManager;
         private ClassLoader m_classLoader;
         private AwaitableHandleManager m_awaitableHandleManager;
+
         private ThreadTimer m_timer;
+        public ThreadTimer Timer { get { return m_timer; } }
 
         public MongoDBHelper DBHelper { get { return m_dbHelper; } }
         private MongoDBHelper m_dbHelper = null;
@@ -57,7 +59,7 @@ namespace SunDonet
 
         private void StartWorker()
         {
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 var worker = new Worker();
                 worker.m_id = i;
@@ -97,7 +99,8 @@ namespace SunDonet
             try
             {
                 m_dbHelper = new MongoDBHelper(dbcfg);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine("MongoDB connect failed");
                 throw e;
@@ -118,10 +121,11 @@ namespace SunDonet
             Console.WriteLine("Sunnet Start");
         }
 
-        public Conn AddConn(Socket socket,SocketType type,int serviceId = -1)
+        public Conn AddConn(Socket socket, SocketType type, int serviceId = -1)
         {
             var conn = new Conn(socket, type, serviceId, m_bufferManager);
-            lock (m_connsLock) { 
+            lock (m_connsLock)
+            {
                 m_connDic.Add(socket, conn);
             }
             return conn;
@@ -143,13 +147,13 @@ namespace SunDonet
             m_socketWorker.RemoveEvent(conn);
         }
 
-        public void Listen(int port,int serviceId = -1)
+        public void Listen(int port, int serviceId = -1)
         {
             Console.WriteLine(string.Format("SunNet:Listen on {0},service:{1}", port, serviceId));
             var address = IPAddress.Any;
             IPEndPoint localEndPoint = new IPEndPoint(address, port);
             Socket socket = new Socket(localEndPoint.AddressFamily, System.Net.Sockets.SocketType.Stream, ProtocolType.Tcp);
-            if(localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
+            if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socket.SetSocketOption(SocketOptionLevel.IPv6, (SocketOptionName)27, false);
                 socket.Bind(new IPEndPoint(IPAddress.IPv6Any, localEndPoint.Port));
@@ -159,7 +163,7 @@ namespace SunDonet
                 socket.Bind(localEndPoint);
             }
             socket.Listen(1024);
-            var conn = AddConn(socket, SocketType.Listen,serviceId);
+            var conn = AddConn(socket, SocketType.Listen, serviceId);
             m_socketWorker.AddEvent(conn);
         }
 
@@ -177,14 +181,14 @@ namespace SunDonet
 
         //"Test","lua-test"
         public int NewService(string name)
-        {  
+        {
             if (name.StartsWith("lua-"))
             {
                 //todo
             }
             else
             {
-                var instance = m_classLoader.CreateInstance(new TypeDNName(string.Format("SunDonet@SunDonet.{0}", name)),0);
+                var instance = m_classLoader.CreateInstance(new TypeDNName(string.Format("SunDonet@SunDonet.{0}", name)), 0);
                 if (instance != null)
                 {
                     var service = instance as ServiceBase;
@@ -210,7 +214,8 @@ namespace SunDonet
             return -1;
         }
 
-        public void KillService(int id) {
+        public void KillService(int id)
+        {
 
         }
 
@@ -245,15 +250,15 @@ namespace SunDonet
         /// </summary>
         /// <param name="to"></param>
         /// <param name="msg"></param>
-        public void Send(int to, MsgBase msg)
+        public void SendInternal(int to, MsgBase msg)
         {
             var service = GetService(to);
             if (service != null)
             {
                 service.PushMsg(msg);
-                if (!service.m_isInGlobal)
+                lock (service.m_isInGlobalLock)
                 {
-                    lock (m_globalQueueLock)
+                    if (!service.m_isInGlobal)
                     {
                         PushGlobalQueue(service);
                         service.m_isInGlobal = true;
@@ -262,19 +267,24 @@ namespace SunDonet
             }
         }
 
+        public void Send(int to, ServiceMsgNtf ntf)
+        {
+            SendInternal(to, ntf);
+        }
+
         public void SetAck(int to, ServiceMsgAck ack)
         {
             var token = ack.m_token;
             m_awaitableHandleManager.SetResult(token, ack);
         }
 
-        public async Task<TAck> Call<TReq,TAck>(int to, TReq req) where TReq: ServiceMsgReq where TAck: ServiceMsgAck
+        public async Task<TAck> Call<TReq, TAck>(int to, TReq req) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
         {
-            var handle = m_awaitableHandleManager.AllocHandle(60*10);
+            var handle = m_awaitableHandleManager.AllocHandle(60 * 10);
             req.m_token = handle.Token;
-            Send(to, req);
+            SendInternal(to, req);
             await handle.WaitAsync();
-            if(!handle.IsTimeOut && !handle.IsCancel)
+            if (!handle.IsTimeOut && !handle.IsCancel)
             {
                 return handle.GetResult<TAck>();
             }
@@ -314,7 +324,7 @@ namespace SunDonet
             }
             return service;
         }
-       
+
         //Worker线程调用，进入休眠
         public void WorkerWait()
         {
@@ -328,7 +338,7 @@ namespace SunDonet
         }
     }
 
-    
+
 
     /// <summary>
     /// 可等待句柄
@@ -365,7 +375,11 @@ namespace SunDonet
             where T : class
         {
             m_result = result;
-            m_tcs.SetResult(true);
+            //SetResult默认会使用调用线程执行 await 后面的代码
+            //所以需要提供一个 Task.Run让线程池线程执行await 后面的代码
+            //m_tcs.SetResult(true);
+            Task.Run(() => { m_tcs.SetResult(true); });
+
         }
 
         /// <summary>
@@ -385,7 +399,8 @@ namespace SunDonet
         public void SetTimeout()
         {
             IsTimeOut = true;
-            m_tcs.SetResult(true);
+            //m_tcs.SetResult(true);
+            Task.Run(() => { m_tcs.SetResult(true); });
         }
 
         /// <summary>
@@ -394,7 +409,8 @@ namespace SunDonet
         public void SetCancel()
         {
             IsCancel = true;
-            m_tcs.SetResult(true);
+            //m_tcs.SetResult(true);
+            Task.Run(() => { m_tcs.SetResult(true); });
         }
 
         /// <summary>

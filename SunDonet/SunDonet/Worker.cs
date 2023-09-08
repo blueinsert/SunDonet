@@ -29,7 +29,9 @@ namespace SunDonet
                 }
                 else
                 {
-                    service.m_isInGlobal = false;
+                    lock (service.m_isInGlobalLock) {
+                        service.m_isInGlobal = false;
+                    }     
                 }
             }
         }
@@ -46,7 +48,7 @@ namespace SunDonet
                 }
                 else
                 {
-                    //Console.WriteLine(string.Format("worker id:{0} process {1} id:{2}", m_id, service.GetType().Name, service.m_id));
+                    //Console.WriteLine(string.Format("worker id:{0} process {1}", m_id, service.GetType().Name));
                     await service.ProcessMsgs(m_eachNum);
                     CheckAndPutGlobal(service);
                 }

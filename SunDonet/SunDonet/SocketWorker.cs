@@ -146,7 +146,7 @@ namespace SunDonet
                 var clientConn = SunNet.Instance.AddConn(s, SocketType.Normal, conn.m_serviceId);
                 this.AddEvent(clientConn);
                 //向服务发送onAccept消息
-                SunNet.Instance.Send(conn.m_serviceId, new SocketAcceptMsg() { m_type = MsgBase.MsgType.Socket_Accept, m_listen = conn.m_socket, m_client = s });
+                SunNet.Instance.SendInternal(conn.m_serviceId, new SocketAcceptMsg() { m_type = MsgBase.MsgType.Socket_Accept, m_listen = conn.m_socket, m_client = s });
             }
             else if (conn.m_socketType == SocketType.Normal)
             {
@@ -159,7 +159,7 @@ namespace SunDonet
                         buffer.m_dataLen = conn.m_event.BytesTransferred;
                         //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(buffer.m_buffer)));
                         //向服务发送消息
-                        SunNet.Instance.Send(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_socket = conn.m_socket, m_buff = buffer });
+                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_socket = conn.m_socket, m_buff = buffer });
                     }
                     else
                     {
@@ -167,7 +167,7 @@ namespace SunDonet
                         Console.WriteLine(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
                         SunNet.Instance.CloseConn(conn.m_socket);
                         //向服务发送消息
-                        SunNet.Instance.Send(conn.m_serviceId, new SocketDisconnectMsg() { m_type = MsgBase.MsgType.Socket_Disconnect, m_client = conn.m_socket });
+                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { m_type = MsgBase.MsgType.Socket_Disconnect, m_client = conn.m_socket });
 
                         return false;
                     }

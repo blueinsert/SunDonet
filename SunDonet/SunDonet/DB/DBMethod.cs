@@ -26,5 +26,20 @@ namespace SunDonet.DB
 
             return await SunNet.Instance.DBHelper.CollectionInsertOneAsync<DBCollectionAccount>(DBCollectionName.AccountCollection, account);
         }
+
+        public static async Task<DBCollectionPlayer> GetPlayer(string userId)
+        {
+            var filter = Builders<DBCollectionPlayer>.Filter.Where(cg => cg._id == userId);
+
+            return await SunNet.Instance.DBHelper.CollectionFindOneAsync<DBCollectionPlayer>(DBCollectionName.PlayerCollection, filter);
+        }
+
+        public static async Task<bool> CreatePlayer(DBCollectionPlayer player)
+        {
+            bool res = await SunNet.Instance.DBHelper.CollectionInsertOneAsync<DBCollectionPlayer>(DBCollectionName.PlayerCollection, player);
+
+            return res;
+        }
+
     }
 }

@@ -25,7 +25,13 @@ namespace SunDonet.Protocol
 						
 			m_idTypeMap[4] = typeof(CreateAccountAck);
 						
-			m_idTypeMap[5] = typeof(PlayerBasicInfoNtf);
+			m_idTypeMap[5] = typeof(PlayerInfoInitReq);
+						
+			m_idTypeMap[6] = typeof(PlayerInfoInitAck);
+						
+			m_idTypeMap[7] = typeof(PlayerInfoInitEndNtf);
+						
+			m_idTypeMap[8] = typeof(PlayerBasicInfoNtf);
 						
             foreach (KeyValuePair<Int32, Type> entity in m_idTypeMap)
             {
@@ -42,7 +48,13 @@ namespace SunDonet.Protocol
 				
 		public const Int32 MsgId_CreateAccountAck = 4;
 				
-		public const Int32 MsgId_PlayerBasicInfoNtf = 5;
+		public const Int32 MsgId_PlayerInfoInitReq = 5;
+				
+		public const Int32 MsgId_PlayerInfoInitAck = 6;
+				
+		public const Int32 MsgId_PlayerInfoInitEndNtf = 7;
+				
+		public const Int32 MsgId_PlayerBasicInfoNtf = 8;
 				
     }
 }

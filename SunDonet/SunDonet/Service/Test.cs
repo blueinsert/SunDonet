@@ -34,7 +34,7 @@ namespace SunDonet
             Console.WriteLine("Test:OnClientDisconnect id:" + m_id);
         }
 
-        public override async Task OnServiceMsg(ServiceMsg msg)
+        public override async Task OnServiceMsg(ServiceMsgNtf msg)
         {
             Console.WriteLine("Test:OnServiceMsg id:" + m_id);
         }

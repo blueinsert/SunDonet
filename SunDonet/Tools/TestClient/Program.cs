@@ -28,10 +28,12 @@ namespace TestClient
         {
             TcpClient client = new TcpClient();
             client.Connect("127.0.0.1", 8888);
+            var userId = "zzx003";
+            var password = "123";
             var req = new SunDonet.Protocol.LoginReq()
             {
-                UserName = "abc",
-                UserPassword = "123",
+                UserName = userId,
+                UserPassword = password,
             };
             Console.WriteLine(string.Format("loginReq:{0}", req));
             var ack = Send<SunDonet.Protocol.LoginReq, SunDonet.Protocol.LoginAck>(client,req);
@@ -39,9 +41,9 @@ namespace TestClient
            if(ack.Result == ErrorCode.LoginAccountNotExist)
             {
                 Console.WriteLine(string.Format("send create Req"));
-                var createAck = Send<SunDonet.Protocol.CreateAccountReq, SunDonet.Protocol.CreateAccountAck>(client, new CreateAccountReq() { 
-                    UserName = "abc",
-                    UserPassword = "123",
+                var createAck = Send<SunDonet.Protocol.CreateAccountReq, SunDonet.Protocol.CreateAccountAck>(client, new CreateAccountReq() {
+                    UserName = userId,
+                    UserPassword = password,
                 });
                 Console.WriteLine(string.Format("createAck:{0}", createAck));
                 ack = Send<SunDonet.Protocol.LoginReq, SunDonet.Protocol.LoginAck>(client, req);

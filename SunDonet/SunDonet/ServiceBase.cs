@@ -7,37 +7,71 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
-    public delegate Task<TAck> ServericeCallHandleDelegateFullType<TReq, TAck>(TReq req) where TReq : ServiceMsgReq where TAck : ServiceMsgAck;
-    public delegate Task<ServiceMsgAck> ServericeCallHandleDelegate(ServiceMsgReq req);
-    public delegate void ServericeMsgHandleDelegate<TReq>(TReq req) where TReq : ServiceMsgNtf;
+    public delegate Task<TAck> ServericeCallHandleDelegate<TReq, TAck>(TReq req) where TReq : ServiceMsgReq where TAck : ServiceMsgAck;
+    public delegate Task ServericeMsgHandleDelegate<TReq>(TReq req) where TReq : ServiceMsgNtf;
 
     public abstract class ServiceBase
     {
         public int m_id;
         public object m_msgQueueLock = new object();
         public Queue<MsgBase> m_msgQueue = new Queue<MsgBase>();
+        public object m_isInGlobalLock = new object();
         public bool m_isInGlobal = false;
 
-        private Dictionary<Type, ServericeCallHandleDelegate> m_msgCallHandleDictionary = new Dictionary<Type, SunDonet.ServericeCallHandleDelegate>();
+        private Dictionary<Type, ServericeCallHandleDelegate<ServiceMsgReq,ServiceMsgAck>> m_msgCallHandleDictionary = new Dictionary<Type, SunDonet.ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>>();
         private Dictionary<Type, KeyValuePair<Type, Type>> m_callableMsgTypePair = new Dictionary<Type, KeyValuePair<Type, Type>>();
 
-        public virtual void OnInit() { }   
+        private Dictionary<Type, ServericeMsgHandleDelegate<ServiceMsgNtf>> m_msgNtfHandleDictionary = new Dictionary<Type, ServericeMsgHandleDelegate<ServiceMsgNtf>>();
+
+        private float m_tickPeroid = 1.0f;
+
+        private DateTime m_lastTickTime;
+
+        /// <summary>
+        /// second
+        /// </summary>
+        /// <param name="s"></param>
+        protected void SetTickPeroid(float s)
+        {
+            m_tickPeroid = s;
+            m_lastTickTime = DateTime.Now;
+        }
+
+        protected void StartTick()
+        {
+            SunNet.Instance.Timer.AddTimer(ServerOnTickTimerCallBack, this, 0, (int)(m_tickPeroid*1000));
+        }
+
+        private void ServerOnTickTimerCallBack(Object obj)
+        {
+            SunNet.Instance.Send(this.m_id, ServiceTickMsgNtf.TickMsgNtf);
+        }
+
+        protected virtual async Task OnTick(float deltaTime) { }
+
+        public virtual void OnInit() {
+            RegisterServiceMsgNtfHandler<ServiceTickMsgNtf>(async (msg) => {
+                var now = DateTime.Now;
+                float deltaTime = (float)(now - m_lastTickTime).TotalSeconds;
+                await OnTick(deltaTime);
+            });
+        }   
+
         public virtual void OnExit() { }
 
-        //protected void RegisterMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegate handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
-        //{
-        //    m_callableMsgTypePair.Add(typeof(TReq), new KeyValuePair<Type, Type>(typeof(TReq), typeof(TAck)));
-         //   //var h = handler as ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>;
-         //   m_msgCallHandleDictionary.Add(typeof(TReq), handler);
-        //}
-
-        protected void RegisterServiceMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegateFullType<TReq,TAck> handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
+        protected void RegisterServiceMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegate<TReq,TAck> handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
         {
             m_callableMsgTypePair.Add(typeof(TReq), new KeyValuePair<Type, Type>(typeof(TReq), typeof(TAck)));
-            //var h = handler as ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck>;
             m_msgCallHandleDictionary.Add(typeof(TReq), async (req)=> {
                 var ack = await handler(req as TReq) as TAck;
                 return ack;
+            });
+        }
+
+        protected void RegisterServiceMsgNtfHandler<TMsg>(ServericeMsgHandleDelegate<TMsg> handler) where TMsg : ServiceMsgNtf
+        {
+            m_msgNtfHandleDictionary.Add(typeof(TMsg), async (msg) => {
+                await handler(msg as TMsg);
             });
         }
 
@@ -53,14 +87,22 @@ namespace SunDonet
 
         }
 
-        public virtual async Task OnServiceMsg(ServiceMsg msg)
+        public virtual async Task OnServiceMsg(ServiceMsgNtf msg)
         {
-            
+            ServericeMsgHandleDelegate<ServiceMsgNtf> callback = null;
+            if (m_msgNtfHandleDictionary.TryGetValue(msg.GetType(), out callback))
+            {
+                 await callback(msg);
+            }
+            else
+            {
+                Console.WriteLine(string.Format("{0} OnServiceMsg msg:{1} not find handler", this.GetType().Name, msg.GetType().Name));
+            }
         }
 
         private async Task<ServiceMsgAck> OnServiceCall(ServiceMsgReq req)
         {
-            ServericeCallHandleDelegate callback = null;
+            ServericeCallHandleDelegate<ServiceMsgReq, ServiceMsgAck> callback = null;
             if(m_msgCallHandleDictionary.TryGetValue(req.GetType(), out callback))
             {
                 return await callback(req);
@@ -88,9 +130,9 @@ namespace SunDonet
                     ack.m_token = token;
                     SunNet.Instance.SetAck(-1, ack);
                 }
-                else
+                else if(msg is ServiceMsgNtf)
                 {
-                    await OnServiceMsg(msg as ServiceMsg);
+                    await OnServiceMsg(msg as ServiceMsgNtf);
                 }
             }
             switch (msg.m_type)

@@ -24,6 +24,7 @@ namespace SunDonet
 
     public class S2SClientMsgHandleAck : ServiceMsgAck
     {
-        public IMessage m_ack;
+        public IMessage m_ack = null;
+        public List<IMessage> m_acks = null;
     }
 }

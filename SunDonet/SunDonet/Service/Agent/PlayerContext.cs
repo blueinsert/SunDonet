@@ -6,12 +6,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SunDonet.Protocol;
+using Google.Protobuf;
 
 namespace SunDonet
 {
     public class PlayerContext : IComponentOwner
     {
-        private ComponenetManager<IComponent> m_components;
+        private ComponenetManager<IServerComponent> m_components;
 
         public String m_gameUserId;
         /// <summary>
@@ -21,9 +23,16 @@ namespace SunDonet
 
         private MongoPartialDBUpdateDocumentBuilder<DBCollectionPlayer> m_collectionUpdateBuilder;
 
+        public const int DBSavePeroid = 5;//senconds
+
+        private DateTime m_lastDBSaveTime;
+
+        protected PlayerBasicInfoComponent m_basicInfoComponent = null;
+
         public PlayerContext() {
-            m_components = new ComponenetManager<IComponent>(this);
+            m_components = new ComponenetManager<IServerComponent>(this);
             m_collectionUpdateBuilder = new MongoPartialDBUpdateDocumentBuilder<DBCollectionPlayer>();
+            m_lastDBSaveTime = DateTime.Now;
         }
 
         /// <summary>
@@ -65,18 +74,44 @@ namespace SunDonet
             return m_components.GetComponent(componentName);
         }
 
-
         protected virtual void AddComponents()
         {
-            AddOwnerComponent<PlayerBasicInfoComponent>();
+            m_basicInfoComponent = AddOwnerComponent<PlayerBasicInfoComponent>();
+
+            m_components.PostInitComponents();
         }
 
-        protected virtual void LoadDBData() { }
+        private DBCollectionPlayer CreateNewDBPlayer(string userId)
+        {
+            DBCollectionPlayer player = new DBCollectionPlayer()
+            {
+                _id = userId,
+                BasicInfo = new DBStructurePlayerBasicInfo() {
+                    Name = userId,
+                    PlayerLevel = 1,
+                    Exp = 0,
+                    Energy = 150,
+                    Gold = 9999,
+                }
+            };
+            return player;
+        }
+
+        protected virtual async Task<DBCollectionPlayer> LoadDBData() {
+            var player = await DBMethod.GetPlayer(m_gameUserId);
+            if(player == null)
+            {
+                //新用户
+                player = CreateNewDBPlayer(m_gameUserId);
+                await DBMethod.CreatePlayer(player);
+            }
+            return player;
+        }
 
         /// <summary>
         /// 更新db
         /// </summary>
-        private void Sync2DB()
+        private void Commit2DB()
         {
             try
             {
@@ -96,18 +131,28 @@ namespace SunDonet
             }
         }
 
-        private void OnSync2DBEnd() { }
+        private void OnCommit2DBEnd() {
+            foreach(var comp in m_components.GetAllcomponents())
+            {
+                var datasectionOwner = comp as IDataSectionOwner;
+                if (datasectionOwner != null)
+                {
+                    datasectionOwner.OnDataSectionSaveEnd();
+                }
+            }
+        }
 
         protected virtual void Save2DB()
         {
             m_stopWatch.Restart();
+            //Console.WriteLine("PlayerContext:Save2DB");
             //收集需要更新的字段
             bool save = m_components.SerializeComponents(m_collectionUpdateBuilder);
             if (save)
             {
                 //实际进行更新
-                Sync2DB();
-                OnSync2DBEnd();
+                Commit2DB();
+                OnCommit2DBEnd();
             }
             m_stopWatch.Stop();
             if (m_stopWatch.Elapsed.TotalMilliseconds >= 100)
@@ -116,24 +161,60 @@ namespace SunDonet
             }
         }
 
-        protected virtual void InitComponentsFromDB()
+        protected virtual void InitComponentsFromDB(DBCollectionPlayer dbPlayer)
         {
-            m_components.DeSerializeComponents(m_collectionUpdateBuilder);
+            m_components.DeSerializeComponents(dbPlayer);
             m_components.PostDeSerializeComponents();
         }
 
         protected virtual void OnInitComponentsEnd()
         {
+            
         }
 
         public async Task OnLoginOK()
         {
             AddComponents();
 
-            LoadDBData();
-            InitComponentsFromDB();
-            OnInitComponentsEnd();
+            var player =  await LoadDBData();
+            if (player != null)
+            {
+                InitComponentsFromDB(player);
+                OnInitComponentsEnd();
+            }
             await Task.CompletedTask;
+        }
+
+        public async Task OnTick(float deltaTime)
+        {
+            //Console.WriteLine(string.Format("PlayerContext:OnTick deltaTime:{0}", deltaTime));
+            if((DateTime.Now - m_lastDBSaveTime).TotalSeconds > DBSavePeroid)
+            {
+                Save2DB();
+                m_lastDBSaveTime = DateTime.Now;
+            }
+        }
+
+        public async Task<S2SClientMsgHandleAck> HandlePlayerInfoInitAck(PlayerInfoInitReq req)
+        {
+            S2SClientMsgHandleAck ackWarp = new S2SClientMsgHandleAck();
+            ackWarp.m_acks = new List<Google.Protobuf.IMessage>();
+            PlayerInfoInitAck ack = new PlayerInfoInitAck() { Result = 0};
+            ackWarp.m_acks.Add(ack);
+
+            List<object> messageList = new List<object>();
+
+            m_basicInfoComponent.SyncInitDataToClient(messageList);
+            //...
+
+            foreach(var msg in messageList)
+            {
+                ackWarp.m_acks.Add(msg as IMessage);
+            }
+
+            PlayerInfoInitEndNtf endNtf = new PlayerInfoInitEndNtf() { Result = 0 };
+            ackWarp.m_acks.Add(endNtf);
+            return ackWarp;
         }
     }
 }

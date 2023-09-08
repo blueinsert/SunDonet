@@ -48,6 +48,12 @@ namespace SunDonet
     {
     }
 
+    public class ServiceTickMsgNtf: ServiceMsgNtf
+    {
+        private ServiceTickMsgNtf() { }
+        public static readonly ServiceTickMsgNtf TickMsgNtf = new ServiceTickMsgNtf();
+    }
+
     public abstract class ServiceMsgReq : ServiceMsg
     {
         public int m_token;

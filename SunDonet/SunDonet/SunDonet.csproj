@@ -61,7 +61,7 @@
     <Compile Include="Msg.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocol\AutoGen\Login.cs" />
+    <Compile Include="Protocol\AutoGen\BasicProtocol.cs" />
     <Compile Include="Protocol\AutoGen\SunDonetProtocolDictionary.cs" />
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
     <Compile Include="ServiceBase.cs" />
@@ -69,6 +69,7 @@
     <Compile Include="Service\AgentMgr.cs" />
     <Compile Include="Service\Agent\ComponentBase.cs" />
     <Compile Include="Service\Agent\Component\Base\PlayerBasicInfoComponentCommon.cs" />
+    <Compile Include="Service\Agent\Component\Server\IServerComponent.cs" />
     <Compile Include="Service\Agent\Component\Server\PlayerBasicInfoComponent.cs" />
     <Compile Include="Service\Agent\DataSectionBase.cs" />
     <Compile Include="Service\Agent\DataSection\DataSectionPlayerBasicInfo.cs" />
@@ -80,7 +81,8 @@
     <Compile Include="Service\Encoder\Encoder.cs" />
     <Compile Include="Service\Encoder\GoogleProtobufHelper.cs" />
     <Compile Include="Service\Encoder\Msg.cs" />
-    <Compile Include="Service\Gateway.cs" />
+    <Compile Include="Service\Gateway\Gateway.cs" />
+    <Compile Include="Service\Gateway\Msg.cs" />
     <Compile Include="Service\Login\Login.cs" />
     <Compile Include="Service\Main.cs" />
     <Compile Include="Service\Login\Msg.cs" />
@@ -126,7 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Protocol\Proto\Login.proto" />
+    <None Include="Protocol\Proto\BasicProtocol.proto" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Service\Admin\" />

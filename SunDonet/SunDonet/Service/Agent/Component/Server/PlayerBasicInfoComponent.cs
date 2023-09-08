@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
-    public class PlayerBasicInfoComponent: PlayerBasicInfoComponentCommon
+    public class PlayerBasicInfoComponent: PlayerBasicInfoComponentCommon,IServerComponent
     {
         public override void DeSerialize<T>(T source)
         {
+            Console.WriteLine("PlayerBasicInfoComponent:DeSerialize");
             DBCollectionPlayer player = source as DBCollectionPlayer;
             if (player == null)
                 return;
@@ -25,6 +26,7 @@ namespace SunDonet
 
         public override bool Serialize<T>(T dest)
         {
+            //Console.WriteLine("PlayerBasicInfoComponent:Serialize");
             if (!m_basicInfoDS.NeedSync2DB())
                 return false;
             var updateBuilder = dest as MongoPartialDBUpdateDocumentBuilder<DBCollectionPlayer>;
@@ -38,5 +40,17 @@ namespace SunDonet
             updateBuilder.Set<DBStructurePlayerBasicInfo>((m) => m.BasicInfo, dbBasicInfo);
             return true;
         }
+
+        #region IDataSectionOwner实现
+        public void OnDataSectionSaveEnd()
+        {
+            m_basicInfoDS.OnDBSynced();
+        }
+
+        public void SyncInitDataToClient(List<object> syncDestDatas)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

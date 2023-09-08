@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SunDonet
 {
-    public class PlayerBasicInfoComponentCommon : IComponent, IDataSectionOwner
+    public class PlayerBasicInfoComponentCommon : IComponent
     {
         private IComponentOwner m_owner;
         public IComponentOwner Owner { get => m_owner; set => m_owner = value; }
@@ -24,14 +24,17 @@ namespace SunDonet
 
         public void Init()
         {
+            Console.WriteLine("PlayerBasicInfoComponentCommon:Init");
         }
 
         public void DeInit()
         {
+            Console.WriteLine("PlayerBasicInfoComponentCommon:Init");
         }
 
         public void PostInit()
         {
+            Console.WriteLine("PlayerBasicInfoComponentCommon:PostInit");
         }
 
         public virtual void DeSerialize<T>(T source)
@@ -51,18 +54,6 @@ namespace SunDonet
         {
         }
 
-        #endregion
-
-        #region IDataSectionOwner实现
-        public void OnDataSectionSaveEnd()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SyncInitDataToClient(List<object> syncDestDatas)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
     }
