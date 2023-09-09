@@ -17,9 +17,10 @@ namespace SunDonet
         {
             base.OnInit();
             SunNet.Instance.NewService("Encoder");
+            SunNet.Instance.NewService("AgentMgr");
             SunNet.Instance.NewService("Login");
             SunNet.Instance.NewService("Gateway");
-   
+            
         }
     }
 }

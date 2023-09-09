@@ -9,6 +9,7 @@ using System.Threading;
 using System.Collections.Concurrent;
 using SunDonet.DB;
 using SunDonet.Protocol;
+using System.Diagnostics;
 
 namespace SunDonet
 {
@@ -242,6 +243,8 @@ namespace SunDonet
                     return m_servicesByName[name][0].m_id;
                 }
             }
+
+            Console.WriteLine(string.Format("FindSingletonServiceByName failed! name:{0}", name));
             return -1;
         }
 

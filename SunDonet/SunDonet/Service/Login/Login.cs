@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using SunDonet.DB;
+using SunDonet.Protocol;
 
 namespace SunDonet
 {
 
     public class Login : ServiceBase
     {
+        int m_agentMgrId;
+
         public Login(int id) : base(id)
         {
 
@@ -19,46 +22,78 @@ namespace SunDonet
         public override void OnInit()
         {
             base.OnInit();
-            RegisterServiceMsgCallHandler<S2SLoginReq, S2SLoginAck>(HandleLoginReq);
-            RegisterServiceMsgCallHandler<S2SCreateAccountReq, S2SCreateAccountAck>(HandleCreateAccountReq);
+            m_agentMgrId = SunNet.Instance.FindSingletonServiceByName("AgentMgr");
+            RegisterServiceMsgNtfHandler<S2SLoginNtf>(HandleLoginNtf);
+            RegisterServiceMsgNtfHandler<S2SCreateAccountNtf>(HandleCreateAccountNtf);
         }
 
-        private async Task<ServiceMsgAck> HandleLoginReq_(ServiceMsgReq req)
-        {
-            return await HandleLoginReq(req as S2SLoginReq);
-        }
-
-        private async Task<S2SLoginAck> HandleLoginReq(S2SLoginReq req)
+        private async Task HandleLoginNtf(S2SLoginNtf ntf)
         {
             //Console.WriteLine("LoginService:HandleLoginReq");
-
-            S2SLoginAck ack = new S2SLoginAck() { m_res = 0 };
-
-            var dbAccount = await DBMethod.GetAccount(req.m_name);
-            if(dbAccount == null)
+            var req = ntf.m_req;
+            var userId = req.UserName;
+            var password = req.UserPassword;
+            var loginStatusSearch = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
-                ack.m_res = ErrorCode.LoginAccountNotExist;
+                UserId = userId
+            });
+            LoginAck ack = new LoginAck()
+            {
+                Result = ErrorCode.OK,
+            };
+            if (loginStatusSearch.Result == ErrorCode.OK)
+            {
+                Gateway.SendPackage(ntf.m_gatewayId, ntf.m_socket, ack);
+                return;
             }
             else
             {
-                if(dbAccount.Password != req.m_password)
+                var dbAccount = await DBMethod.GetAccount(req.UserName);
+
+                if (dbAccount == null)
                 {
-                    ack.m_res = ErrorCode.LoginPasswordError;
+                    ack.Result = ErrorCode.LoginAccountNotExist;
                 }
-            }
-            return ack;
+                else
+                {
+                    if (dbAccount.Password != req.UserPassword)
+                    {
+                        ack.Result = ErrorCode.LoginPasswordError;
+                    }
+                }
+                if (ack.Result == ErrorCode.OK)
+                {
+                    var agentId = SunNet.Instance.NewService("Agent");
+                    await SunNet.Instance.Call<S2SAgentRegisterReq, S2SAgentRegisterAck>(m_agentMgrId, new S2SAgentRegisterReq() {
+                        AgentId = agentId,
+                        UserId = userId,
+                        GatewayId = ntf.m_gatewayId,
+                        Socket = ntf.m_socket,
+                    });
+                    await SunNet.Instance.Call<S2SAgentInitReq, S2SAgentInitAck>(agentId, new S2SAgentInitReq()
+                    {
+                        m_userId = req.UserName,
+                    });
+                }
+                Gateway.SendPackage(ntf.m_gatewayId, ntf.m_socket, ack);
+                return;
+            }  
         }
 
-        private async Task<S2SCreateAccountAck> HandleCreateAccountReq(S2SCreateAccountReq req)
+        private async Task HandleCreateAccountNtf(S2SCreateAccountNtf ntf)
         {
             Console.WriteLine("LoginService:HandleCreateAccountReq");
+            var userId = ntf.m_req.UserName;
+            var password = ntf.m_req.UserPassword;
 
-            S2SCreateAccountAck ack = new S2SCreateAccountAck() { m_res = 0 };
+            CreateAccountAck ack = new CreateAccountAck()
+            {
+                Result = ErrorCode.OK,
+            };
 
-            var res = await DBMethod.CreateAccount(req.m_name, req.m_password);
+            var res = await DBMethod.CreateAccount(userId, password);
 
-            ack.m_res = 0;
-            return ack;
+            Gateway.SendPackage(ntf.m_gatewayId, ntf.m_socket, ack);
         }
     }
 }

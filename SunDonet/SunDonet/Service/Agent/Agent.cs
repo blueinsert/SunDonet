@@ -42,20 +42,12 @@ namespace SunDonet
 
         public void SendPackage(IMessage msg)
         {
-            SunNet.Instance.Send(m_gatewayId, new S2SGatewaySendPackageNtf()
-            {
-                Msg = msg,
-                AgentId = this.m_id,
-            });
+            Gateway.SendPackage(m_gatewayId, this.m_id, msg);
         }
 
         public void SendPackageList(List<IMessage> msgList)
         {
-            SunNet.Instance.Send(m_gatewayId, new S2SGatewaySendPackageListNtf()
-            {
-                MsgList = msgList,
-                AgentId = this.m_id,
-            });
+            Gateway.SendPackageList(m_gatewayId, this.m_id, msgList);
         }
 
         private async Task<S2SAgentInitAck> HandleAgentInitReq(S2SAgentInitReq req)
