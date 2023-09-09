@@ -35,10 +35,11 @@ message PlayerInfoInitEndNtf{
 }
 
 message PlayerBasicInfoNtf{
-	string Name = 1;
-	int32 PlayerLevel = 2;
-	int32 Exp = 3;
-	int32 Energy = 4;
-	int32 Gold = 5;
-	int32 Version = 6;
+	int32 Result = 1;
+	string Name = 2;
+	int32 PlayerLevel = 3;
+	int32 Exp = 4;
+	int32 Energy = 5;
+	int32 Gold = 6;
+	int32 Version = 7;
 }

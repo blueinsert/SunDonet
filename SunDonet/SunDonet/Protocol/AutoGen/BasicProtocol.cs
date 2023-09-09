@@ -32,9 +32,10 @@ namespace SunDonet.Protocol {
             IiIKEENyZWF0ZUFjY291bnRBY2sSDgoGUmVzdWx0GAEgASgFIhMKEVBsYXll
             ckluZm9Jbml0UmVxIiMKEVBsYXllckluZm9Jbml0QWNrEg4KBlJlc3VsdBgB
             IAEoBSImChRQbGF5ZXJJbmZvSW5pdEVuZE50ZhIOCgZSZXN1bHQYASABKAUi
-            cwoSUGxheWVyQmFzaWNJbmZvTnRmEgwKBE5hbWUYASABKAkSEwoLUGxheWVy
-            TGV2ZWwYAiABKAUSCwoDRXhwGAMgASgFEg4KBkVuZXJneRgEIAEoBRIMCgRH
-            b2xkGAUgASgFEg8KB1ZlcnNpb24YBiABKAViBnByb3RvMw==");
+            gwEKElBsYXllckJhc2ljSW5mb050ZhIOCgZSZXN1bHQYASABKAUSDAoETmFt
+            ZRgCIAEoCRITCgtQbGF5ZXJMZXZlbBgDIAEoBRILCgNFeHAYBCABKAUSDgoG
+            RW5lcmd5GAUgASgFEgwKBEdvbGQYBiABKAUSDwoHVmVyc2lvbhgHIAEoBWIG
+            cHJvdG8z");
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -45,7 +46,7 @@ namespace SunDonet.Protocol {
             new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerInfoInitReq), global::SunDonet.Protocol.PlayerInfoInitReq.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerInfoInitAck), global::SunDonet.Protocol.PlayerInfoInitAck.Parser, new[]{ "Result" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerInfoInitEndNtf), global::SunDonet.Protocol.PlayerInfoInitEndNtf.Parser, new[]{ "Result" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerBasicInfoNtf), global::SunDonet.Protocol.PlayerBasicInfoNtf.Parser, new[]{ "Name", "PlayerLevel", "Exp", "Energy", "Gold", "Version" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerBasicInfoNtf), global::SunDonet.Protocol.PlayerBasicInfoNtf.Parser, new[]{ "Result", "Name", "PlayerLevel", "Exp", "Energy", "Gold", "Version" }, null, null, null)
           }));
     }
     #endregion
@@ -1016,6 +1017,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public PlayerBasicInfoNtf(PlayerBasicInfoNtf other) : this() {
+      Result_ = other.Result_;
       Name_ = other.Name_;
       PlayerLevel_ = other.PlayerLevel_;
       Exp_ = other.Exp_;
@@ -1030,8 +1032,19 @@ namespace SunDonet.Protocol {
       return new PlayerBasicInfoNtf(this);
     }
 
+    /// <summary>Field number for the "Result" field.</summary>
+    public const int ResultFieldNumber = 1;
+    private int Result_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Result {
+      get { return Result_; }
+      set {
+        Result_ = value;
+      }
+    }
+
     /// <summary>Field number for the "Name" field.</summary>
-    public const int NameFieldNumber = 1;
+    public const int NameFieldNumber = 2;
     private string Name_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
@@ -1042,7 +1055,7 @@ namespace SunDonet.Protocol {
     }
 
     /// <summary>Field number for the "PlayerLevel" field.</summary>
-    public const int PlayerLevelFieldNumber = 2;
+    public const int PlayerLevelFieldNumber = 3;
     private int PlayerLevel_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int PlayerLevel {
@@ -1053,7 +1066,7 @@ namespace SunDonet.Protocol {
     }
 
     /// <summary>Field number for the "Exp" field.</summary>
-    public const int ExpFieldNumber = 3;
+    public const int ExpFieldNumber = 4;
     private int Exp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Exp {
@@ -1064,7 +1077,7 @@ namespace SunDonet.Protocol {
     }
 
     /// <summary>Field number for the "Energy" field.</summary>
-    public const int EnergyFieldNumber = 4;
+    public const int EnergyFieldNumber = 5;
     private int Energy_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Energy {
@@ -1075,7 +1088,7 @@ namespace SunDonet.Protocol {
     }
 
     /// <summary>Field number for the "Gold" field.</summary>
-    public const int GoldFieldNumber = 5;
+    public const int GoldFieldNumber = 6;
     private int Gold_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Gold {
@@ -1086,7 +1099,7 @@ namespace SunDonet.Protocol {
     }
 
     /// <summary>Field number for the "Version" field.</summary>
-    public const int VersionFieldNumber = 6;
+    public const int VersionFieldNumber = 7;
     private int Version_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Version {
@@ -1109,6 +1122,7 @@ namespace SunDonet.Protocol {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (Result != other.Result) return false;
       if (Name != other.Name) return false;
       if (PlayerLevel != other.PlayerLevel) return false;
       if (Exp != other.Exp) return false;
@@ -1121,6 +1135,7 @@ namespace SunDonet.Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
+      if (Result != 0) hash ^= Result.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (PlayerLevel != 0) hash ^= PlayerLevel.GetHashCode();
       if (Exp != 0) hash ^= Exp.GetHashCode();
@@ -1140,28 +1155,32 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
+      if (Result != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(Result);
+      }
       if (Name.Length != 0) {
-        output.WriteRawTag(10);
+        output.WriteRawTag(18);
         output.WriteString(Name);
       }
       if (PlayerLevel != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(24);
         output.WriteInt32(PlayerLevel);
       }
       if (Exp != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(32);
         output.WriteInt32(Exp);
       }
       if (Energy != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(40);
         output.WriteInt32(Energy);
       }
       if (Gold != 0) {
-        output.WriteRawTag(40);
+        output.WriteRawTag(48);
         output.WriteInt32(Gold);
       }
       if (Version != 0) {
-        output.WriteRawTag(48);
+        output.WriteRawTag(56);
         output.WriteInt32(Version);
       }
       if (_unknownFields != null) {
@@ -1172,6 +1191,9 @@ namespace SunDonet.Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
+      if (Result != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Result);
+      }
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
@@ -1200,6 +1222,9 @@ namespace SunDonet.Protocol {
     public void MergeFrom(PlayerBasicInfoNtf other) {
       if (other == null) {
         return;
+      }
+      if (other.Result != 0) {
+        Result = other.Result;
       }
       if (other.Name.Length != 0) {
         Name = other.Name;
@@ -1230,27 +1255,31 @@ namespace SunDonet.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case 8: {
+            Result = input.ReadInt32();
+            break;
+          }
+          case 18: {
             Name = input.ReadString();
             break;
           }
-          case 16: {
+          case 24: {
             PlayerLevel = input.ReadInt32();
             break;
           }
-          case 24: {
+          case 32: {
             Exp = input.ReadInt32();
             break;
           }
-          case 32: {
+          case 40: {
             Energy = input.ReadInt32();
             break;
           }
-          case 40: {
+          case 48: {
             Gold = input.ReadInt32();
             break;
           }
-          case 48: {
+          case 56: {
             Version = input.ReadInt32();
             break;
           }

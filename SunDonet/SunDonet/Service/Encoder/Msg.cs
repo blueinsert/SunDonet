@@ -15,24 +15,24 @@ namespace SunDonet
 
     public class S2SEncodeReq : ServiceMsgReq
     {
-        public object m_dataObj;
-        public EncodeProtocol m_protocolType;
+        public object DataObj;
+        public EncodeProtocol ProtocolType;
     }
 
     public class S2SEncodeAck : ServiceMsgAck
     {
-        public ClientBuffer m_buffer;
+        public ClientBuffer Buffer;
     }
 
     public class S2SDecodeReq : ServiceMsgReq
     {
-        public EncodeProtocol m_protocolType;
-        public ClientBuffer m_buff;
+        public EncodeProtocol ProtocolType;
+        public ClientBuffer Buffer;
     }
 
     public class S2SDecodeAck : ServiceMsgAck
     {
-        public object m_dataObj;
-        public int m_byteHandled;
+        public object DataObj;
+        public int ByteLenHandled;
     }
 }

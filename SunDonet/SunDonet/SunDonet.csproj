@@ -63,6 +63,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\AutoGen\BasicProtocol.cs" />
     <Compile Include="Protocol\AutoGen\SunDonetProtocolDictionary.cs" />
+    <Compile Include="Protocol\IProtoProvider.cs" />
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
     <Compile Include="ServiceBase.cs" />
     <Compile Include="Service\AgentMgr\Msg.cs" />
@@ -80,7 +81,7 @@
     <Compile Include="Service\Agent\Msg.cs" />
     <Compile Include="Service\Agent\PlayerContext.cs" />
     <Compile Include="Service\Encoder\Encoder.cs" />
-    <Compile Include="Service\Encoder\GoogleProtobufHelper.cs" />
+    <Compile Include="Protocol\GoogleProtobufHelper.cs" />
     <Compile Include="Service\Encoder\Msg.cs" />
     <Compile Include="Service\Gateway\Gateway.cs" />
     <Compile Include="Service\Gateway\Msg.cs" />

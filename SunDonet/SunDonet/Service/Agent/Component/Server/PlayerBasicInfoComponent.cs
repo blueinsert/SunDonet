@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf;
 using SunDonet.DB;
+using SunDonet.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +51,13 @@ namespace SunDonet
 
         public void SyncInitDataToClient(List<object> syncDestDatas)
         {
-            throw new NotImplementedException();
+            PlayerBasicInfoNtf ntf = new PlayerBasicInfoNtf();
+            ntf.Name = m_basicInfoDS.Name;
+            ntf.PlayerLevel = m_basicInfoDS.PlayerLevel;
+            ntf.Exp = m_basicInfoDS.Exp;
+            ntf.Energy = m_basicInfoDS.Energy;
+            ntf.Gold = m_basicInfoDS.Gold;
+            syncDestDatas.Add(ntf);
         }
         #endregion
     }

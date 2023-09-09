@@ -42,6 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetLibClient\Client.cs" />
+    <Compile Include="NetLibClient\Connection.cs" />
+    <Compile Include="NetLibClient\IClientEventHandler.cs" />
+    <Compile Include="NetLibClient\IConnectEventHandler.cs" />
+    <Compile Include="NetLibClient\MessageBlock.cs" />
+    <Compile Include="PlayerContext.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

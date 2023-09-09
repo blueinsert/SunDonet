@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SunDonet
+namespace SunDonet.Protocol
 {
-    public abstract class ProtocolDictionaryBase
+    public abstract class ProtocolDictionaryBase : IProtoProvider
     {
         /// <summary>
         /// 字典容器

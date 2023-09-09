@@ -9,8 +9,8 @@ namespace SunDonet
 {
     public class S2SAgentInitReq : ServiceMsgReq
     {
-        public string m_userId;
-        public int m_gatewayId;
+        public string UserId;
+        public int GatewayId;
     }
 
     public class S2SAgentInitAck : ServiceMsgAck

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using SunDonet;
 using SunDonet.Protocol;
 using Google.Protobuf;
+using NetLibClient;
+using System.Threading;
 
 namespace TestClient
 {
@@ -16,21 +18,40 @@ namespace TestClient
         {
             ProtocolDictionaryBase m_protocolDictionary = new SunDonetProtocolDictionary();
             var ack = SunDonet.Encoder.EncodeGoogleProtobuf(req, m_protocolDictionary);
-            client.GetStream().Write(ack.m_buffer.m_buffer, 0, ack.m_buffer.m_dataLen);
+            client.GetStream().Write(ack.Buffer.m_buffer, 0, ack.Buffer.m_dataLen);
             byte[] buff = new byte[8 * 1024 * 5];
             int received = client.GetStream().Read(buff, 0, buff.Length);
             var decodeAck = SunDonet.Encoder.DecodeGoogleProtobuf(buff, received, m_protocolDictionary);
-            var res = decodeAck.m_dataObj as TAck;
+            var res = decodeAck.DataObj as TAck;
             return res;
         }
 
         static void Main(string[] args)
         {
-            TcpClient client = new TcpClient();
-            client.Connect("127.0.0.1", 8888);
+           
             var userId = "zzx003";
             var password = "123";
-            var req = new SunDonet.Protocol.LoginReq()
+            PlayerContext playerContext = new PlayerContext();
+            Task.Run(() => { Proc_TickClient(playerContext); });
+            playerContext.EventOnLoginAck += (res) => {
+                if(res == ErrorCode.OK)
+                {
+                    playerContext.SendPlayerInfoInitReq();
+                }
+                if (res == ErrorCode.LoginAccountNotExist)
+                {
+                    playerContext.SendCreateAccountReq(userId, password);
+                }
+            };
+            playerContext.EventOnCreateAccountAck += (res) => {
+            };
+            playerContext.Connect("127.0.0.1", 8888);
+            playerContext.SendLoginReq(userId, password);
+
+            /*
+            TcpClient client = new TcpClient();
+            client.Connect("127.0.0.1", 8888);
+             var req = new SunDonet.Protocol.LoginReq()
             {
                 UserName = userId,
                 UserPassword = password,
@@ -49,6 +70,7 @@ namespace TestClient
                 ack = Send<SunDonet.Protocol.LoginReq, SunDonet.Protocol.LoginAck>(client, req);
                 Console.WriteLine(string.Format("loginAck:{0}", ack));
             }
+            */
             var exitEvent = new System.Threading.ManualResetEvent(false);
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
@@ -58,7 +80,16 @@ namespace TestClient
 
             exitEvent.WaitOne();
 
-            client.Close();
+            //client.Close();
+        }
+
+        private static void Proc_TickClient(PlayerContext playerContext)
+        {
+            while (true)
+            {
+                playerContext.Tick();
+                Thread.Sleep(300);
+            }
         }
     }
 }

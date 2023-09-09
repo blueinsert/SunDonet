@@ -71,17 +71,17 @@ namespace SunDonet
             {
                 S2SDecodeReq req = new S2SDecodeReq()
                 {
-                    m_protocolType = EncodeProtocol.Protobuf,
-                    m_buff = sumBuff,
+                    ProtocolType = EncodeProtocol.Protobuf,
+                    Buffer = sumBuff,
                 };
                 S2SDecodeAck ack = await SunNet.Instance.Call<S2SDecodeReq, S2SDecodeAck>(m_encoderService, req);
                 doNext = false;
-                if (ack != null && ack.m_byteHandled != 0 && ack.m_dataObj != null)
+                if (ack != null && ack.ByteLenHandled != 0 && ack.DataObj != null)
                 {
-                    await DispatchClientMsg(s, ack.m_dataObj as IMessage);
-                    Array.Copy(sumBuff.m_buffer, ack.m_byteHandled, sumBuff.m_buffer, 0, sumBuff.m_dataLen - ack.m_byteHandled);
-                    sumBuff.m_dataLen -= ack.m_byteHandled;
-                    if(sumBuff.m_dataLen > Encoder.ProtocolHeaderLen)
+                    await DispatchClientMsg(s, ack.DataObj as IMessage);
+                    Array.Copy(sumBuff.m_buffer, ack.ByteLenHandled, sumBuff.m_buffer, 0, sumBuff.m_dataLen - ack.ByteLenHandled);
+                    sumBuff.m_dataLen -= ack.ByteLenHandled;
+                    if(sumBuff.m_dataLen > GoogleProtobufHelper.ProtocolHeaderLen)
                     {
                         doNext = true;
                     }
@@ -154,13 +154,14 @@ namespace SunDonet
         {
             if (msg == null)
                 return;
+            Console.WriteLine(string.Format("Gateway:SendPackageIml remote:{0} {1} {2}", s.RemoteEndPoint.ToString(), msg.GetType(), msg));
             S2SEncodeReq req = new S2SEncodeReq()
             {
-                m_dataObj = msg,
-                m_protocolType = EncodeProtocol.Protobuf,
+                DataObj = msg,
+                ProtocolType = EncodeProtocol.Protobuf,
             };
             var encodeAck = await SunNet.Instance.Call<S2SEncodeReq, S2SEncodeAck>(m_encoderService, req);
-            SunNet.Instance.Send(s, encodeAck.m_buffer);
+            SunNet.Instance.Send(s, encodeAck.Buffer);
         }
 
         private async Task SendPackageList(Socket s, List<IMessage> msgList)
@@ -215,7 +216,7 @@ namespace SunDonet
 
         private async Task HandleSendPackage(S2SGatewaySendPackageNtf ntf)
         {
-            Console.WriteLine(string.Format("Gateway:HandleSendPackage {0}", ntf));
+            //Console.WriteLine(string.Format("Gateway:HandleSendPackage {0}", ntf));
             var agentId = ntf.AgentId;
             var searchAck = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
@@ -227,7 +228,7 @@ namespace SunDonet
 
         private async Task HandleSendPackageList(S2SGatewaySendPackageListNtf ntf)
         {
-            Console.WriteLine(string.Format("Gateway:HandleSendPackageList {0}", ntf));
+            //Console.WriteLine(string.Format("Gateway:HandleSendPackageList {0}", ntf));
             var agentId = ntf.AgentId;
             var searchAck = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
@@ -239,14 +240,14 @@ namespace SunDonet
 
         private async Task HandleSendPackage(S2SGatewaySendPackage2Ntf ntf)
         {
-            Console.WriteLine(string.Format("Gateway:HandleSendPackage {0}", ntf));
+            //Console.WriteLine(string.Format("Gateway:HandleSendPackage {0}", ntf));
             var socket = ntf.Socket;
             await SendPackageIml(socket, ntf.Msg);
         }
 
         private async Task HandleSendPackageList(S2SGatewaySendPackageList2Ntf ntf)
         {
-            Console.WriteLine(string.Format("Gateway:HandleSendPackageList {0}", ntf));
+            //Console.WriteLine(string.Format("Gateway:HandleSendPackageList {0}", ntf));
             var socket = ntf.Socket;
              await SendPackageList(socket, ntf.MsgList);
         }

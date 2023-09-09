@@ -72,7 +72,8 @@ namespace SunDonet
                     });
                     await SunNet.Instance.Call<S2SAgentInitReq, S2SAgentInitAck>(agentId, new S2SAgentInitReq()
                     {
-                        m_userId = req.UserName,
+                        UserId = req.UserName,
+                        GatewayId = ntf.m_gatewayId,
                     });
                 }
                 Gateway.SendPackage(ntf.m_gatewayId, ntf.m_socket, ack);

@@ -52,10 +52,10 @@ namespace SunDonet
 
         private async Task<S2SAgentInitAck> HandleAgentInitReq(S2SAgentInitReq req)
         {
-            Console.WriteLine(string.Format("Agent:HandleAgentInitReq {0}", req.m_userId));
-            this.m_gatewayId = req.m_gatewayId;
-            this.m_userId = req.m_userId;
-            m_playerContext.m_gameUserId = req.m_userId;
+            Console.WriteLine(string.Format("Agent:HandleAgentInitReq {0}", req.UserId));
+            this.m_gatewayId = req.GatewayId;
+            this.m_userId = req.UserId;
+            m_playerContext.m_gameUserId = req.UserId;
             m_playerContext.SetAgent(this);
             await m_playerContext.OnLoginOK();
             return new S2SAgentInitAck() { };
@@ -64,7 +64,7 @@ namespace SunDonet
         private async Task HandleClientNtf(S2SClientMsgHandleNtf reqWarp)
         {
             var req = reqWarp.m_req;
-            Console.WriteLine(string.Format("Agent:HandleClientReq {0}", req));
+            //Console.WriteLine(string.Format("Agent:HandleClientReq {0}", req));
             int id = SunNet.Instance.ProtocolDic.GetIdByType(req.GetType());
             switch (id)
             {
