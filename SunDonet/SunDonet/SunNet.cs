@@ -21,7 +21,7 @@ namespace SunDonet
         public static SunNet Instance { get { return m_instance; } }
         private SunNet() { }
 
-        public const string ConfigFilePath = "./xml/Config.xml";
+        public const string ConfigFilePath = "./Xml/Config.xml";
 
         public static SunNet CreateInstance()
         {
@@ -58,7 +58,7 @@ namespace SunDonet
 
         private ServerConfig m_serverConfig = null;
 
-        public ILog Log {get {return m_log;} }
+        public ILog Log { get { return m_log; } }
         private ILog m_log = null;
 
         private bool InitializeConfig()
@@ -85,7 +85,8 @@ namespace SunDonet
 
         public bool Initialize()
         {
-            if (!InitializeConfig()) {
+            if (!InitializeConfig())
+            {
                 return false;
             }
             if (!IntializeLog())
@@ -152,7 +153,7 @@ namespace SunDonet
             }
         }
 
-       
+
         private void AwaitableHandleManagerTimerCallBack(Object obj)
         {
             m_awaitableHandleManager.Tick();
@@ -163,6 +164,11 @@ namespace SunDonet
             StartSocketWorker();
             StartWorker();
             SunNet.Instance.Log.Info("Sunnet Start");
+        }
+
+        public void Uninitialize()
+        {
+            Log.Logger.Repository.Shutdown(); //此函数调用之后日志无法打印了
         }
 
         public Conn AddConn(Socket socket, SocketType type, int serviceId = -1)

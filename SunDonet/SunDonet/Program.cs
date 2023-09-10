@@ -23,6 +23,7 @@ namespace SunDonet
             SunNet.Instance.Start();
             SunNet.Instance.NewService("Main");
             SunNet.Instance.Wait();
+            SunNet.Instance.Uninitialize();
         }
     }
 }
