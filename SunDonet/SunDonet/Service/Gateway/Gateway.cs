@@ -42,13 +42,13 @@ namespace SunDonet
 
         public override async Task OnClientConnect(Socket s)
         {
-            Console.WriteLine("Gateway:OnClientConnect " + s.RemoteEndPoint.ToString());
+            SunNet.Instance.Log.Info("Gateway:OnClientConnect " + s.RemoteEndPoint.ToString());
             m_clientBuffDic.Add(s, ClientBuffer.GetBuffer(8 * 1024 * 5));
         }
 
         public override async Task OnClientDisconnect(Socket s)
         {
-            Console.WriteLine("Gateway:OnClientDisconnect " + s.RemoteEndPoint.ToString());
+            SunNet.Instance.Log.Info("Gateway:OnClientDisconnect " + s.RemoteEndPoint.ToString());
             m_clientBuffDic.Remove(s);
         }
 
@@ -56,11 +56,11 @@ namespace SunDonet
 
         public override async Task OnClientData(Socket s, ClientBuffer buff)
         {
-            //Console.WriteLine("Gateway:OnClientData len:" + buff.m_dataLen);
+            //SunNet.Instance.Log.Info("Gateway:OnClientData len:" + buff.m_dataLen);
             var sumBuff = m_clientBuffDic[s];
             if(sumBuff.m_dataLen + buff.m_dataLen > sumBuff.m_buffer.Length)
             {
-                Console.WriteLine("Gateway:OnClientData sumBuff need resize");
+                SunNet.Instance.Log.Info("Gateway:OnClientData sumBuff need resize");
                 //todo
             }
             Array.Copy(buff.m_buffer, 0, sumBuff.m_buffer, sumBuff.m_dataLen, buff.m_dataLen);
@@ -88,7 +88,7 @@ namespace SunDonet
                 }
                 else
                 {
-                    Console.WriteLine("Gateway:OnClientData decode failed or ignore");
+                    SunNet.Instance.Log.Info("Gateway:OnClientData decode failed or ignore");
                 }
             } while (doNext);
             
@@ -96,7 +96,7 @@ namespace SunDonet
 
         private async Task DispatchClientMsg(Socket s, IMessage msg)
         {
-            //Console.WriteLine(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
+            //SunNet.Instance.Log.Info(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
             var msgId = SunNet.Instance.ProtocolDic.GetIdByType(msg.GetType());
             if(msgId == SunDonetProtocolDictionary.MsgId_LoginReq)
             {
@@ -126,7 +126,7 @@ namespace SunDonet
 
         private async Task DispatchLoginReq(Socket s, LoginReq req)
         {
-            Console.WriteLine(string.Format("GateWay:HandleLoginReq {0}", req.ToString()));
+            SunNet.Instance.Log.Info(string.Format("GateWay:HandleLoginReq {0}", req.ToString()));
             SunNet.Instance.Send(m_loginService, new S2SLoginNtf()
             {
                 m_gatewayId = this.m_id,
@@ -137,7 +137,7 @@ namespace SunDonet
 
         private async Task DispatchCreateReq(Socket s, CreateAccountReq req)
         {
-            Console.WriteLine(string.Format("GateWay:HandleCreateReq {0}", req.ToString()));
+            SunNet.Instance.Log.Info(string.Format("GateWay:HandleCreateReq {0}", req.ToString()));
             SunNet.Instance.Send(m_loginService, new S2SCreateAccountNtf()
             {
                 m_gatewayId = this.m_id,
@@ -154,7 +154,7 @@ namespace SunDonet
         {
             if (msg == null)
                 return;
-            Console.WriteLine(string.Format("Gateway:SendPackageIml remote:{0} {1} {2}", s.RemoteEndPoint.ToString(), msg.GetType(), msg));
+            SunNet.Instance.Log.Info(string.Format("Gateway:SendPackageIml remote:{0} {1} {2}", s.RemoteEndPoint.ToString(), msg.GetType(), msg));
             S2SEncodeReq req = new S2SEncodeReq()
             {
                 DataObj = msg,
@@ -216,7 +216,7 @@ namespace SunDonet
 
         private async Task HandleSendPackage(S2SGatewaySendPackageNtf ntf)
         {
-            //Console.WriteLine(string.Format("Gateway:HandleSendPackage {0}", ntf));
+            //SunNet.Instance.Log.Info(string.Format("Gateway:HandleSendPackage {0}", ntf));
             var agentId = ntf.AgentId;
             var searchAck = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
@@ -228,7 +228,7 @@ namespace SunDonet
 
         private async Task HandleSendPackageList(S2SGatewaySendPackageListNtf ntf)
         {
-            //Console.WriteLine(string.Format("Gateway:HandleSendPackageList {0}", ntf));
+            //SunNet.Instance.Log.Info(string.Format("Gateway:HandleSendPackageList {0}", ntf));
             var agentId = ntf.AgentId;
             var searchAck = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
@@ -240,14 +240,14 @@ namespace SunDonet
 
         private async Task HandleSendPackage(S2SGatewaySendPackage2Ntf ntf)
         {
-            //Console.WriteLine(string.Format("Gateway:HandleSendPackage {0}", ntf));
+            //SunNet.Instance.Log.Info(string.Format("Gateway:HandleSendPackage {0}", ntf));
             var socket = ntf.Socket;
             await SendPackageIml(socket, ntf.Msg);
         }
 
         private async Task HandleSendPackageList(S2SGatewaySendPackageList2Ntf ntf)
         {
-            //Console.WriteLine(string.Format("Gateway:HandleSendPackageList {0}", ntf));
+            //SunNet.Instance.Log.Info(string.Format("Gateway:HandleSendPackageList {0}", ntf));
             var socket = ntf.Socket;
              await SendPackageList(socket, ntf.MsgList);
         }

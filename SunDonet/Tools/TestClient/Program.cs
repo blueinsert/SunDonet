@@ -56,19 +56,19 @@ namespace TestClient
                 UserName = userId,
                 UserPassword = password,
             };
-            Console.WriteLine(string.Format("loginReq:{0}", req));
+            SunNet.Instance.Log.Info(string.Format("loginReq:{0}", req));
             var ack = Send<SunDonet.Protocol.LoginReq, SunDonet.Protocol.LoginAck>(client,req);
-            Console.WriteLine(string.Format("loginAck:{0}", ack));
+            SunNet.Instance.Log.Info(string.Format("loginAck:{0}", ack));
            if(ack.Result == ErrorCode.LoginAccountNotExist)
             {
-                Console.WriteLine(string.Format("send create Req"));
+                SunNet.Instance.Log.Info(string.Format("send create Req"));
                 var createAck = Send<SunDonet.Protocol.CreateAccountReq, SunDonet.Protocol.CreateAccountAck>(client, new CreateAccountReq() {
                     UserName = userId,
                     UserPassword = password,
                 });
-                Console.WriteLine(string.Format("createAck:{0}", createAck));
+                SunNet.Instance.Log.Info(string.Format("createAck:{0}", createAck));
                 ack = Send<SunDonet.Protocol.LoginReq, SunDonet.Protocol.LoginAck>(client, req);
-                Console.WriteLine(string.Format("loginAck:{0}", ack));
+                SunNet.Instance.Log.Info(string.Format("loginAck:{0}", ack));
             }
             */
             var exitEvent = new System.Threading.ManualResetEvent(false);

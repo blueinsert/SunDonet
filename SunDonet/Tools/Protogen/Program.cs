@@ -16,13 +16,13 @@ namespace Protogen
     {
         static int Main(string[] args)
         {
-            Console.WriteLine("args.count={0}", args.Count());  
+            SunNet.Instance.Log.Info("args.count={0}", args.Count());  
             if (args.Count() < 4)
             {
-                Console.WriteLine("Usage: Protogen [ProtoDir] [AotuGenDir] [ProtoCollectionName] [ProtoNameSpace]");
+                SunNet.Instance.Log.Info("Usage: Protogen [ProtoDir] [AotuGenDir] [ProtoCollectionName] [ProtoNameSpace]");
                 return 1;
             }
-            Console.WriteLine("Input: {0} {1} {2} {3}", args[0], args[1], args[2], args[3]);
+            SunNet.Instance.Log.Info("Input: {0} {1} {2} {3}", args[0], args[1], args[2], args[3]);
             try
             {
                 var protoDir = args[0];
@@ -34,7 +34,7 @@ namespace Protogen
                 //1.调用google protoc产生协议类
                 if (!AutoGenProtocolFiles(protoDir, autoGenDir))
                 {
-                    Console.WriteLine("Protocol cs gen error");
+                    SunNet.Instance.Log.Info("Protocol cs gen error");
                     return 1;
                 }
                 //2. 产生协议字典类
@@ -47,22 +47,22 @@ namespace Protogen
                 var assembly = result.CompiledAssembly;
                 if (assembly == null)
                 {
-                    System.Console.WriteLine(string.Format("Load protocol assembly fail"));
+                    System.SunNet.Instance.Log.Info(string.Format("Load protocol assembly fail"));
                     return 1;
                 }
                 if (!AutoGenProtocolDictionary(autoGenDir, assembly, ptotoNamespace, protoCollectionName))
                 {
-                    System.Console.WriteLine(string.Format("AutoGenProtocolDictionary fail"));
+                    System.SunNet.Instance.Log.Info(string.Format("AutoGenProtocolDictionary fail"));
                     return 1;
                 }
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine("Error: {0} \n callBack={1}", ex.Message, ex.StackTrace);
+                SunNet.Instance.Log.Info("Error: {0} \n callBack={1}", ex.Message, ex.StackTrace);
                 return 1;
             }
-            Console.WriteLine("Protogen success!");
-            Console.WriteLine("Press any Key");
+            SunNet.Instance.Log.Info("Protogen success!");
+            SunNet.Instance.Log.Info("Press any Key");
             //Console.ReadKey();
             return 0;
         }
@@ -90,7 +90,7 @@ namespace Protogen
             }
             if (!Directory.Exists("./Template"))
             {
-                Console.WriteLine("Template dir not exist!");
+                SunNet.Instance.Log.Info("Template dir not exist!");
                 return false;
             }
             // 为所有的 模板 进行执行,并输出结果
@@ -111,7 +111,7 @@ namespace Protogen
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine("Message = {0}", ex.Message);
+                    System.SunNet.Instance.Log.Info("Message = {0}", ex.Message);
                 }
             }
             return true;
@@ -148,7 +148,7 @@ namespace Protogen
                     errorString.Append(err.ToString());
                     errorString.Append(Environment.NewLine);
                 }
-                Console.WriteLine("GetCompilerAssembly failed," + errorString);
+                SunNet.Instance.Log.Info("GetCompilerAssembly failed," + errorString);
             }
 
             return clientResult;
@@ -162,7 +162,7 @@ namespace Protogen
             {
                 Directory.CreateDirectory(autoGenPath);
             }
-            Console.WriteLine("EnvDir:" + Environment.CurrentDirectory);
+            SunNet.Instance.Log.Info("EnvDir:" + Environment.CurrentDirectory);
             try
             {
                 // 在编译proto文件
@@ -174,11 +174,11 @@ namespace Protogen
 
                     bool bError = false;
                     var errCode = "";
-                    Console.WriteLine(command);
+                    SunNet.Instance.Log.Info(command);
                     var ts = Task.Run(() =>
                     {
                         errCode = ExecuteCmd("cmd.exe", "/C" + command, 0, out bError);
-                        Console.WriteLine(errCode);
+                        SunNet.Instance.Log.Info(errCode);
                     });
                     ts.Wait();
 
@@ -245,7 +245,7 @@ namespace Protogen
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("{0}", ex.Message);
+                    SunNet.Instance.Log.Info("{0}", ex.Message);
                 }
                 finally
                 {

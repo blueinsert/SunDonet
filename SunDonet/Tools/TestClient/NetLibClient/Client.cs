@@ -82,7 +82,7 @@ namespace NetLibClient
                 m_clientEventHandler.OnError((int)ClientErrId.ConnectionSendFailure, "Client::SendMessage state not equal to established");
                 return false;
             }
-            Console.WriteLine(string.Format("Client:SendMessage {0} {1}",msg.GetType(), msg));
+            SunNet.Instance.Log.Info(string.Format("Client:SendMessage {0} {1}",msg.GetType(), msg));
             m_connect.SendMessage(msg);
             return true;
         }

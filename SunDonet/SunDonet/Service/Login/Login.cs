@@ -29,7 +29,7 @@ namespace SunDonet
 
         private async Task HandleLoginNtf(S2SLoginNtf ntf)
         {
-            //Console.WriteLine("LoginService:HandleLoginReq");
+            //SunNet.Instance.Log.Info("LoginService:HandleLoginReq");
             var req = ntf.m_req;
             var userId = req.UserName;
             var password = req.UserPassword;
@@ -83,7 +83,7 @@ namespace SunDonet
 
         private async Task HandleCreateAccountNtf(S2SCreateAccountNtf ntf)
         {
-            Console.WriteLine("LoginService:HandleCreateAccountReq");
+            SunNet.Instance.Log.Info("LoginService:HandleCreateAccountReq");
             var userId = ntf.m_req.UserName;
             var password = ntf.m_req.UserPassword;
 

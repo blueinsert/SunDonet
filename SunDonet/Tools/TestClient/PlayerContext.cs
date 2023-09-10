@@ -57,12 +57,12 @@ namespace TestClient
 
         public void OnError(int err, string excepionInfo = null)
         {
-            Console.WriteLine(string.Format("err:{0},excepionInfo:{1}", err, excepionInfo));
+            SunNet.Instance.Log.Info(string.Format("err:{0},excepionInfo:{1}", err, excepionInfo));
         }
 
         public void OnMessage(object msg, int msgId)
         {
-            Console.WriteLine(string.Format("PlayerContext:OnMessage {0} {1}", msg.GetType(), msg));
+            SunNet.Instance.Log.Info(string.Format("PlayerContext:OnMessage {0} {1}", msg.GetType(), msg));
             switch (msgId)
             {
                 case SunDonetProtocolDictionary.MsgId_LoginAck:

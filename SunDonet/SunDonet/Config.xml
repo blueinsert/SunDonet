@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configure>
+  <DataConfig DataPath="..\..\..\..\ConfigData\Server\Data\Json"/>
+  <Log LogConfigPath= "xml/LogConfigue.xml"></Log>
+  <MongoDB DataBase="MyDB" ConnectHost="127.0.0.1" Port="8888" ReplicaSet="" UserName="" Password=""/>
+</Configure>

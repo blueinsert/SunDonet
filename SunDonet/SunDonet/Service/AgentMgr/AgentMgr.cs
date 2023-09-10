@@ -36,7 +36,7 @@ namespace SunDonet
 
         private async Task<S2SAgentSearchAck> HandleSearchReq(S2SAgentSearchReq req)
         {
-            //Console.WriteLine(string.Format("AgentMgr:HandleSearchReq req:{0}", req));
+            //SunNet.Instance.Log.Info(string.Format("AgentMgr:HandleSearchReq req:{0}", req));
             var ack = new S2SAgentSearchAck();
             ack.Result = 1;//todo
             ack.RegisterItem = null;
@@ -71,7 +71,7 @@ namespace SunDonet
 
         private async Task<S2SAgentRegisterAck> HandleRegisterReq(S2SAgentRegisterReq req)
         {
-            //Console.WriteLine(string.Format("AgentMgr:HandleRegisterReq req:{0}", req));
+            //SunNet.Instance.Log.Info(string.Format("AgentMgr:HandleRegisterReq req:{0}", req));
             var ack = new S2SAgentRegisterAck();
             var item = new AgentRegisterItem()
             {
@@ -88,7 +88,7 @@ namespace SunDonet
 
         private async Task<S2SAgentRemoveAck> HandlerRemoveReq(S2SAgentRemoveReq req)
         {
-            //Console.WriteLine(string.Format("AgentMgr:HandlerRemoveReq req:{0}", req));
+            //SunNet.Instance.Log.Info(string.Format("AgentMgr:HandlerRemoveReq req:{0}", req));
             var agentId = req.AgentId;
             if (m_agent2ItemDic.ContainsKey(agentId))
             {

@@ -36,7 +36,7 @@ namespace SunDonet
 
         protected override async Task OnTick(float deltaTime)
         {
-            //Console.WriteLine("Agent:OnTick");
+            //SunNet.Instance.Log.Info("Agent:OnTick");
             await m_playerContext.OnTick(deltaTime);
         }
 
@@ -52,7 +52,7 @@ namespace SunDonet
 
         private async Task<S2SAgentInitAck> HandleAgentInitReq(S2SAgentInitReq req)
         {
-            Console.WriteLine(string.Format("Agent:HandleAgentInitReq {0}", req.UserId));
+            SunNet.Instance.Log.Info(string.Format("Agent:HandleAgentInitReq thisId:{0} userid:{0} gateway:",this.m_id, req.UserId, req.GatewayId));
             this.m_gatewayId = req.GatewayId;
             this.m_userId = req.UserId;
             m_playerContext.m_gameUserId = req.UserId;
@@ -64,7 +64,7 @@ namespace SunDonet
         private async Task HandleClientNtf(S2SClientMsgHandleNtf reqWarp)
         {
             var req = reqWarp.m_req;
-            //Console.WriteLine(string.Format("Agent:HandleClientReq {0}", req));
+            //SunNet.Instance.Log.Info(string.Format("Agent:HandleClientReq {0}", req));
             int id = SunNet.Instance.ProtocolDic.GetIdByType(req.GetType());
             switch (id)
             {

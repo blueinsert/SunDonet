@@ -24,17 +24,17 @@ namespace SunDonet
 
         public void Init()
         {
-            Console.WriteLine("PlayerBasicInfoComponentCommon:Init");
+            SunNet.Instance.Log.Info("PlayerBasicInfoComponentCommon:Init");
         }
 
         public void DeInit()
         {
-            Console.WriteLine("PlayerBasicInfoComponentCommon:Init");
+            SunNet.Instance.Log.Info("PlayerBasicInfoComponentCommon:Init");
         }
 
         public void PostInit()
         {
-            Console.WriteLine("PlayerBasicInfoComponentCommon:PostInit");
+            SunNet.Instance.Log.Info("PlayerBasicInfoComponentCommon:PostInit");
         }
 
         public virtual void DeSerialize<T>(T source)

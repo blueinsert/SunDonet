@@ -76,13 +76,13 @@ namespace SunDonet
                     assembly = m_assembleDict["Config"];
                     if (assembly == null)
                     {
-                        Console.WriteLine(string.Format("Can not find type {0}, assemble [Config] is null", typeDNName.m_typeFullName));
+                        SunNet.Instance.Log.Info(string.Format("Can not find type {0}, assemble [Config] is null", typeDNName.m_typeFullName));
                         return null;
                     }
                     type = assembly.GetType(typeDNName.m_typeFullName);
                     if (type == null)
                     {
-                        Console.WriteLine(string.Format("Can not find type {0}", typeDNName.m_typeFullName));
+                        SunNet.Instance.Log.Info(string.Format("Can not find type {0}", typeDNName.m_typeFullName));
                         return null;
                     }
                 }

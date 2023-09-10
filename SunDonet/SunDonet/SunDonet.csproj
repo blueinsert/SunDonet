@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\ThirdPart\logging-log4net-rc-2.0.8-RC1\build\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\ThirdPart\MongoDB\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -89,6 +92,7 @@
     <Compile Include="Service\Main.cs" />
     <Compile Include="Service\Login\Msg.cs" />
     <Compile Include="Service\NodeMgr.cs" />
+    <Compile Include="ServerConfigure.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />
     <Compile Include="ThirdPart\UniLua\ByteString.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="ThirdPart\UniLua\VM.cs" />
     <Compile Include="ThreadTimer.cs" />
     <Compile Include="Worker.cs" />
+    <Compile Include="Xml\XmlLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

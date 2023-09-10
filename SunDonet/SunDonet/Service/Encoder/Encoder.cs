@@ -36,7 +36,7 @@ namespace SunDonet
 
         private async Task<S2SEncodeAck> HandleEncodeReq(S2SEncodeReq req)
         {
-            //Console.WriteLine(string.Format("Encoder:HandleEncodeReq"));
+            //SunNet.Instance.Log.Info(string.Format("Encoder:HandleEncodeReq"));
             if (req.ProtocolType == EncodeProtocol.Protobuf)
             {
                 return EncodeGoogleProtobuf(req.DataObj as IMessage, m_protocolDictionary);
@@ -59,7 +59,7 @@ namespace SunDonet
 
         private async Task<S2SDecodeAck> HandleDecodeReq(S2SDecodeReq req)
         {
-            //Console.WriteLine(string.Format("Encoder:HandleDecodeReq"));
+            //SunNet.Instance.Log.Info(string.Format("Encoder:HandleDecodeReq"));
             if (req.ProtocolType == EncodeProtocol.Protobuf)
             {
                 return DecodeGoogleProtobuf(req.Buffer.m_buffer, req.Buffer.m_dataLen, m_protocolDictionary);

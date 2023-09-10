@@ -168,7 +168,7 @@ namespace SunDonet
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(string.Format("ThreadTimer::ThreadProc exception in OnTick e ={0}", e.ToString()));
+                        SunNet.Instance.Log.Info(string.Format("ThreadTimer::ThreadProc exception in OnTick e ={0}", e.ToString()));
                         // 发生错误后，设置正常的sleep时间，避免onTick被无限次调用
                         expectedSleepTime = m_minTickDeltaTime;
                     }
@@ -177,7 +177,7 @@ namespace SunDonet
             }
             catch (Exception e)
             {
-                Console.WriteLine(string.Format("ThreadTimer::ThreadProc exception in while e ={0}", e.ToString()));
+                SunNet.Instance.Log.Info(string.Format("ThreadTimer::ThreadProc exception in while e ={0}", e.ToString()));
             }
         }
 

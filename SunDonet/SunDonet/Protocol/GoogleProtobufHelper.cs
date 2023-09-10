@@ -39,7 +39,7 @@ namespace SunDonet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ex={0}", ex);
+                SunNet.Instance.Log.Info("ex={0}", ex);
                 throw;
             }
         }
@@ -61,7 +61,7 @@ namespace SunDonet
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ex={0}", ex);
+                SunNet.Instance.Log.Info("ex={0}", ex);
                 throw;
             }
         }
@@ -135,7 +135,7 @@ namespace SunDonet
             }
             catch (Exception e)
             {
-                Console.WriteLine(string.Format("Wrong Msg Id:{0} {1}", msgId, e.ToString()));
+                SunNet.Instance.Log.Info(string.Format("Wrong Msg Id:{0} {1}", msgId, e.ToString()));
             }
             return byteHandled;
         }

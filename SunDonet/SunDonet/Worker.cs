@@ -43,12 +43,12 @@ namespace SunDonet
                var service =  SunNet.Instance.PopGlobalQueue();
                 if (service == null)
                 {
-                    //Console.WriteLine(string.Format("worker id:{0} wait", m_id));
+                    //SunNet.Instance.Log.Info(string.Format("worker id:{0} wait", m_id));
                     SunNet.Instance.WorkerWait();
                 }
                 else
                 {
-                    //Console.WriteLine(string.Format("worker id:{0} process {1}", m_id, service.GetType().Name));
+                    //SunNet.Instance.Log.Info(string.Format("worker id:{0} process {1}", m_id, service.GetType().Name));
                     await service.ProcessMsgs(m_eachNum);
                     CheckAndPutGlobal(service);
                 }

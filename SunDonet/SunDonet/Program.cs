@@ -15,6 +15,11 @@ namespace SunDonet
         static void Main(string[] args)
         {
             SunNet.CreateInstance();
+            if (!SunNet.Instance.Initialize())
+            {
+                SunNet.Instance.Log.Info("SunNet Initialize failed!");
+                return;
+            }
             SunNet.Instance.Start();
             SunNet.Instance.NewService("Main");
             SunNet.Instance.Wait();

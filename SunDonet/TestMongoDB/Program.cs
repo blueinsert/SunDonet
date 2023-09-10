@@ -22,7 +22,7 @@ namespace TestMongoDB
             try
             {
                 var dbHelper = new MongoDBHelper(dbcfg);
-                Console.WriteLine("MongoDB connect success");
+                SunNet.Instance.Log.Info("MongoDB connect success");
 
                 DBCollectionPlayer dBCollectionPlayer1 = new DBCollectionPlayer()
                 {
@@ -60,7 +60,7 @@ namespace TestMongoDB
             }
             catch (Exception e)
             {
-                Console.WriteLine("MongoDB connect failed");
+                SunNet.Instance.Log.Info("MongoDB connect failed");
                 throw e;
             }
         }

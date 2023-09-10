@@ -72,7 +72,7 @@ namespace SunDonet
         {
             var task = new Task<Conn>(() =>
             {
-                //Console.WriteLine("Conn SocketReceiveTask Start");
+                //SunNet.Instance.Log.Info("Conn SocketReceiveTask Start");
                 m_taskCompleteEvent.Reset();
                 if (!m_socket.ReceiveAsync(m_event))
                 {
@@ -89,7 +89,7 @@ namespace SunDonet
             m_event.AcceptSocket = null;
             var task = new Task<Conn>(() =>
             {
-                //Console.WriteLine("Conn SocketAcceptTask Start");
+                //SunNet.Instance.Log.Info("Conn SocketAcceptTask Start");
                 m_taskCompleteEvent.Reset();
                 if (!m_socket.AcceptAsync(m_event))
                 {
@@ -104,7 +104,7 @@ namespace SunDonet
 
         private void ProcessReceive(SocketAsyncEventArgs e)
         {
-            //Console.WriteLine("Conn ProcessReceive:" + e.SocketError);
+            //SunNet.Instance.Log.Info("Conn ProcessReceive:" + e.SocketError);
             m_taskCompleteEvent.Set(); 
         }
 
@@ -115,7 +115,7 @@ namespace SunDonet
 
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
-            //Console.WriteLine("Conn ProcessAccept:"+ e.SocketError);
+            //SunNet.Instance.Log.Info("Conn ProcessAccept:"+ e.SocketError);
             m_taskCompleteEvent.Set();
         }
 

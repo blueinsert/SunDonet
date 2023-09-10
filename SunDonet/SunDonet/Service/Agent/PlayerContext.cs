@@ -152,7 +152,7 @@ namespace SunDonet
         protected virtual void Save2DB()
         {
             m_stopWatch.Restart();
-            //Console.WriteLine("PlayerContext:Save2DB");
+            //SunNet.Instance.Log.Info("PlayerContext:Save2DB");
             //收集需要更新的字段
             bool save = m_components.SerializeComponents(m_collectionUpdateBuilder);
             if (save)
@@ -194,7 +194,7 @@ namespace SunDonet
 
         public async Task OnTick(float deltaTime)
         {
-            //Console.WriteLine(string.Format("PlayerContext:OnTick deltaTime:{0}", deltaTime));
+            //SunNet.Instance.Log.Info(string.Format("PlayerContext:OnTick deltaTime:{0}", deltaTime));
             if((DateTime.Now - m_lastDBSaveTime).TotalSeconds > DBSavePeroid)
             {
                 Save2DB();
@@ -214,7 +214,7 @@ namespace SunDonet
 
         public async Task HandlePlayerInfoInitAck(PlayerInfoInitReq req)
         {
-            Console.WriteLine(string.Format("PlayerContext:HandlePlayerInfoInitAck {0}", req));
+            SunNet.Instance.Log.Info(string.Format("PlayerContext:HandlePlayerInfoInitAck {0}", req));
             PlayerInfoInitAck ack = new PlayerInfoInitAck() { Result = 0};
             SendPackage(ack);
 

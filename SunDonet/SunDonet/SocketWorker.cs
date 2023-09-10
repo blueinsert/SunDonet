@@ -51,7 +51,7 @@ namespace SunDonet
 
         public void RemoveEvent(Conn conn)
         {
-            //Console.WriteLine(string.Format("SocketWorker:RemoveEvent {0}", conn.m_socket.RemoteEndPoint.ToString()));
+            //SunNet.Instance.Log.Info(string.Format("SocketWorker:RemoveEvent {0}", conn.m_socket.RemoteEndPoint.ToString()));
             lock (m_connList)
             {
                 m_connList.Remove(conn);
@@ -83,7 +83,7 @@ namespace SunDonet
                     }
                     m_tasksLock.Wait();
                     {
-                        //Console.WriteLine("Task.WhenAny(m_tasks)");
+                        //SunNet.Instance.Log.Info("Task.WhenAny(m_tasks)");
                         completedTask = await Task.WhenAny(m_tasks);
                     }
                     m_tasksLock.Release();
@@ -118,7 +118,7 @@ namespace SunDonet
                         }
                         else
                         {
-                            Console.WriteLine(string.Format("task failed! {0}", completedTask.Exception.ToString()));
+                            SunNet.Instance.Log.Info(string.Format("task failed! {0}", completedTask.Exception.ToString()));
 
                             m_tasksLock.Wait();
                             {
@@ -131,7 +131,7 @@ namespace SunDonet
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
+                    SunNet.Instance.Log.Info(e.ToString());
                 }
 
             }
@@ -142,7 +142,7 @@ namespace SunDonet
             if (conn.m_socketType == SocketType.Listen)
             {
                 var s = conn.m_event.AcceptSocket;
-                Console.WriteLine(String.Format("客户 {0} 连入", s.RemoteEndPoint.ToString()));
+                SunNet.Instance.Log.Info(String.Format("客户 {0} 连入", s.RemoteEndPoint.ToString()));
                 var clientConn = SunNet.Instance.AddConn(s, SocketType.Normal, conn.m_serviceId);
                 this.AddEvent(clientConn);
                 //向服务发送onAccept消息
@@ -157,14 +157,14 @@ namespace SunDonet
                         ClientBuffer buffer = ClientBuffer.GetBuffer(conn.m_event.BytesTransferred);
                         Array.Copy(conn.m_event.Buffer, conn.m_event.Offset, buffer.m_buffer, 0, conn.m_event.BytesTransferred);
                         buffer.m_dataLen = conn.m_event.BytesTransferred;
-                        //Console.WriteLine(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(buffer.m_buffer)));
+                        //SunNet.Instance.Log.Info(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(buffer.m_buffer)));
                         //向服务发送消息
                         SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_socket = conn.m_socket, m_buff = buffer });
                     }
                     else
                     {
                         //客户端主动断开连接
-                        Console.WriteLine(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
+                        SunNet.Instance.Log.Info(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
                         SunNet.Instance.CloseConn(conn.m_socket);
                         //向服务发送消息
                         SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { m_type = MsgBase.MsgType.Socket_Disconnect, m_client = conn.m_socket });
@@ -174,7 +174,7 @@ namespace SunDonet
                 }
                 else
                 {
-                    Console.WriteLine(String.Format("客户 {0} Error:{1}", conn.m_socket.RemoteEndPoint.ToString(), conn.m_event.SocketError));
+                    SunNet.Instance.Log.Info(String.Format("客户 {0} Error:{1}", conn.m_socket.RemoteEndPoint.ToString(), conn.m_event.SocketError));
                     return false;
                 }
 

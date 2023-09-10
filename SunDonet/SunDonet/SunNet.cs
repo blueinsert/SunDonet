@@ -10,6 +10,8 @@ using System.Collections.Concurrent;
 using SunDonet.DB;
 using SunDonet.Protocol;
 using System.Diagnostics;
+using log4net;
+using System.IO;
 
 namespace SunDonet
 {
@@ -17,7 +19,10 @@ namespace SunDonet
     {
         private static SunNet m_instance;
         public static SunNet Instance { get { return m_instance; } }
-        private SunNet() { Init(); }
+        private SunNet() { }
+
+        public const string ConfigFilePath = "./xml/Config.xml";
+
         public static SunNet CreateInstance()
         {
             m_instance = new SunNet();
@@ -51,29 +56,43 @@ namespace SunDonet
         public ProtocolDictionaryBase ProtocolDic { get { return m_protocolDic; } }
         private ProtocolDictionaryBase m_protocolDic = null;
 
-        private void StartSocketWorker()
-        {
-            m_socketWorker.Init();
-            m_socketWorker.Start();
-            Console.WriteLine("StartSocketWorker");
-        }
+        private ServerConfig m_serverConfig = null;
 
-        private void StartWorker()
+        public ILog Log {get {return m_log;} }
+        private ILog m_log = null;
+
+        private bool InitializeConfig()
         {
-            for (int i = 0; i < 5; i++)
+            XmlLoader<ServerConfig> loader = new XmlLoader<ServerConfig>();
+            if (!loader.Initialize(ConfigFilePath))
             {
-                var worker = new Worker();
-                worker.m_id = i;
-                //延迟和效率统一
-                worker.m_eachNum = 2 << i;
-                worker.StartWorkerTask();
-                Console.WriteLine("StartWorker id:" + i);
-                m_workers.Add(worker);
+                return false;
             }
+            m_serverConfig = loader.Data;
+            return true;
         }
 
-        public void Init()
+        private bool IntializeLog()
         {
+            var file = new FileInfo(m_serverConfig.Log.LogConfigPath);
+            log4net.Config.XmlConfigurator.ConfigureAndWatch(file);
+
+            // 获得日志接口
+            m_log = LogManager.GetLogger(this.GetType().ToString());
+            m_log.InfoFormat("SunNet::Initialization log started");
+            return true;
+        }
+
+        public bool Initialize()
+        {
+            if (!InitializeConfig()) {
+                return false;
+            }
+            if (!IntializeLog())
+            {
+                SunNet.Instance.Log.Info("SunNet:Intialize IntializeLog Failed!");
+                return false;
+            }
             m_workerSeamphore = new Semaphore(0, 100);
             m_bufferManager = new BufferManager(8 * 1024 * 5 * 1024, 8 * 1024 * 5);
             //m_globalQueueSemaphore = new SemaphoreSlim(0);
@@ -89,7 +108,7 @@ namespace SunDonet
             m_timer.AddTimer(AwaitableHandleManagerTimerCallBack, m_awaitableHandleManager, 0, 500);
             m_timer.StartTask();
 
-            MongoDBConfigInfo dbcfg = new MongoDBConfigInfo()
+            DB.MongoDBConfigInfo dbcfg = new DB.MongoDBConfigInfo()
             {
                 DataBase = "MyDB",
                 ConnectHost = "127.0.0.1",
@@ -103,13 +122,37 @@ namespace SunDonet
             }
             catch (Exception e)
             {
-                Console.WriteLine("MongoDB connect failed");
+                SunNet.Instance.Log.Info("MongoDB connect failed");
                 throw e;
             }
 
             m_protocolDic = new SunDonetProtocolDictionary();
+            return true;
         }
 
+
+        private void StartSocketWorker()
+        {
+            m_socketWorker.Init();
+            m_socketWorker.Start();
+            SunNet.Instance.Log.Info("StartSocketWorker");
+        }
+
+        private void StartWorker()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                var worker = new Worker();
+                worker.m_id = i;
+                //延迟和效率统一
+                worker.m_eachNum = 2 << i;
+                worker.StartWorkerTask();
+                SunNet.Instance.Log.Info("StartWorker id:" + i);
+                m_workers.Add(worker);
+            }
+        }
+
+       
         private void AwaitableHandleManagerTimerCallBack(Object obj)
         {
             m_awaitableHandleManager.Tick();
@@ -119,7 +162,7 @@ namespace SunDonet
         {
             StartSocketWorker();
             StartWorker();
-            Console.WriteLine("Sunnet Start");
+            SunNet.Instance.Log.Info("Sunnet Start");
         }
 
         public Conn AddConn(Socket socket, SocketType type, int serviceId = -1)
@@ -150,7 +193,7 @@ namespace SunDonet
 
         public void Listen(int port, int serviceId = -1)
         {
-            Console.WriteLine(string.Format("SunNet:Listen on {0},service:{1}", port, serviceId));
+            SunNet.Instance.Log.Info(string.Format("SunNet:Listen on {0},service:{1}", port, serviceId));
             var address = IPAddress.Any;
             IPEndPoint localEndPoint = new IPEndPoint(address, port);
             Socket socket = new Socket(localEndPoint.AddressFamily, System.Net.Sockets.SocketType.Stream, ProtocolType.Tcp);
@@ -206,7 +249,7 @@ namespace SunDonet
                             }
                             m_servicesByName[name].Add(service);
                         }
-                        Console.WriteLine("SunNet:NewService {0} id:{1}", name, service.m_id);
+                        SunNet.Instance.Log.InfoFormat("SunNet:NewService {0} id:{1}", name, service.m_id);
                         service.OnInit();
                         return service.m_id;
                     }
@@ -244,7 +287,7 @@ namespace SunDonet
                 }
             }
 
-            Console.WriteLine(string.Format("FindSingletonServiceByName failed! name:{0}", name));
+            SunNet.Instance.Log.Info(string.Format("FindSingletonServiceByName failed! name:{0}", name));
             return -1;
         }
 
@@ -327,7 +370,7 @@ namespace SunDonet
                     ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
                     {
                         // socket buffer is probably full, wait and try again
-                        Console.WriteLine("SunNet SendPackage, sleep");
+                        SunNet.Instance.Log.Info("SunNet SendPackage, sleep");
                         Thread.Sleep(30);
                     }
                     else
@@ -507,7 +550,7 @@ namespace SunDonet
             AwaitableHandle handle = null;
             if (m_token2AwaitableHandleDict.TryRemove(token, out handle))
             {
-                Console.WriteLine("AwaitableHandleManager handle Cancel token={0}", token);
+                SunNet.Instance.Log.InfoFormat("AwaitableHandleManager handle Cancel token={0}", token);
 
                 handle.SetCancel();
                 return true;
@@ -538,7 +581,7 @@ namespace SunDonet
         public void Tick()
         {
             DateTime currTime = DateTime.Now;
-            //Console.WriteLine(string.Format("AwaitableHandleManager tick:{0}", currTime));
+            //SunNet.Instance.Log.Info(string.Format("AwaitableHandleManager tick:{0}", currTime));
 
             foreach (var item in m_token2AwaitableHandleDict)
             {
@@ -552,7 +595,7 @@ namespace SunDonet
                 AwaitableHandle handle;
                 if (m_token2AwaitableHandleDict.TryRemove(token, out handle))
                 {
-                    Console.WriteLine(
+                    SunNet.Instance.Log.InfoFormat(
                         "AwaitableHandleManager handle time out token={0}", token);
 
                     handle.SetTimeout();

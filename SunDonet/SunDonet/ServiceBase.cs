@@ -96,7 +96,7 @@ namespace SunDonet
             }
             else
             {
-                Console.WriteLine(string.Format("{0} OnServiceMsg msg:{1} not find handler", this.GetType().Name, msg.GetType().Name));
+                SunNet.Instance.Log.Info(string.Format("{0} OnServiceMsg msg:{1} not find handler", this.GetType().Name, msg.GetType().Name));
             }
         }
 
@@ -109,7 +109,7 @@ namespace SunDonet
             }
             else
             {
-                Console.WriteLine(string.Format("{0} OnServiceCall msg:{1} not find handler", this.GetType().Name, req.GetType().Name));
+                SunNet.Instance.Log.Info(string.Format("{0} OnServiceCall msg:{1} not find handler", this.GetType().Name, req.GetType().Name));
                 return null;
             }
         }
@@ -125,7 +125,7 @@ namespace SunDonet
                     if (ack == null)
                     {
                         ack = new NullServiceMsgAck();
-                        Console.WriteLine("OnServiceCall req:{0} ruturn null", req.GetType());
+                        SunNet.Instance.Log.ErrorFormat("OnServiceCall req:{0} ruturn null", req.GetType());
                     }
                     ack.m_token = token;
                     SunNet.Instance.SetAck(-1, ack);
@@ -201,7 +201,7 @@ namespace SunDonet
                 }
             }catch(Exception e)
             {
-                Console.WriteLine(string.Format("ServiceBase:ProcessMsgs exception: {0} \n{1}", e.ToString(), e.StackTrace));
+                SunNet.Instance.Log.Info(string.Format("ServiceBase:ProcessMsgs exception: {0} \n{1}", e.ToString(), e.StackTrace));
             }
         }
     }

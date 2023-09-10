@@ -13,7 +13,7 @@ namespace SunDonet
     {
         public override void DeSerialize<T>(T source)
         {
-            Console.WriteLine("PlayerBasicInfoComponent:DeSerialize");
+            SunNet.Instance.Log.Info("PlayerBasicInfoComponent:DeSerialize");
             DBCollectionPlayer player = source as DBCollectionPlayer;
             if (player == null)
                 return;
@@ -28,7 +28,7 @@ namespace SunDonet
 
         public override bool Serialize<T>(T dest)
         {
-            //Console.WriteLine("PlayerBasicInfoComponent:Serialize");
+            //SunNet.Instance.Log.Info("PlayerBasicInfoComponent:Serialize");
             if (!m_basicInfoDS.NeedSync2DB())
                 return false;
             var updateBuilder = dest as MongoPartialDBUpdateDocumentBuilder<DBCollectionPlayer>;
