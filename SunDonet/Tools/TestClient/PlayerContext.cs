@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NetLibClient;
 using SunDonet.Protocol;
+using Debug = System.Console;
 
 namespace TestClient
 {
@@ -57,12 +58,12 @@ namespace TestClient
 
         public void OnError(int err, string excepionInfo = null)
         {
-            SunNet.Instance.Log.Info(string.Format("err:{0},excepionInfo:{1}", err, excepionInfo));
+          Debug.WriteLine(string.Format("err:{0},excepionInfo:{1}", err, excepionInfo));
         }
 
         public void OnMessage(object msg, int msgId)
         {
-            SunNet.Instance.Log.Info(string.Format("PlayerContext:OnMessage {0} {1}", msg.GetType(), msg));
+            Debug.WriteLine(string.Format("PlayerContext:OnMessage {0} {1}", msg.GetType(), msg));
             switch (msgId)
             {
                 case SunDonetProtocolDictionary.MsgId_LoginAck:

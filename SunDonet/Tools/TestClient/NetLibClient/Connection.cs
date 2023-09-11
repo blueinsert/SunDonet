@@ -14,6 +14,7 @@ using System.IO;
 using SunDonet.Protocol;
 using SunDonet;
 using Google.Protobuf;
+using Debug =  System.Console;
 
 namespace NetLibClient
 {

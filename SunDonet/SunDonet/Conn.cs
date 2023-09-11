@@ -124,5 +124,16 @@ namespace SunDonet
             ProcessAccept(e);
         }
 
+        public override string ToString()
+        {
+            if(m_socketType == SocketType.Listen)
+            {
+                return string.Format("{0} {1}", m_socketType, m_socket.ToString());
+            }else
+            {
+                return string.Format("{0} {1}", m_socketType, m_socket.RemoteEndPoint.ToString());
+            }
+        }
+
     }
 }

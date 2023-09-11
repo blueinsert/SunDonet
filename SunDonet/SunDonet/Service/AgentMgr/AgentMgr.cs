@@ -18,8 +18,10 @@ namespace SunDonet
     /// <summary>
     /// 查询，注册 agent
     /// </summary>
-    public class AgentMgr:ServiceBase
+    public class AgentMgr : ServiceBase
     {
+        public List<AgentRegisterItem> RegisterItemList { get { return m_registerItemList; } }
+        private List<AgentRegisterItem> m_registerItemList = new List<AgentRegisterItem>();
         private Dictionary<int, AgentRegisterItem> m_agent2ItemDic = new Dictionary<int, AgentRegisterItem>();
         private Dictionary<string, AgentRegisterItem> m_userId2ItemDic = new Dictionary<string, AgentRegisterItem>();
         private Dictionary<Socket, AgentRegisterItem> m_socket2ItemDic = new Dictionary<Socket, AgentRegisterItem>();
@@ -71,7 +73,7 @@ namespace SunDonet
 
         private async Task<S2SAgentRegisterAck> HandleRegisterReq(S2SAgentRegisterReq req)
         {
-            //SunNet.Instance.Log.Info(string.Format("AgentMgr:HandleRegisterReq req:{0}", req));
+            Debug.Log(string.Format("AgentMgr:HandleRegisterReq req:{0}", req));
             var ack = new S2SAgentRegisterAck();
             var item = new AgentRegisterItem()
             {
@@ -83,18 +85,21 @@ namespace SunDonet
             m_agent2ItemDic.Add(req.AgentId, item);
             m_userId2ItemDic.Add(req.UserId, item);
             m_socket2ItemDic.Add(req.Socket, item);
+            m_registerItemList.Add(item);
             return ack;
         }
 
         private async Task<S2SAgentRemoveAck> HandlerRemoveReq(S2SAgentRemoveReq req)
         {
-            //SunNet.Instance.Log.Info(string.Format("AgentMgr:HandlerRemoveReq req:{0}", req));
+             Debug.Log(string.Format("AgentMgr:HandlerRemoveReq req:{0}", req));
             var agentId = req.AgentId;
             if (m_agent2ItemDic.ContainsKey(agentId))
             {
                 var item = m_agent2ItemDic[agentId];
                 m_userId2ItemDic.Remove(item.UserId);
                 m_agent2ItemDic.Remove(agentId);
+                m_socket2ItemDic.Remove(item.Socket);
+                m_registerItemList.Remove(item);
             }
             var ack = new S2SAgentRemoveAck();
             return ack;

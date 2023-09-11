@@ -46,10 +46,18 @@ namespace SunDonet
             m_clientBuffDic.Add(s, ClientBuffer.GetBuffer(8 * 1024 * 5));
         }
 
-        public override async Task OnClientDisconnect(Socket s)
+        public override async Task OnClientDisconnect(Socket s, string reason)
         {
-            SunNet.Instance.Log.Info("Gateway:OnClientDisconnect " + s.RemoteEndPoint.ToString());
+            Debug.Log("Gateway:OnClientDisconnect {0} {1}", s.RemoteEndPoint.ToString(), reason);
+            var clientBuff = m_clientBuffDic[s];
             m_clientBuffDic.Remove(s);
+            ClientBuffer.BackBuffer(clientBuff);
+            Send(m_loginService, new S2SLogoutNtf()
+            {
+                GatewayId = this.m_id,
+                Socket = s,
+            });
+            //s.Dispose();
         }
 
         #region 收包与分发
@@ -74,7 +82,7 @@ namespace SunDonet
                     ProtocolType = EncodeProtocol.Protobuf,
                     Buffer = sumBuff,
                 };
-                S2SDecodeAck ack = await SunNet.Instance.Call<S2SDecodeReq, S2SDecodeAck>(m_encoderService, req);
+                S2SDecodeAck ack = await Call<S2SDecodeReq, S2SDecodeAck>(m_encoderService, req);
                 doNext = false;
                 if (ack != null && ack.ByteLenHandled != 0 && ack.DataObj != null)
                 {
@@ -109,17 +117,17 @@ namespace SunDonet
             }
             else
             {
-                var searchAck = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
+                var searchAck = await Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
                 {
                     Socket = s,
                 });
                 if(searchAck.Result == ErrorCode.OK && searchAck.RegisterItem != null)
                 {
                     var agentId = searchAck.RegisterItem.AgentId;
-                    SunNet.Instance.Send(agentId, new S2SClientMsgHandleNtf()
+                    Send(agentId, new S2SClientMsgHandleNtf()
                     {
                         m_req = msg,
-                    });
+                    }); 
                 }
             }
         }
@@ -127,22 +135,22 @@ namespace SunDonet
         private async Task DispatchLoginReq(Socket s, LoginReq req)
         {
             SunNet.Instance.Log.Info(string.Format("GateWay:HandleLoginReq {0}", req.ToString()));
-            SunNet.Instance.Send(m_loginService, new S2SLoginNtf()
+            Send(m_loginService, new S2SLoginNtf()
             {
-                m_gatewayId = this.m_id,
-                m_socket = s,
-                m_req = req,
+                GatewayId = this.m_id,
+                Socket = s,
+                Req = req,
             });
         }
 
         private async Task DispatchCreateReq(Socket s, CreateAccountReq req)
         {
             SunNet.Instance.Log.Info(string.Format("GateWay:HandleCreateReq {0}", req.ToString()));
-            SunNet.Instance.Send(m_loginService, new S2SCreateAccountNtf()
+            Send(m_loginService, new S2SCreateAccountNtf()
             {
-                m_gatewayId = this.m_id,
-                m_socket = s,
-                m_req = req,
+                GatewayId = this.m_id,
+                Socket = s,
+                Req = req,
             });
         }
 
@@ -160,7 +168,7 @@ namespace SunDonet
                 DataObj = msg,
                 ProtocolType = EncodeProtocol.Protobuf,
             };
-            var encodeAck = await SunNet.Instance.Call<S2SEncodeReq, S2SEncodeAck>(m_encoderService, req);
+            var encodeAck = await Call<S2SEncodeReq, S2SEncodeAck>(m_encoderService, req);
             SunNet.Instance.Send(s, encodeAck.Buffer);
         }
 
@@ -218,7 +226,7 @@ namespace SunDonet
         {
             //SunNet.Instance.Log.Info(string.Format("Gateway:HandleSendPackage {0}", ntf));
             var agentId = ntf.AgentId;
-            var searchAck = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
+            var searchAck = await Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
                 AgentId = agentId,
             });
@@ -230,7 +238,7 @@ namespace SunDonet
         {
             //SunNet.Instance.Log.Info(string.Format("Gateway:HandleSendPackageList {0}", ntf));
             var agentId = ntf.AgentId;
-            var searchAck = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
+            var searchAck = await Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
                 AgentId = agentId,
             });

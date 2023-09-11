@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Debug = System.Console;
 
 namespace NetLibClient
 {
@@ -82,7 +83,7 @@ namespace NetLibClient
                 m_clientEventHandler.OnError((int)ClientErrId.ConnectionSendFailure, "Client::SendMessage state not equal to established");
                 return false;
             }
-            SunNet.Instance.Log.Info(string.Format("Client:SendMessage {0} {1}",msg.GetType(), msg));
+          Debug.WriteLine(string.Format("Client:SendMessage {0} {1}",msg.GetType(), msg));
             m_connect.SendMessage(msg);
             return true;
         }

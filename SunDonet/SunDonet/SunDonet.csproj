@@ -59,6 +59,7 @@
     <Compile Include="Common\ErrorCode.cs" />
     <Compile Include="Conn.cs" />
     <Compile Include="DB\DBMethod.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="LuaService.cs" />
     <Compile Include="DB\MongoDBHelper.cs" />
     <Compile Include="Msg.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Protocol\IProtoProvider.cs" />
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
     <Compile Include="ServiceBase.cs" />
+    <Compile Include="Service\AdminConsole\AdminConsole.cs" />
     <Compile Include="Service\AgentMgr\Msg.cs" />
     <Compile Include="Service\Agent\Agent.cs" />
     <Compile Include="Service\AgentMgr\AgentMgr.cs" />
@@ -136,9 +138,7 @@
     <None Include="App.config" />
     <None Include="Protocol\Proto\BasicProtocol.proto" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Service\Admin\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">
       <Project>{76ebb14c-b6ad-4c0d-bbb5-a1d6c2686827}</Project>

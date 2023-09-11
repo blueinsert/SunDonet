@@ -15,6 +15,15 @@ using System.IO;
 
 namespace SunDonet
 {
+    public enum ServerState
+    {
+        None = -1,
+        Starting,
+        Running,
+        Stoping,
+        Stoped,
+    }
+
     public class SunNet
     {
         private static SunNet m_instance;
@@ -28,6 +37,9 @@ namespace SunDonet
             m_instance = new SunNet();
             return m_instance;
         }
+
+        public ServerState ServerState = ServerState.None;
+        private ManualResetEvent m_exitEvent;
 
         private object m_connsLock = new object();
         public Dictionary<Socket, Conn> m_connDic = new Dictionary<Socket, Conn>();
@@ -85,6 +97,7 @@ namespace SunDonet
 
         public bool Initialize()
         {
+            ServerState = ServerState.Starting;
             if (!InitializeConfig())
             {
                 return false;
@@ -164,10 +177,45 @@ namespace SunDonet
             StartSocketWorker();
             StartWorker();
             SunNet.Instance.Log.Info("Sunnet Start");
+            ServerState = ServerState.Running;
+        }
+
+        public void Stop()
+        {
+            Debug.Log("SunNet:Stop");
+            //todo
+            //Interlocked.CompareExchange
+            ServerState = ServerState.Stoping;
+            //1.停止接受新的连接
+            m_socketWorker.Stop();
+            Thread.Sleep(500);
+            //2.将所有agent踢下线
+            int agentMgr = FindSingletonServiceByName("AgentMgr");
+            int login = FindSingletonServiceByName("Login");
+            var agetMgrIns = GetService(agentMgr) as AgentMgr;
+            var agents = agetMgrIns.RegisterItemList;
+            foreach(var agent in agents)
+            {
+                Send(login, new S2SLogoutNtf()
+                {
+                    GatewayId = agent.GateWayId,
+                    Socket = agent.Socket,
+                });
+            }
+            while (agents.Count != 0)
+            {
+                Thread.Sleep(100);
+            }
+
+            Uninitialize();
+            ServerState = ServerState.Stoped;
+
+            m_exitEvent.Set();
         }
 
         public void Uninitialize()
         {
+            Debug.Log("SunNet:Uninitialize");
             Log.Logger.Repository.Shutdown(); //此函数调用之后日志无法打印了
         }
 
@@ -219,14 +267,15 @@ namespace SunDonet
 
         public void Wait()
         {
-            var exitEvent = new System.Threading.ManualResetEvent(false);
+            m_exitEvent = new System.Threading.ManualResetEvent(false);
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
                 eventArgs.Cancel = true;
-                exitEvent.Set();
+                Stop();
+                //m_exitEvent.Set();
             };
 
-            exitEvent.WaitOne();
+            m_exitEvent.WaitOne();
         }
 
         //"Test","lua-test"
@@ -266,7 +315,13 @@ namespace SunDonet
 
         public void KillService(int id)
         {
-
+            Debug.Log("SunNet:KillService id:{0}", id);
+            ServiceBase service = GetService(id);
+            service.OnExit();
+            lock (m_servicesLock)
+            {
+                m_serviceDic.Remove(id);
+            }      
         }
 
         private ServiceBase GetService(int id)

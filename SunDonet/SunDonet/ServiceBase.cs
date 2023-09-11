@@ -27,6 +27,8 @@ namespace SunDonet
 
         private DateTime m_lastTickTime;
 
+        private long m_timerTickId = -1;
+
         /// <summary>
         /// second
         /// </summary>
@@ -39,12 +41,18 @@ namespace SunDonet
 
         protected void StartTick()
         {
-            SunNet.Instance.Timer.AddTimer(ServerOnTickTimerCallBack, this, 0, (int)(m_tickPeroid*1000));
+            m_timerTickId = SunNet.Instance.Timer.AddTimer(ServerOnTickTimerCallBack, this, 0, (int)(m_tickPeroid*1000));
+        }
+
+        protected void StopTick()
+        {
+            if(m_timerTickId != -1)
+                SunNet.Instance.Timer.RemoveTimer(m_timerTickId);
         }
 
         private void ServerOnTickTimerCallBack(Object obj)
         {
-            SunNet.Instance.Send(this.m_id, ServiceTickMsgNtf.TickMsgNtf);
+           Send(this.m_id, ServiceTickMsgNtf.TickMsgNtf);
         }
 
         protected virtual async Task OnTick(float deltaTime) { }
@@ -57,7 +65,9 @@ namespace SunDonet
             });
         }   
 
-        public virtual void OnExit() { }
+        public virtual void OnExit() {
+
+        }
 
         protected void RegisterServiceMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegate<TReq,TAck> handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
         {
@@ -82,9 +92,21 @@ namespace SunDonet
 
         public virtual async Task OnClientData(Socket s, ClientBuffer buff) { }
 
-        public virtual async Task OnClientDisconnect(Socket s)
+        public virtual async Task OnClientDisconnect(Socket s, string reason)
         {
 
+        }
+
+        protected void Send(int to, ServiceMsgNtf msg)
+        {
+            msg.Source = this.m_id;
+            SunNet.Instance.Send(to, msg);
+        }
+
+        public async Task<TAck> Call<TReq, TAck>(int to, TReq req) where TReq : ServiceMsgReq where TAck : ServiceMsgAck
+        {
+            req.Source = this.m_id;
+            return await SunNet.Instance.Call<TReq, TAck>(to, req);
         }
 
         public virtual async Task OnServiceMsg(ServiceMsgNtf msg)
@@ -115,7 +137,7 @@ namespace SunDonet
         }
 
         private async Task OnMsg(MsgBase msg) {
-            if(msg.m_type == MsgBase.MsgType.Service)
+            if(msg.MessageType == MsgBase.MsgType.Service)
             {
                 if(msg is ServiceMsgReq)
                 {
@@ -135,17 +157,18 @@ namespace SunDonet
                     await OnServiceMsg(msg as ServiceMsgNtf);
                 }
             }
-            switch (msg.m_type)
+            switch (msg.MessageType)
             {
                 case MsgBase.MsgType.Socket_Accept:
-                    await OnClientConnect((msg as SocketAcceptMsg).m_client);
+                    await OnClientConnect((msg as SocketAcceptMsg).Client);
                     break;
                 case MsgBase.MsgType.Socket_Disconnect:
-                    await OnClientDisconnect((msg as SocketDisconnectMsg).m_client);
+                    var disconnectMsg = msg as SocketDisconnectMsg;
+                    await OnClientDisconnect(disconnectMsg.Client, disconnectMsg.Reason);
                     break;
                 case MsgBase.MsgType.Socket_Data:
                     var clientDataMsg = msg as SocketDataMsg;
-                    await OnClientData(clientDataMsg.m_socket, clientDataMsg.m_buff);
+                    await OnClientData(clientDataMsg.Socket, clientDataMsg.Buff);
                     break;
             }
         }

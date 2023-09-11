@@ -25,15 +25,17 @@ namespace SunDonet
             m_agentMgrId = SunNet.Instance.FindSingletonServiceByName("AgentMgr");
             RegisterServiceMsgNtfHandler<S2SLoginNtf>(HandleLoginNtf);
             RegisterServiceMsgNtfHandler<S2SCreateAccountNtf>(HandleCreateAccountNtf);
+            RegisterServiceMsgNtfHandler<S2SLogoutNtf>(HandleLogoutNtf);
         }
 
         private async Task HandleLoginNtf(S2SLoginNtf ntf)
         {
-            //SunNet.Instance.Log.Info("LoginService:HandleLoginReq");
-            var req = ntf.m_req;
+            Debug.Log("Login:HandleLoginReq {0} {1}", ntf.Socket.RemoteEndPoint, ntf.Req.UserName);
+            var req = ntf.Req;
             var userId = req.UserName;
             var password = req.UserPassword;
-            var loginStatusSearch = await SunNet.Instance.Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
+            var socket = ntf.Socket;
+            var loginStatusSearch = await Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
                 UserId = userId
             });
@@ -43,7 +45,16 @@ namespace SunDonet
             };
             if (loginStatusSearch.Result == ErrorCode.OK)
             {
-                Gateway.SendPackage(ntf.m_gatewayId, ntf.m_socket, ack);
+                var registerItem = loginStatusSearch.RegisterItem;
+                if (registerItem.Socket != socket)
+                {
+                    ack.Result = ErrorCode.LoginHasBeenLogin;
+                }
+                else
+                {
+                    ack.Result = ErrorCode.LoginMultiLogin;
+                }
+                Gateway.SendPackage(ntf.GatewayId, ntf.Socket, ack);
                 return;
             }
             else
@@ -64,19 +75,19 @@ namespace SunDonet
                 if (ack.Result == ErrorCode.OK)
                 {
                     var agentId = SunNet.Instance.NewService("Agent");
-                    await SunNet.Instance.Call<S2SAgentRegisterReq, S2SAgentRegisterAck>(m_agentMgrId, new S2SAgentRegisterReq() {
+                    await Call<S2SAgentRegisterReq, S2SAgentRegisterAck>(m_agentMgrId, new S2SAgentRegisterReq() {
                         AgentId = agentId,
                         UserId = userId,
-                        GatewayId = ntf.m_gatewayId,
-                        Socket = ntf.m_socket,
+                        GatewayId = ntf.GatewayId,
+                        Socket = ntf.Socket,
                     });
-                    await SunNet.Instance.Call<S2SAgentInitReq, S2SAgentInitAck>(agentId, new S2SAgentInitReq()
+                    await Call<S2SAgentInitReq, S2SAgentInitAck>(agentId, new S2SAgentInitReq()
                     {
                         UserId = req.UserName,
-                        GatewayId = ntf.m_gatewayId,
+                        GatewayId = ntf.GatewayId,
                     });
                 }
-                Gateway.SendPackage(ntf.m_gatewayId, ntf.m_socket, ack);
+                Gateway.SendPackage(ntf.GatewayId, ntf.Socket, ack);
                 return;
             }  
         }
@@ -84,8 +95,8 @@ namespace SunDonet
         private async Task HandleCreateAccountNtf(S2SCreateAccountNtf ntf)
         {
             SunNet.Instance.Log.Info("LoginService:HandleCreateAccountReq");
-            var userId = ntf.m_req.UserName;
-            var password = ntf.m_req.UserPassword;
+            var userId = ntf.Req.UserName;
+            var password = ntf.Req.UserPassword;
 
             CreateAccountAck ack = new CreateAccountAck()
             {
@@ -94,7 +105,30 @@ namespace SunDonet
 
             var res = await DBMethod.CreateAccount(userId, password);
 
-            Gateway.SendPackage(ntf.m_gatewayId, ntf.m_socket, ack);
+            Gateway.SendPackage(ntf.GatewayId, ntf.Socket, ack);
+        }
+
+        private async Task HandleLogoutNtf(S2SLogoutNtf ntf)
+        {
+            Debug.Log("Login:HandleLogoutNtf:{0}", ntf.Socket.RemoteEndPoint.ToString());
+            var searchResult = await Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
+            {
+                Socket = ntf.Socket,
+            });
+            if (searchResult != null && searchResult.Result == ErrorCode.OK)
+            {
+                var agentId = searchResult.RegisterItem.AgentId;
+                var ack = await Call<S2SAgentExitReq, S2SAgentExitAck>(agentId, new S2SAgentExitReq());
+                await Call<S2SAgentRemoveReq, S2SAgentRemoveAck>(m_agentMgrId, new S2SAgentRemoveReq()
+                {
+                    AgentId = agentId,
+                });
+                ntf.Socket.Dispose();
+            }
+            else
+            {
+                ntf.Socket.Dispose();
+            }
         }
     }
 }

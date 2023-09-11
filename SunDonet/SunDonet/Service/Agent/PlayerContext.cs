@@ -149,7 +149,7 @@ namespace SunDonet
             }
         }
 
-        protected virtual void Save2DB()
+        public virtual void Save2DB()
         {
             m_stopWatch.Restart();
             //SunNet.Instance.Log.Info("PlayerContext:Save2DB");
@@ -212,9 +212,9 @@ namespace SunDonet
             m_agent.SendPackageList(msgList);
         }
 
-        public async Task HandlePlayerInfoInitAck(PlayerInfoInitReq req)
+        public async Task HandlePlayerInfoInitReq(PlayerInfoInitReq req)
         {
-            SunNet.Instance.Log.Info(string.Format("PlayerContext:HandlePlayerInfoInitAck {0}", req));
+            SunNet.Instance.Log.Info(string.Format("PlayerContext:HandlePlayerInfoInitReq {0}", req));
             PlayerInfoInitAck ack = new PlayerInfoInitAck() { Result = 0};
             SendPackage(ack);
 

@@ -16,6 +16,7 @@ namespace SunDonet
         public override void OnInit()
         {
             base.OnInit();
+            SunNet.Instance.NewService("AdminConsole");
             SunNet.Instance.NewService("Encoder");
             SunNet.Instance.NewService("AgentMgr");
             SunNet.Instance.NewService("Login");

@@ -18,29 +18,30 @@ namespace SunDonet
             Socket_Data,
         }
 
-        public MsgType m_type;
+        public MsgType MessageType;
     }
 
     public class SocketAcceptMsg : MsgBase
     {
-        public Socket m_listen;
-        public Socket m_client;
+        public Socket Listen;
+        public Socket Client;
     }
 
     public class SocketDisconnectMsg : MsgBase
     {
-        public Socket m_client;
+        public Socket Client;
+        public string Reason;
     }
 
     public class SocketDataMsg : MsgBase
     {
-        public Socket m_socket;
-        public ClientBuffer m_buff;
+        public Socket Socket;
+        public ClientBuffer Buff;
     }
 
     public abstract class ServiceMsg : MsgBase
     {
-        public int m_source;
+        public int Source;
     }
 
     //不需要回复

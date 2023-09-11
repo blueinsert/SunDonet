@@ -27,11 +27,19 @@ namespace SunDonet
            
             RegisterServiceMsgCallHandler<S2SAgentInitReq, S2SAgentInitAck>(HandleAgentInitReq);
             RegisterServiceMsgNtfHandler<S2SClientMsgHandleNtf>(HandleClientNtf);
+            RegisterServiceMsgCallHandler<S2SAgentExitReq, S2SAgentExitAck>(HandleAgentExitReq);
 
             m_playerContext = new PlayerContext();
 
             SetTickPeroid(0.5f);
             StartTick();
+        }
+
+        public override void OnExit()
+        {
+            Debug.Log("Agent:OnExit");
+            base.OnExit();
+            StopTick();
         }
 
         protected override async Task OnTick(float deltaTime)
@@ -52,7 +60,7 @@ namespace SunDonet
 
         private async Task<S2SAgentInitAck> HandleAgentInitReq(S2SAgentInitReq req)
         {
-            SunNet.Instance.Log.Info(string.Format("Agent:HandleAgentInitReq thisId:{0} userid:{0} gateway:",this.m_id, req.UserId, req.GatewayId));
+            SunNet.Instance.Log.Info(string.Format("Agent:HandleAgentInitReq thisId:{0} userid:{1} gateway:{2}",this.m_id, req.UserId, req.GatewayId));
             this.m_gatewayId = req.GatewayId;
             this.m_userId = req.UserId;
             m_playerContext.m_gameUserId = req.UserId;
@@ -69,14 +77,25 @@ namespace SunDonet
             switch (id)
             {
                 case SunDonetProtocolDictionary.MsgId_PlayerInfoInitReq:
-                    await HandlePlayerInfoInitAck(req as PlayerInfoInitReq);
+                    await HandleAgentInfoInitReq(req as PlayerInfoInitReq);
                     break;
             }
         }
 
-        private async Task HandlePlayerInfoInitAck(PlayerInfoInitReq req)
+        private async Task HandleAgentInfoInitReq(PlayerInfoInitReq req)
         {
-            await m_playerContext.HandlePlayerInfoInitAck(req);
+            await m_playerContext.HandlePlayerInfoInitReq(req);
+        }
+
+        private async Task<S2SAgentExitAck> HandleAgentExitReq(S2SAgentExitReq req)
+        {
+            Debug.Log("Agent:HandlePlayerExitReq id:{2} userId: {0} gateway:{1}", m_userId, m_gatewayId,this.m_id);
+
+            m_playerContext.Save2DB();
+
+            SunNet.Instance.KillService(this.m_id);
+
+            return new S2SAgentExitAck();
         }
     }
 }

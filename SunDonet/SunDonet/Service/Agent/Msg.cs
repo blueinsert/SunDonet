@@ -23,4 +23,13 @@ namespace SunDonet
         public IMessage m_req;
     }
 
+    public class S2SAgentExitReq:ServiceMsgReq
+    {
+
+    }
+
+    public class S2SAgentExitAck : ServiceMsgAck
+    {
+
+    }
 }

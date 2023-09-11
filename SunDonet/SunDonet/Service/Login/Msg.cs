@@ -10,17 +10,22 @@ namespace SunDonet
 {
    public class S2SLoginNtf : ServiceMsgNtf
     {
-        public int m_gatewayId;
-        public Socket m_socket;
-        public LoginReq m_req;
+        public int GatewayId;
+        public Socket Socket;
+        public LoginReq Req;
     }
 
 
     public class S2SCreateAccountNtf : ServiceMsgNtf
     {
-        public int m_gatewayId;
-        public Socket m_socket;
-        public CreateAccountReq m_req;
+        public int GatewayId;
+        public Socket Socket;
+        public CreateAccountReq Req;
     }
 
+    public class S2SLogoutNtf : ServiceMsgNtf
+    {
+        public int GatewayId;
+        public Socket Socket;
+    }
 }

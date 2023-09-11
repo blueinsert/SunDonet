@@ -10,35 +10,84 @@ namespace SunDonet
 {
     public class SocketWorker
     {
+        public enum SocketWorkerState
+        {
+            Running,
+            Stoping,
+            Stoped,
+        }
+
+        SocketWorkerState m_state;
+
         SemaphoreSlim m_tasksLock;
-        public LinkedList<Task<Conn>> m_tasks = new LinkedList<Task<Conn>>();
+        public LinkedList<Task> m_tasks = new LinkedList<Task>();
 
         private object m_connsLock = new object();
         public List<Conn> m_connList = new List<Conn>();
 
-        ManualResetEvent m_notnullEvent;
+        //ManualResetEvent m_notnullEvent;
+        bool m_isInWaiting = false;
+        CancellationTokenSource m_cancelSource = null;
+        Task m_cancelWaitAnyTask = null;
+
+        public void Stop()
+        {
+            m_state = SocketWorkerState.Stoping;
+        }
 
         public void Init()
         {
-            m_notnullEvent = new ManualResetEvent(false);
+            //m_notnullEvent = new ManualResetEvent(false);
             m_tasksLock = new SemaphoreSlim(1);
         }
 
         public void Start()
         {
+            m_state = SocketWorkerState.Running;
+            ConstructCancelWaitAnyTask();
+            m_tasksLock.Wait();
+            {
+                m_tasks.AddLast(m_cancelWaitAnyTask);
+            }
+            m_tasksLock.Release();
             Task.Run(() => { WorkerProcess().Wait(); });
+        }
+
+        private void ConstructCancelWaitAnyTask()
+        {
+            if (m_cancelSource == null)
+            {
+                //m_cancelSource = new CancellationTokenSource();
+            }
+            m_cancelSource = new CancellationTokenSource();
+            var m_cancellationToken = m_cancelSource.Token;
+            if (m_cancellationToken.IsCancellationRequested)
+            {
+                m_cancelWaitAnyTask = Task.FromCanceled(m_cancellationToken);
+            }
+            else
+            {
+                //return Task.Run(() => { client.m_cancellationToken.WaitHandle.WaitOne(); });
+                var tcs = new TaskCompletionSource<int>();
+                m_cancellationToken.Register(() => tcs.TrySetCanceled(m_cancellationToken), useSynchronizationContext: false);
+                m_cancelWaitAnyTask = tcs.Task;
+            }
         }
 
         public void AddEvent(Conn conn)
         {
             conn.ConstructTask();
             conn.m_task.Start();
-
+            if (m_isInWaiting)
+            {
+                Task.Run(() => { m_cancelSource.Cancel(); }); 
+            }
             m_tasksLock.Wait();
             {
+                //Debug.Log("SocketWorker:AddEvent {0}", conn.m_socketType);
                 m_tasks.AddLast(conn.m_task);
-                if (m_tasks.Count != 0)
-                    m_notnullEvent.Set();
+                //if (m_tasks.Count != 0)
+                //    m_notnullEvent.Set();
             }
             m_tasksLock.Release();
 
@@ -52,7 +101,7 @@ namespace SunDonet
         public void RemoveEvent(Conn conn)
         {
             //SunNet.Instance.Log.Info(string.Format("SocketWorker:RemoveEvent {0}", conn.m_socket.RemoteEndPoint.ToString()));
-            lock (m_connList)
+            lock (m_connsLock)
             {
                 m_connList.Remove(conn);
             }
@@ -62,8 +111,8 @@ namespace SunDonet
                 m_tasksLock.Wait();
                 {
                     m_tasks.Remove(conn.m_task);
-                    if (m_tasks.Count == 0)
-                        m_notnullEvent.Reset();
+                    //if (m_tasks.Count == 0)
+                    //    m_notnullEvent.Reset();
                 }
                 m_tasksLock.Release();
             }
@@ -75,34 +124,56 @@ namespace SunDonet
             {
                 try
                 {
-                    Task<Conn> completedTask = null;
-                    if (m_tasks.Count <= 0)
-                    {
+                    Task<Conn> completedConnTask = null;
+                    Task completedTask = null;
+                    //if (m_tasks.Count <= 0)
+                    //{
                         //wait
-                        m_notnullEvent.WaitOne();
-                    }
+                    //    m_notnullEvent.WaitOne();
+                    //}
                     m_tasksLock.Wait();
                     {
+                        m_isInWaiting = true;
                         //SunNet.Instance.Log.Info("Task.WhenAny(m_tasks)");
                         completedTask = await Task.WhenAny(m_tasks);
+                        m_isInWaiting = false;
                     }
                     m_tasksLock.Release();
-
-                    if (completedTask != null)
+                    if(completedTask == m_cancelWaitAnyTask)
                     {
-                        if (completedTask.Status == TaskStatus.RanToCompletion)
+                        ConstructCancelWaitAnyTask();
+                        m_tasksLock.Wait();
                         {
-                            var completedConn = completedTask.Result;
-                            var res = ProcessEvent(completedConn);
+                            m_tasks.Remove(completedTask);
+                            m_tasks.AddLast(m_cancelWaitAnyTask);
+                        }
+                        m_tasksLock.Release();
+                        Task.Delay(100).Wait();
+                        continue;
+                    }
+                    completedConnTask = completedTask as Task<Conn>;
+                    if (completedConnTask != null)
+                    {
+                        if (completedConnTask.Status == TaskStatus.RanToCompletion)
+                        {
+                            var state = m_state;//todo
+                            var completedConn = completedConnTask.Result;
+                            //state为stoping时，不处理此次监听到的事件，并且不再继续监听该socket
+                            bool res = true;
+                            if(state == SocketWorkerState.Running)
+                                res = ProcessEvent(completedConn);
                             if (res)
                             {
-                                completedConn.ConstructTask();
-                                completedConn.m_task.Start();
+                                if (state == SocketWorkerState.Running) {
+                                    completedConn.ConstructTask();
+                                    completedConn.m_task.Start();
+                                }
 
                                 m_tasksLock.Wait();
                                 {
-                                    m_tasks.Remove(completedTask);
-                                    m_tasks.AddLast(completedConn.m_task);
+                                    m_tasks.Remove(completedConnTask);
+                                    if (state == SocketWorkerState.Running)
+                                        m_tasks.AddLast(completedConn.m_task);
                                 }
                                 m_tasksLock.Release();
                             }
@@ -110,7 +181,7 @@ namespace SunDonet
                             {
                                 m_tasksLock.Wait();
                                 {
-                                    m_tasks.Remove(completedTask);
+                                    m_tasks.Remove(completedConnTask);
                                 }
                                 m_tasksLock.Release();
                             }
@@ -118,11 +189,11 @@ namespace SunDonet
                         }
                         else
                         {
-                            SunNet.Instance.Log.Info(string.Format("task failed! {0}", completedTask.Exception.ToString()));
+                            SunNet.Instance.Log.Info(string.Format("task failed! {0}", completedConnTask.Exception.ToString()));
 
                             m_tasksLock.Wait();
                             {
-                                m_tasks.Remove(completedTask);
+                                m_tasks.Remove(completedConnTask);
                             }
                             m_tasksLock.Release();
                         }
@@ -146,7 +217,7 @@ namespace SunDonet
                 var clientConn = SunNet.Instance.AddConn(s, SocketType.Normal, conn.m_serviceId);
                 this.AddEvent(clientConn);
                 //向服务发送onAccept消息
-                SunNet.Instance.SendInternal(conn.m_serviceId, new SocketAcceptMsg() { m_type = MsgBase.MsgType.Socket_Accept, m_listen = conn.m_socket, m_client = s });
+                SunNet.Instance.SendInternal(conn.m_serviceId, new SocketAcceptMsg() { MessageType = MsgBase.MsgType.Socket_Accept, Listen = conn.m_socket, Client = s });
             }
             else if (conn.m_socketType == SocketType.Normal)
             {
@@ -159,22 +230,25 @@ namespace SunDonet
                         buffer.m_dataLen = conn.m_event.BytesTransferred;
                         //SunNet.Instance.Log.Info(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(buffer.m_buffer)));
                         //向服务发送消息
-                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDataMsg() { m_type = MsgBase.MsgType.Socket_Data, m_socket = conn.m_socket, m_buff = buffer });
+                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDataMsg() { MessageType = MsgBase.MsgType.Socket_Data, Socket = conn.m_socket, Buff = buffer });
                     }
                     else
                     {
                         //客户端主动断开连接
-                        SunNet.Instance.Log.Info(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
+                        //SunNet.Instance.Log.Info(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
                         SunNet.Instance.CloseConn(conn.m_socket);
                         //向服务发送消息
-                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { m_type = MsgBase.MsgType.Socket_Disconnect, m_client = conn.m_socket });
+                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, Client = conn.m_socket,Reason = "ClientActiveDisconnect" });
 
                         return false;
                     }
                 }
                 else
                 {
-                    SunNet.Instance.Log.Info(String.Format("客户 {0} Error:{1}", conn.m_socket.RemoteEndPoint.ToString(), conn.m_event.SocketError));
+                    //SunNet.Instance.Log.Info(String.Format("客户 {0} Error:{1}", conn.m_socket.RemoteEndPoint.ToString(), conn.m_event.SocketError));
+                    SunNet.Instance.CloseConn(conn.m_socket);
+                    //向服务发送消息
+                    SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, Client = conn.m_socket,Reason = conn.m_event.SocketError.ToString() });
                     return false;
                 }
 

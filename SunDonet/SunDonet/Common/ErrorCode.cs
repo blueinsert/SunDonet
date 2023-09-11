@@ -11,5 +11,7 @@ namespace SunDonet
         public const int OK = 0;
         public const int LoginPasswordError = 10;
         public const int LoginAccountNotExist = 11;
+        public const int LoginHasBeenLogin = 12;//已被登录
+        public const int LoginMultiLogin = 13;//重复登录
     }
 }
