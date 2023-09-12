@@ -66,7 +66,7 @@ namespace SunDonet
         }   
 
         public virtual void OnExit() {
-
+            Debug.Log("ServiceBase:OnExit {0}", this.GetType().Name);
         }
 
         protected void RegisterServiceMsgCallHandler<TReq, TAck>(ServericeCallHandleDelegate<TReq,TAck> handler) where TReq : ServiceMsgReq where TAck : ServiceMsgAck

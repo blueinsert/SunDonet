@@ -123,12 +123,8 @@ namespace SunDonet
                 {
                     AgentId = agentId,
                 });
-                ntf.Socket.Dispose();
-            }
-            else
-            {
-                ntf.Socket.Dispose();
-            }
+                //SunNet.Instance.CloseConn(ntf.Socket);
+            }   
         }
     }
 }

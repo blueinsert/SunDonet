@@ -17,28 +17,49 @@ namespace SunDonet
             Stoped,
         }
 
-        SocketWorkerState m_state;
+        private SocketWorkerState m_state;
+        private Task m_task;
+        private CancellationTokenSource m_cancelSource;
+        private CancellationToken m_cancelToken;
 
-        SemaphoreSlim m_tasksLock;
-        public LinkedList<Task> m_tasks = new LinkedList<Task>();
+        private SemaphoreSlim m_tasksLock;
+        private LinkedList<Task> m_tasks = new LinkedList<Task>();
 
         private object m_connsLock = new object();
-        public List<Conn> m_connList = new List<Conn>();
+        private List<Conn> m_connList = new List<Conn>();
 
         //ManualResetEvent m_notnullEvent;
         bool m_isInWaiting = false;
-        CancellationTokenSource m_cancelSource = null;
+        CancellationTokenSource m_waitAnyCancelSource = null;
         Task m_cancelWaitAnyTask = null;
 
         public void Stop()
         {
+            if (m_state == SocketWorkerState.Stoped)
+                return;
             m_state = SocketWorkerState.Stoping;
+            m_cancelSource.Cancel();
+            if (m_isInWaiting)
+            {
+                Task.Run(() => { m_waitAnyCancelSource.Cancel(); });
+            }
+            m_task.Wait();
         }
 
-        public void Init()
+        public void Initialize()
         {
             //m_notnullEvent = new ManualResetEvent(false);
             m_tasksLock = new SemaphoreSlim(1);
+            m_cancelSource = new CancellationTokenSource();
+            m_cancelToken = m_cancelSource.Token;
+        }
+
+        private void UnInitialize()
+        {
+            Debug.Log("SocketWorker:UnInitialize");
+            m_connList.Clear();
+            m_tasks.Clear();
+            m_tasksLock.Dispose();
         }
 
         public void Start()
@@ -50,17 +71,17 @@ namespace SunDonet
                 m_tasks.AddLast(m_cancelWaitAnyTask);
             }
             m_tasksLock.Release();
-            Task.Run(() => { WorkerProcess().Wait(); });
+            m_task = Task.Run(() => { WorkerProcess().Wait(); }, m_cancelToken);
         }
 
         private void ConstructCancelWaitAnyTask()
         {
-            if (m_cancelSource == null)
+            if (m_waitAnyCancelSource == null)
             {
                 //m_cancelSource = new CancellationTokenSource();
             }
-            m_cancelSource = new CancellationTokenSource();
-            var m_cancellationToken = m_cancelSource.Token;
+            m_waitAnyCancelSource = new CancellationTokenSource();
+            var m_cancellationToken = m_waitAnyCancelSource.Token;
             if (m_cancellationToken.IsCancellationRequested)
             {
                 m_cancelWaitAnyTask = Task.FromCanceled(m_cancellationToken);
@@ -80,7 +101,7 @@ namespace SunDonet
             conn.m_task.Start();
             if (m_isInWaiting)
             {
-                Task.Run(() => { m_cancelSource.Cancel(); }); 
+                Task.Run(() => { m_waitAnyCancelSource.Cancel(); }); 
             }
             m_tasksLock.Wait();
             {
@@ -108,6 +129,10 @@ namespace SunDonet
 
             if (conn.m_task != null)
             {
+                if (m_isInWaiting)
+                {
+                    Task.Run(() => { m_waitAnyCancelSource.Cancel(); });
+                }
                 m_tasksLock.Wait();
                 {
                     m_tasks.Remove(conn.m_task);
@@ -120,7 +145,7 @@ namespace SunDonet
 
         public async Task WorkerProcess()
         {
-            while (true)
+            while (!m_cancelToken.IsCancellationRequested)
             {
                 try
                 {
@@ -206,6 +231,10 @@ namespace SunDonet
                 }
 
             }
+
+            m_state = SocketWorkerState.Stoped;
+            UnInitialize();
+            Debug.Log("SocketWorker Stoped");
         }
 
         private bool ProcessEvent(Conn conn)
@@ -236,7 +265,7 @@ namespace SunDonet
                     {
                         //客户端主动断开连接
                         //SunNet.Instance.Log.Info(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
-                        SunNet.Instance.CloseConn(conn.m_socket);
+                        SunNet.Instance.CloseConn(conn.m_socket,false);
                         //向服务发送消息
                         SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, Client = conn.m_socket,Reason = "ClientActiveDisconnect" });
 
@@ -246,7 +275,7 @@ namespace SunDonet
                 else
                 {
                     //SunNet.Instance.Log.Info(String.Format("客户 {0} Error:{1}", conn.m_socket.RemoteEndPoint.ToString(), conn.m_event.SocketError));
-                    SunNet.Instance.CloseConn(conn.m_socket);
+                    SunNet.Instance.CloseConn(conn.m_socket,false);
                     //向服务发送消息
                     SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, Client = conn.m_socket,Reason = conn.m_event.SocketError.ToString() });
                     return false;

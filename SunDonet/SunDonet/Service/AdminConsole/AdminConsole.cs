@@ -109,7 +109,8 @@ namespace SunDonet
         private void ExeExitCmd()
         {
             Debug.Log("AdminConsole:ExeExitCmd");
-            SunNet.Instance.Stop();
+            //释放执行本服务的worker，避免stop等待woker结束，而无法结束
+            Task.Run(() => { SunNet.Instance.Stop(); });
         }
     }
 }

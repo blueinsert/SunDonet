@@ -147,12 +147,12 @@ namespace SunDonet
 
         private void StartSocketWorker()
         {
-            m_socketWorker.Init();
+            m_socketWorker.Initialize();
             m_socketWorker.Start();
             SunNet.Instance.Log.Info("StartSocketWorker");
         }
 
-        private void StartWorker()
+        private void StartWorkers()
         {
             for (int i = 0; i < 5; i++)
             {
@@ -166,6 +166,32 @@ namespace SunDonet
             }
         }
 
+        private void StopWorkers()
+        {
+            foreach(var woker in m_workers)
+            {
+                woker.Stop();
+            }
+            bool isAllStoped = false;
+            while (!isAllStoped)
+            {
+                int waitingCount = 0;
+                int nostopedCount = 0;
+                foreach (var worker in m_workers)
+                {
+                    if (worker.State == WorkerState.Waiting)
+                        waitingCount++;
+                    if (worker.State != WorkerState.Stopped)
+                        nostopedCount++;
+                }
+                isAllStoped = nostopedCount == 0;
+                if (waitingCount != 0 ) {
+                    CheckAndWeakUp();
+                }
+                Thread.Sleep(50);
+            }
+        }
+
 
         private void AwaitableHandleManagerTimerCallBack(Object obj)
         {
@@ -175,7 +201,7 @@ namespace SunDonet
         public void Start()
         {
             StartSocketWorker();
-            StartWorker();
+            StartWorkers();
             SunNet.Instance.Log.Info("Sunnet Start");
             ServerState = ServerState.Running;
         }
@@ -216,6 +242,54 @@ namespace SunDonet
         public void Uninitialize()
         {
             Debug.Log("SunNet:Uninitialize");
+            //
+            m_socketWorker.Stop();
+            //
+            StopWorkers();
+            m_workers.Clear();
+            m_workerSeamphore.Dispose();
+            //
+            List<int> allServiceIds = new List<int>();
+            foreach(var pair in m_serviceDic)
+            {
+                allServiceIds.Add(pair.Key);
+            }
+            foreach(var id in allServiceIds)
+            {
+                KillService(id);
+            }
+            m_globalServiceQueue.Clear();
+            //
+            List<Socket> sockets = new List<Socket>();
+            foreach(var pair in m_connDic)
+            {
+                sockets.Add(pair.Key);
+            }
+            foreach(var socket in sockets)
+            {
+                var conn = RemoveConn(socket);
+                try {
+                    Debug.Log("Close connect:{0}", conn);
+                    socket.Disconnect(false);
+                    socket.Close();
+                    socket.Dispose();
+                }catch(SocketException ex)
+                {
+                    Debug.Log("SocketErrorCode:{0}", ex.SocketErrorCode);
+                    if(conn.m_socketType == SocketType.Listen)
+                    {
+                        if(ex.SocketErrorCode != SocketError.NotConnected)
+                        {
+
+                        }
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.Log("{0}", e);
+                } 
+            }
             Log.Logger.Repository.Shutdown(); //此函数调用之后日志无法打印了
         }
 
@@ -239,10 +313,35 @@ namespace SunDonet
             return conn;
         }
 
-        public void CloseConn(Socket socket)
+        public void CloseConn(Socket socket, bool dispose = false)
         {
             var conn = RemoveConn(socket);
+            Debug.Log("Sunnet:CloseConn:{0}", conn);
             m_socketWorker.RemoveEvent(conn);
+            if (dispose) {
+                try
+                {
+                    socket.Disconnect(false);
+                    socket.Close();
+                    socket.Dispose();
+                }
+                catch (SocketException ex)
+                {
+                    Debug.Log("SocketErrorCode:{0}", ex.SocketErrorCode);
+                    if (conn.m_socketType == SocketType.Listen)
+                    {
+                        if (ex.SocketErrorCode != SocketError.NotConnected)
+                        {
+
+                        }
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.Log("{0}", e);
+                }
+            }  
         }
 
         public void Listen(int port, int serviceId = -1)
