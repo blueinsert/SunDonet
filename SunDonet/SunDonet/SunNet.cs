@@ -42,7 +42,9 @@ namespace SunDonet
         private ManualResetEvent m_exitEvent;
 
         private object m_connsLock = new object();
-        public Dictionary<Socket, Conn> m_connDic = new Dictionary<Socket, Conn>();
+        public Dictionary<SocketIndentifier, Socket> m_id2SocketDic = new Dictionary<SocketIndentifier, Socket>();
+        public Dictionary<Socket, SocketIndentifier> m_socket2IdDic = new Dictionary<Socket, SocketIndentifier>();
+        public Dictionary<SocketIndentifier, Conn> m_connDic = new Dictionary<SocketIndentifier, Conn>();
 
         private int m_maxId = 1;
         private object m_servicesLock = new object();
@@ -232,11 +234,38 @@ namespace SunDonet
             {
                 Thread.Sleep(100);
             }
-
+            Debug.Log("agents.Count == 0, all user has been kickout");
             Uninitialize();
             ServerState = ServerState.Stoped;
 
             m_exitEvent.Set();
+        }
+
+        private void DisposeSocket(SocketIndentifier id, Socket socket)
+        {
+            Debug.Log("Sunnet:DisposeSocket {0} {1}", id, socket);
+            try
+            {
+                socket.Disconnect(false);
+                socket.Close();
+                socket.Dispose();
+            }
+            catch (SocketException ex)
+            {
+                Debug.Log("SocketErrorCode:{0}", ex.SocketErrorCode);
+                if (id.SocketType == SocketType.Listen)
+                {
+                    if (ex.SocketErrorCode != SocketError.NotConnected)
+                    {
+
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log("{0}", e);
+            }
         }
 
         public void Uninitialize()
@@ -260,88 +289,68 @@ namespace SunDonet
             }
             m_globalServiceQueue.Clear();
             //
-            List<Socket> sockets = new List<Socket>();
+            List<SocketIndentifier> socketIds = new List<SocketIndentifier>();
             foreach(var pair in m_connDic)
             {
-                sockets.Add(pair.Key);
+                socketIds.Add(pair.Key);
             }
-            foreach(var socket in sockets)
+            foreach(var id in socketIds)
             {
-                var conn = RemoveConn(socket);
-                try {
-                    Debug.Log("Close connect:{0}", conn);
-                    socket.Disconnect(false);
-                    socket.Close();
-                    socket.Dispose();
-                }catch(SocketException ex)
-                {
-                    Debug.Log("SocketErrorCode:{0}", ex.SocketErrorCode);
-                    if(conn.m_socketType == SocketType.Listen)
-                    {
-                        if(ex.SocketErrorCode != SocketError.NotConnected)
-                        {
-
-                        }
-
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("{0}", e);
-                } 
+                var conn = RemoveConn(id);
+                var socket = conn.m_socket;
+                DisposeSocket(id, socket);                
             }
             Log.Logger.Repository.Shutdown(); //此函数调用之后日志无法打印了
         }
 
-        public Conn AddConn(Socket socket, SocketType type, int serviceId = -1)
+        public SocketIndentifier GetSocketId(Socket s)
         {
-            var conn = new Conn(socket, type, serviceId, m_bufferManager);
+            return m_socket2IdDic[s];
+        }
+
+        public Socket GetSocket(SocketIndentifier id)
+        {
+            return m_id2SocketDic[id];
+        }
+
+        public Conn AddConn(SocketIndentifier id, Socket socket, int serviceId = -1)
+        {
+            m_id2SocketDic.Add(id, socket);
+            m_socket2IdDic.Add(socket, id);
+            var conn = new Conn(socket, id.SocketType, serviceId, m_bufferManager);
             lock (m_connsLock)
             {
-                m_connDic.Add(socket, conn);
+                m_connDic.Add(id, conn);
             }
             return conn;
         }
 
-        public Conn RemoveConn(Socket socket)
+        public Conn RemoveConn(SocketIndentifier id)
         {
-            Conn conn = m_connDic[socket];
+            var socket = m_id2SocketDic[id];
+            m_id2SocketDic.Remove(id);
+            m_socket2IdDic.Remove(socket);
+            Conn conn = null; 
             lock (m_connsLock)
             {
-                m_connDic.Remove(socket);
+                if (m_connDic.ContainsKey(id))
+                {
+                    conn = m_connDic[id];
+                    m_connDic.Remove(id);
+                }
             }
             return conn;
         }
 
-        public void CloseConn(Socket socket, bool dispose = false)
+        public void CloseConn(SocketIndentifier id, bool dispose = false)
         {
-            var conn = RemoveConn(socket);
+            var conn = RemoveConn(id);
             Debug.Log("Sunnet:CloseConn:{0}", conn);
             m_socketWorker.RemoveEvent(conn);
+            var socket = conn.m_socket;
             if (dispose) {
-                try
-                {
-                    socket.Disconnect(false);
-                    socket.Close();
-                    socket.Dispose();
-                }
-                catch (SocketException ex)
-                {
-                    Debug.Log("SocketErrorCode:{0}", ex.SocketErrorCode);
-                    if (conn.m_socketType == SocketType.Listen)
-                    {
-                        if (ex.SocketErrorCode != SocketError.NotConnected)
-                        {
-
-                        }
-
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("{0}", e);
-                }
-            }  
+                DisposeSocket(id, socket);
+            }
         }
 
         public void Listen(int port, int serviceId = -1)
@@ -360,7 +369,8 @@ namespace SunDonet
                 socket.Bind(localEndPoint);
             }
             socket.Listen(1024);
-            var conn = AddConn(socket, SocketType.Listen, serviceId);
+            SocketIndentifier id = new SocketIndentifier(string.Format("localhost:{0}",port));
+            var conn = AddConn(id, socket, serviceId);
             m_socketWorker.AddEvent(conn);
         }
 
@@ -502,10 +512,10 @@ namespace SunDonet
         /// </summary>
         /// <param name="s"></param>
         /// <param name="buff"></param>
-        public void Send(Socket s, ClientBuffer buff)
+        public void Send(SocketIndentifier sid, ClientBuffer buff)
         {
-            //todo
-            //s.Send(buff.m_buffer, buff.m_dataLen, SocketFlags.None);
+            var socket = GetSocket(sid);
+            var s = socket;
             s.SendTimeout = 0;
             int startTickCount = Environment.TickCount;
             int timeout = 20;

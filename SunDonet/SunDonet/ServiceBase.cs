@@ -85,14 +85,14 @@ namespace SunDonet
             });
         }
 
-        public virtual async Task OnClientConnect(Socket s)
+        public virtual async Task OnClientConnect(SocketIndentifier s)
         {
 
         }
 
-        public virtual async Task OnClientData(Socket s, ClientBuffer buff) { }
+        public virtual async Task OnClientData(SocketIndentifier s, ClientBuffer buff) { }
 
-        public virtual async Task OnClientDisconnect(Socket s, string reason)
+        public virtual async Task OnClientDisconnect(SocketIndentifier s, string reason)
         {
 
         }
@@ -164,11 +164,11 @@ namespace SunDonet
                     break;
                 case MsgBase.MsgType.Socket_Disconnect:
                     var disconnectMsg = msg as SocketDisconnectMsg;
-                    await OnClientDisconnect(disconnectMsg.Client, disconnectMsg.Reason);
+                    await OnClientDisconnect(disconnectMsg.ClientId, disconnectMsg.Reason);
                     break;
                 case MsgBase.MsgType.Socket_Data:
                     var clientDataMsg = msg as SocketDataMsg;
-                    await OnClientData(clientDataMsg.Socket, clientDataMsg.Buff);
+                    await OnClientData(clientDataMsg.SocketId, clientDataMsg.Buff);
                     break;
             }
         }

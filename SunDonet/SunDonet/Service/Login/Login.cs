@@ -30,7 +30,7 @@ namespace SunDonet
 
         private async Task HandleLoginNtf(S2SLoginNtf ntf)
         {
-            Debug.Log("Login:HandleLoginReq {0} {1}", ntf.Socket.RemoteEndPoint, ntf.Req.UserName);
+            Debug.Log("Login:HandleLoginReq {0} {1}", ntf.Socket, ntf.Req.UserName);
             var req = ntf.Req;
             var userId = req.UserName;
             var password = req.UserPassword;
@@ -110,7 +110,7 @@ namespace SunDonet
 
         private async Task HandleLogoutNtf(S2SLogoutNtf ntf)
         {
-            Debug.Log("Login:HandleLogoutNtf:{0}", ntf.Socket.RemoteEndPoint.ToString());
+            Debug.Log("Login:HandleLogoutNtf:{0}", ntf.Socket.ToString());
             var searchResult = await Call<S2SAgentSearchReq, S2SAgentSearchAck>(m_agentMgrId, new S2SAgentSearchReq()
             {
                 Socket = ntf.Socket,
@@ -123,7 +123,6 @@ namespace SunDonet
                 {
                     AgentId = agentId,
                 });
-                //SunNet.Instance.CloseConn(ntf.Socket);
             }   
         }
     }

@@ -12,7 +12,7 @@ namespace SunDonet
         public string UserId;
         public int AgentId;
         public int GateWayId;
-        public Socket Socket;
+        public SocketIndentifier Socket;
     }
 
     /// <summary>
@@ -24,7 +24,7 @@ namespace SunDonet
         private List<AgentRegisterItem> m_registerItemList = new List<AgentRegisterItem>();
         private Dictionary<int, AgentRegisterItem> m_agent2ItemDic = new Dictionary<int, AgentRegisterItem>();
         private Dictionary<string, AgentRegisterItem> m_userId2ItemDic = new Dictionary<string, AgentRegisterItem>();
-        private Dictionary<Socket, AgentRegisterItem> m_socket2ItemDic = new Dictionary<Socket, AgentRegisterItem>();
+        private Dictionary<SocketIndentifier, AgentRegisterItem> m_socket2ItemDic = new Dictionary<SocketIndentifier, AgentRegisterItem>();
 
         public AgentMgr(int id) : base(id) { }
 

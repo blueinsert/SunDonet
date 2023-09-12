@@ -11,7 +11,7 @@ namespace SunDonet
    public class S2SLoginNtf : ServiceMsgNtf
     {
         public int GatewayId;
-        public Socket Socket;
+        public SocketIndentifier Socket;
         public LoginReq Req;
     }
 
@@ -19,13 +19,13 @@ namespace SunDonet
     public class S2SCreateAccountNtf : ServiceMsgNtf
     {
         public int GatewayId;
-        public Socket Socket;
+        public SocketIndentifier Socket;
         public CreateAccountReq Req;
     }
 
     public class S2SLogoutNtf : ServiceMsgNtf
     {
         public int GatewayId;
-        public Socket Socket;
+        public SocketIndentifier Socket;
     }
 }

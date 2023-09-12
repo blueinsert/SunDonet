@@ -12,11 +12,11 @@ namespace SunDonet
     {
         public string UserId;
         public int AgentId = -1;
-        public Socket Socket = null;
+        public SocketIndentifier Socket = null;
 
         public override string ToString()
         {
-            return string.Format("UserId:{0} AgentId:{1} Socket:{2}", this.UserId != null ? this.UserId : "", this.AgentId, this.Socket != null ? this.Socket.RemoteEndPoint.ToString() : "");
+            return string.Format("UserId:{0} AgentId:{1} Socket:{2}", this.UserId != null ? this.UserId : "", this.AgentId, this.Socket != null ? this.Socket.ToString() : "");
         }
     }
 
@@ -31,11 +31,11 @@ namespace SunDonet
         public string UserId;
         public int AgentId;
         public int GatewayId;
-        public Socket Socket;
+        public SocketIndentifier Socket;
 
         public override string ToString()
         {
-            return string.Format("UserId:{0} AgentId:{1} GatewayId:{2} Socket:{3}", this.UserId, this.AgentId, this.GatewayId, this.Socket.RemoteEndPoint.ToString());
+            return string.Format("UserId:{0} AgentId:{1} GatewayId:{2} Socket:{3}", this.UserId, this.AgentId, this.GatewayId, this.Socket.ToString());
         }
     }
 

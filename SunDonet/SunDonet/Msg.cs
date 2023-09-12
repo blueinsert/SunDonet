@@ -23,19 +23,19 @@ namespace SunDonet
 
     public class SocketAcceptMsg : MsgBase
     {
-        public Socket Listen;
-        public Socket Client;
+        public SocketIndentifier Listen;
+        public SocketIndentifier Client;
     }
 
     public class SocketDisconnectMsg : MsgBase
     {
-        public Socket Client;
+        public SocketIndentifier ClientId;
         public string Reason;
     }
 
     public class SocketDataMsg : MsgBase
     {
-        public Socket Socket;
+        public SocketIndentifier SocketId;
         public ClientBuffer Buff;
     }
 

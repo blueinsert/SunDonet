@@ -23,7 +23,7 @@ namespace SunDonet
         private int m_loginService = -1;
         private int m_agentMgrId = -1;
 
-        private Dictionary<Socket, ClientBuffer> m_clientBuffDic = new Dictionary<Socket, ClientBuffer>();
+        private Dictionary<SocketIndentifier, ClientBuffer> m_clientBuffDic = new Dictionary<SocketIndentifier, ClientBuffer>();
 
         public override void OnInit()
         {
@@ -40,15 +40,15 @@ namespace SunDonet
             RegisterServiceMsgNtfHandler<S2SGatewaySendPackageList2Ntf>(HandleSendPackageList);
         }
 
-        public override async Task OnClientConnect(Socket s)
+        public override async Task OnClientConnect(SocketIndentifier s)
         {
-            SunNet.Instance.Log.Info("Gateway:OnClientConnect " + s.RemoteEndPoint.ToString());
+            SunNet.Instance.Log.Info("Gateway:OnClientConnect " + s.ToString());
             m_clientBuffDic.Add(s, ClientBuffer.GetBuffer(8 * 1024 * 5));
         }
 
-        public override async Task OnClientDisconnect(Socket s, string reason)
+        public override async Task OnClientDisconnect(SocketIndentifier s, string reason)
         {
-            Debug.Log("Gateway:OnClientDisconnect {0} {1}", s.RemoteEndPoint.ToString(), reason);
+            Debug.Log("Gateway:OnClientDisconnect {0} {1}", s.ToString(), reason);
             var clientBuff = m_clientBuffDic[s];
             m_clientBuffDic.Remove(s);
             ClientBuffer.BackBuffer(clientBuff);
@@ -62,7 +62,7 @@ namespace SunDonet
 
         #region 收包与分发
 
-        public override async Task OnClientData(Socket s, ClientBuffer buff)
+        public override async Task OnClientData(SocketIndentifier s, ClientBuffer buff)
         {
             //SunNet.Instance.Log.Info("Gateway:OnClientData len:" + buff.m_dataLen);
             var sumBuff = m_clientBuffDic[s];
@@ -102,7 +102,7 @@ namespace SunDonet
             
         }
 
-        private async Task DispatchClientMsg(Socket s, IMessage msg)
+        private async Task DispatchClientMsg(SocketIndentifier s, IMessage msg)
         {
             //SunNet.Instance.Log.Info(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
             var msgId = SunNet.Instance.ProtocolDic.GetIdByType(msg.GetType());
@@ -132,7 +132,7 @@ namespace SunDonet
             }
         }
 
-        private async Task DispatchLoginReq(Socket s, LoginReq req)
+        private async Task DispatchLoginReq(SocketIndentifier s, LoginReq req)
         {
             SunNet.Instance.Log.Info(string.Format("GateWay:HandleLoginReq {0}", req.ToString()));
             Send(m_loginService, new S2SLoginNtf()
@@ -143,7 +143,7 @@ namespace SunDonet
             });
         }
 
-        private async Task DispatchCreateReq(Socket s, CreateAccountReq req)
+        private async Task DispatchCreateReq(SocketIndentifier s, CreateAccountReq req)
         {
             SunNet.Instance.Log.Info(string.Format("GateWay:HandleCreateReq {0}", req.ToString()));
             Send(m_loginService, new S2SCreateAccountNtf()
@@ -158,11 +158,11 @@ namespace SunDonet
 
         #region 发包
 
-        private async Task SendPackageIml(Socket s, IMessage msg)
+        private async Task SendPackageIml(SocketIndentifier s, IMessage msg)
         {
             if (msg == null)
                 return;
-            SunNet.Instance.Log.Info(string.Format("Gateway:SendPackageIml remote:{0} {1} {2}", s.RemoteEndPoint.ToString(), msg.GetType(), msg));
+            SunNet.Instance.Log.Info(string.Format("Gateway:SendPackageIml remote:{0} {1} {2}", s.ToString(), msg.GetType(), msg));
             S2SEncodeReq req = new S2SEncodeReq()
             {
                 DataObj = msg,
@@ -172,7 +172,7 @@ namespace SunDonet
             SunNet.Instance.Send(s, encodeAck.Buffer);
         }
 
-        private async Task SendPackageList(Socket s, List<IMessage> msgList)
+        private async Task SendPackageList(SocketIndentifier s, List<IMessage> msgList)
         {
             if (msgList.Count == 0)
                 return;
@@ -204,7 +204,7 @@ namespace SunDonet
             });
         }
 
-        public static void SendPackage(int gateway, Socket socket, IMessage msg)
+        public static void SendPackage(int gateway, SocketIndentifier socket, IMessage msg)
         {
             SunNet.Instance.Send(gateway, new S2SGatewaySendPackage2Ntf()
             {
@@ -213,7 +213,7 @@ namespace SunDonet
             });
         }
 
-        public static void SendPackageList(int gateway, Socket socket, List<IMessage> msgList)
+        public static void SendPackageList(int gateway, SocketIndentifier socket, List<IMessage> msgList)
         {
             SunNet.Instance.Send(gateway, new S2SGatewaySendPackageList2Ntf()
             {

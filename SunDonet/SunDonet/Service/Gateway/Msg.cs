@@ -32,23 +32,23 @@ namespace SunDonet
 
     public class S2SGatewaySendPackage2Ntf : ServiceMsgNtf
     {
-        public Socket Socket;
+        public SocketIndentifier Socket;
         public IMessage Msg;
 
         public override string ToString()
         {
-            return string.Format("Socket:{0} Msg:{1}", this.Socket.RemoteEndPoint.ToString(), this.Msg);
+            return string.Format("Socket:{0} Msg:{1}", this.Socket.ToString(), this.Msg);
         }
     }
 
     public class S2SGatewaySendPackageList2Ntf : ServiceMsgNtf
     {
-        public Socket Socket;
+        public SocketIndentifier Socket;
         public List<IMessage> MsgList;
 
         public override string ToString()
         {
-            return string.Format("Socket:{0} Msg:{1}", this.Socket.RemoteEndPoint.ToString(), this.MsgList);
+            return string.Format("Socket:{0} Msg:{1}", this.Socket.ToString(), this.MsgList);
         }
     }
 }

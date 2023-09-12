@@ -8,6 +8,36 @@ using System.Threading;
 
 namespace SunDonet
 {
+    public class SocketIndentifier
+    {
+        public string Remote = "";
+        public SocketType SocketType;
+        public string ListenAddress = "";
+
+        public SocketIndentifier(Socket s)
+        {
+            this.SocketType = SocketType.Normal;
+            this.Remote = s.RemoteEndPoint.ToString();
+        }
+
+        public SocketIndentifier(string listenAddress)
+        {
+            this.SocketType = SocketType.Listen;
+            this.ListenAddress = listenAddress;
+        }
+
+        public override string ToString()
+        {
+            if (SocketType == SocketType.Listen)
+            {
+                return string.Format("{0} {1}", SocketType, ListenAddress);
+            }
+            else
+            {
+                return string.Format("{0} {1}", SocketType, Remote);
+            }
+        }
+    }
 
     public enum SocketType
     {

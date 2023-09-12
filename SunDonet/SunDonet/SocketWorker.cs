@@ -233,8 +233,8 @@ namespace SunDonet
             }
 
             m_state = SocketWorkerState.Stoped;
-            UnInitialize();
             Debug.Log("SocketWorker Stoped");
+            UnInitialize(); 
         }
 
         private bool ProcessEvent(Conn conn)
@@ -243,13 +243,18 @@ namespace SunDonet
             {
                 var s = conn.m_event.AcceptSocket;
                 SunNet.Instance.Log.Info(String.Format("客户 {0} 连入", s.RemoteEndPoint.ToString()));
-                var clientConn = SunNet.Instance.AddConn(s, SocketType.Normal, conn.m_serviceId);
+                SocketIndentifier id = new SocketIndentifier(s);
+                var clientConn = SunNet.Instance.AddConn(id, s, conn.m_serviceId);
                 this.AddEvent(clientConn);
                 //向服务发送onAccept消息
-                SunNet.Instance.SendInternal(conn.m_serviceId, new SocketAcceptMsg() { MessageType = MsgBase.MsgType.Socket_Accept, Listen = conn.m_socket, Client = s });
+                var socket = conn.m_socket;
+                var socketId = SunNet.Instance.GetSocketId(socket);
+                SunNet.Instance.SendInternal(conn.m_serviceId, new SocketAcceptMsg() { MessageType = MsgBase.MsgType.Socket_Accept, Listen = socketId, Client = id });
             }
             else if (conn.m_socketType == SocketType.Normal)
             {
+                var socket = conn.m_socket;
+                var socketId = SunNet.Instance.GetSocketId(socket);
                 if (conn.m_event.SocketError == SocketError.Success)
                 {
                     if (conn.m_event.BytesTransferred > 0)
@@ -259,15 +264,15 @@ namespace SunDonet
                         buffer.m_dataLen = conn.m_event.BytesTransferred;
                         //SunNet.Instance.Log.Info(String.Format("客户 {0} 写入{1}", conn.m_socket.RemoteEndPoint.ToString(), System.Text.Encoding.UTF8.GetString(buffer.m_buffer)));
                         //向服务发送消息
-                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDataMsg() { MessageType = MsgBase.MsgType.Socket_Data, Socket = conn.m_socket, Buff = buffer });
+                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDataMsg() { MessageType = MsgBase.MsgType.Socket_Data, SocketId = socketId, Buff = buffer });
                     }
                     else
                     {
                         //客户端主动断开连接
                         //SunNet.Instance.Log.Info(String.Format("客户 {0} disconnected", conn.m_socket.RemoteEndPoint.ToString()));
-                        SunNet.Instance.CloseConn(conn.m_socket,false);
+                        SunNet.Instance.CloseConn(socketId, true);
                         //向服务发送消息
-                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, Client = conn.m_socket,Reason = "ClientActiveDisconnect" });
+                        SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, ClientId = socketId, Reason = "ClientActiveDisconnect" });
 
                         return false;
                     }
@@ -275,9 +280,9 @@ namespace SunDonet
                 else
                 {
                     //SunNet.Instance.Log.Info(String.Format("客户 {0} Error:{1}", conn.m_socket.RemoteEndPoint.ToString(), conn.m_event.SocketError));
-                    SunNet.Instance.CloseConn(conn.m_socket,false);
+                    SunNet.Instance.CloseConn(socketId, true);
                     //向服务发送消息
-                    SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, Client = conn.m_socket,Reason = conn.m_event.SocketError.ToString() });
+                    SunNet.Instance.SendInternal(conn.m_serviceId, new SocketDisconnectMsg() { MessageType = MsgBase.MsgType.Socket_Disconnect, ClientId = socketId, Reason = conn.m_event.SocketError.ToString() });
                     return false;
                 }
 
