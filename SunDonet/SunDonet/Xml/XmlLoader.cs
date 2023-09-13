@@ -24,6 +24,7 @@ namespace SunDonet
         public String FieldName { get; private set; }
         public Type ReplacementType { get; private set; }
     }
+
     public class XmlLoader<T> where T : class
     {
         /// <summary>

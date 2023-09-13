@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configure>
-  <DataConfig DataPath="..\..\..\..\ConfigData\Server\Data\Json"/>
+  <Basic WorkerNum="10" MaxAgentNum="100000"/>
+  <Services>
+    <Service Name="Main" Params=""/>
+  </Services>
+  <Network SocketInputBufferLen="40960" SocketOutputBufferLen="40960"/>
+  <Data DataPath=".\ConfigData\Data\Json"/>
   <Log LogConfigPath= "Xml/LogConfigue.xml"></Log>
-  <MongoDB DataBase="MyDB" ConnectHost="127.0.0.1" Port="8888" ReplicaSet="" UserName="" Password=""/>
+  <MongoDB DataBase="MyDB" ConnectHost="127.0.0.1" Port="27017" ReplicaSet="" UserName="" Password=""/>
 </Configure>

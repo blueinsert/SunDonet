@@ -21,7 +21,6 @@ namespace SunDonet
                 return;
             }
             SunNet.Instance.Start();
-            SunNet.Instance.NewService("Main");
             SunNet.Instance.Wait();
         }
     }

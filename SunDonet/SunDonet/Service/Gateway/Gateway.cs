@@ -169,7 +169,7 @@ namespace SunDonet
                 ProtocolType = EncodeProtocol.Protobuf,
             };
             var encodeAck = await Call<S2SEncodeReq, S2SEncodeAck>(m_encoderService, req);
-            SunNet.Instance.Send(s, encodeAck.Buffer);
+            SunNet.Instance.SendPackage(s, encodeAck.Buffer);
         }
 
         private async Task SendPackageList(SocketIndentifier s, List<IMessage> msgList)

@@ -67,12 +67,18 @@ namespace SunDonet
             m_event = new SocketAsyncEventArgs();
             if (m_socketType == SocketType.Listen)
             {
+                var networkCfg = SunNet.Instance.GetServerConfig().NetworkConfig;
+                m_socket.ReceiveBufferSize = networkCfg.SocketInputBufferLen;
+                //m_socket.SendBufferSize = networkCfg.SocketOutputBufferLen;
                 m_event.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptComplete);
             }
             else if (m_socketType == SocketType.Normal)
             {
                 m_event.UserToken = m_socket;
                 m_event.Completed += new EventHandler<SocketAsyncEventArgs>(OnReceiveComplete);
+                var networkCfg = SunNet.Instance.GetServerConfig().NetworkConfig;
+                m_socket.ReceiveBufferSize = networkCfg.SocketInputBufferLen;
+                m_socket.SendBufferSize = networkCfg.SocketOutputBufferLen;
                 if (bufferManager != null)
                 {
                     bufferManager.SetBuffer(m_event);

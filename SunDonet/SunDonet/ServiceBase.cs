@@ -23,11 +23,18 @@ namespace SunDonet
 
         private Dictionary<Type, ServericeMsgHandleDelegate<ServiceMsgNtf>> m_msgNtfHandleDictionary = new Dictionary<Type, ServericeMsgHandleDelegate<ServiceMsgNtf>>();
 
+        private Dictionary<string, string> m_paramDic = new Dictionary<string, string>();
+
         private float m_tickPeroid = 1.0f;
 
         private DateTime m_lastTickTime;
 
         private long m_timerTickId = -1;
+
+        public void SetParams(Dictionary<string, string> paramDic)
+        {
+            m_paramDic = paramDic;
+        }
 
         /// <summary>
         /// second

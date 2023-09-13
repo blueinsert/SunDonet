@@ -66,7 +66,7 @@ namespace SunDonet
         {
             ClientBuffer buffer = ClientBuffer.GetBuffer(data.Length);
             Array.Copy(data, 0, buffer.m_buffer, 0, data.Length);
-            SunNet.Instance.Send(s, buffer);
+            SunNet.Instance.SendPackage(s, buffer);
         }
 
         private void Send(byte[] data)

@@ -14,7 +14,16 @@ namespace SunDonet
     [XmlRoot("Configure")]
     public class ServerConfig
     {
-        [XmlElement("DataConfig")]
+        [XmlElement("Basic")]
+        public BasicConfig BasicConfig { get; set; }
+
+        [XmlArray("Services"), XmlArrayItem("Service")]
+        public ServiceConfig[] InitServiceList { get; set; }
+
+        [XmlElement("Network")]
+        public NetworkConfig NetworkConfig { get; set; }
+
+        [XmlElement("Data")]
         public DataConfig DataConfig { get; set; }
 
         /// <summary>
@@ -127,5 +136,58 @@ namespace SunDonet
         /// </summary>
         [XmlAttribute("DataPath")]
         public String ServerDataPath { get; set; }
+    }
+
+    [Serializable]
+    public class BasicConfig
+    {
+        [XmlAttribute("WorkerNum")]
+        public int WorkerNum { get; set; }
+        [XmlAttribute("MaxAgentNum")]
+        public int MaxAgentNum { get; set; }
+    }
+
+    [Serializable]
+    public class NetworkConfig
+    {
+        [XmlAttribute("SocketInputBufferLen")]
+        public int SocketInputBufferLen { get; set; }
+
+        [XmlAttribute("SocketOutputBufferLen")]
+        public int SocketOutputBufferLen { get; set; }
+    }
+
+    [Serializable]
+    public class ServiceConfig
+    {
+        [XmlAttribute("Name")]
+        public string Name { get; set; }
+
+        [XmlAttribute("Params")]
+        public string Params { get; set; }
+    }
+
+    public static class ConfigureUtil
+    {
+        public static Dictionary<string,string> ParseParamDic(string paramStr)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>();
+            try {
+                var pairSplits = paramStr.Split(new char[] { ','});
+                foreach(var pairSplit in pairSplits)
+                {
+                    var kv = pairSplit.Split(new char[] { ':' });
+                    var k = kv[0];
+                    var v = kv[1];
+                    res.Add(k, v);
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.Error("ConfigureUtil:ParseParamDic {1} error:{0}", paramStr, e.Message);
+                res.Clear();
+            }
+            return res;
+        }
     }
 }

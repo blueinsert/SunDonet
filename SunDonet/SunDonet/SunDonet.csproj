@@ -94,7 +94,7 @@
     <Compile Include="Service\Main.cs" />
     <Compile Include="Service\Login\Msg.cs" />
     <Compile Include="Service\NodeMgr.cs" />
-    <Compile Include="ServerConfigure.cs" />
+    <Compile Include="Xml\ServerConfigure.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />
     <Compile Include="ThirdPart\UniLua\ByteString.cs" />

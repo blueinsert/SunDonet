@@ -75,6 +75,11 @@ namespace SunDonet
         public ILog Log { get { return m_log; } }
         private ILog m_log = null;
 
+        public ServerConfig GetServerConfig()
+        {
+            return m_serverConfig;
+        }
+
         private bool InitializeConfig()
         {
             XmlLoader<ServerConfig> loader = new XmlLoader<ServerConfig>();
@@ -97,9 +102,42 @@ namespace SunDonet
             return true;
         }
 
+        private bool InitializeDB()
+        {
+            Debug.Log("SunNet:InitializeDB");
+            var db = GetServerConfig().DBConfig;
+            DB.MongoDBConfigInfo dbcfg = new DB.MongoDBConfigInfo()
+            {
+                DataBase = db.DataBase,
+                ConnectHost = db.ConnectHost,
+                Port = db.Port,
+                UserName = db.UserName,
+                Password = db.Password,
+            };
+            if(string.IsNullOrEmpty(dbcfg.DataBase) 
+                || string.IsNullOrEmpty(dbcfg.ConnectHost) 
+                || string.IsNullOrEmpty(dbcfg.Port))
+            {
+                Debug.Log("SunNet:InitializeDB ignore, not configed");
+                return true;
+            }
+            try
+            {
+                m_dbHelper = new MongoDBHelper(dbcfg);
+                Debug.Log("SunNet:InitializeDB success!");
+                return true;
+            }
+            catch (Exception e)
+            {
+               Debug.Log("MongoDB connect failed:{0}", e.Message);
+                return false;
+            }
+        }
+
         public bool Initialize()
         {
             ServerState = ServerState.Starting;
+            Console.WriteLine("SunNet:Initialize");
             if (!InitializeConfig())
             {
                 return false;
@@ -110,7 +148,9 @@ namespace SunDonet
                 return false;
             }
             m_workerSeamphore = new Semaphore(0, 100);
-            m_bufferManager = new BufferManager(8 * 1024 * 5 * 1024, 8 * 1024 * 5);
+            var networkCfg = GetServerConfig().NetworkConfig;
+            var basicCfg = GetServerConfig().BasicConfig;
+            m_bufferManager = new BufferManager(networkCfg.SocketInputBufferLen * 1000, networkCfg.SocketInputBufferLen);
             //m_globalQueueSemaphore = new SemaphoreSlim(0);
             m_bufferManager.InitBuffer();
             m_classLoader = ClassLoader.CreateClassLoader();
@@ -124,22 +164,9 @@ namespace SunDonet
             m_timer.AddTimer(AwaitableHandleManagerTimerCallBack, m_awaitableHandleManager, 0, 500);
             m_timer.StartTask();
 
-            DB.MongoDBConfigInfo dbcfg = new DB.MongoDBConfigInfo()
+            if (!InitializeDB())
             {
-                DataBase = "MyDB",
-                ConnectHost = "127.0.0.1",
-                Port = "27017",
-                //UserName = "bluebean",
-                //Password = "1234",
-            };
-            try
-            {
-                m_dbHelper = new MongoDBHelper(dbcfg);
-            }
-            catch (Exception e)
-            {
-                SunNet.Instance.Log.Info("MongoDB connect failed");
-                throw e;
+                return false;
             }
 
             m_protocolDic = new SunDonetProtocolDictionary();
@@ -156,7 +183,8 @@ namespace SunDonet
 
         private void StartWorkers()
         {
-            for (int i = 0; i < 5; i++)
+            int workerNum = GetServerConfig().BasicConfig.WorkerNum;
+            for (int i = 0; i < workerNum; i++)
             {
                 var worker = new Worker();
                 worker.m_id = i;
@@ -200,12 +228,31 @@ namespace SunDonet
             m_awaitableHandleManager.Tick();
         }
 
+        private void StartInitServices()
+        {
+            var serviceList = GetServerConfig().InitServiceList;
+            foreach(var item in serviceList)
+            {
+                if (!string.IsNullOrEmpty(item.Params))
+                {
+                    var dic = ConfigureUtil.ParseParamDic(item.Params);
+                    NewService(item.Name, dic);
+                }
+                else
+                {
+                    NewService(item.Name);
+                }
+            }
+           
+        }
+
         public void Start()
         {
             StartSocketWorker();
             StartWorkers();
             SunNet.Instance.Log.Info("Sunnet Start");
             ServerState = ServerState.Running;
+            StartInitServices();
         }
 
         public void Stop()
@@ -388,7 +435,7 @@ namespace SunDonet
         }
 
         //"Test","lua-test"
-        public int NewService(string name)
+        public int NewService(string name, Dictionary<string, string> paramDic = null)
         {
             if (name.StartsWith("lua-"))
             {
@@ -414,6 +461,7 @@ namespace SunDonet
                             m_servicesByName[name].Add(service);
                         }
                         SunNet.Instance.Log.InfoFormat("SunNet:NewService {0} id:{1}", name, service.m_id);
+                        service.SetParams(paramDic);
                         service.OnInit();
                         return service.m_id;
                     }
@@ -508,11 +556,11 @@ namespace SunDonet
         }
 
         /// <summary>
-        /// 发送给客户端
+        /// 发送给客户端,同步方法
         /// </summary>
         /// <param name="s"></param>
         /// <param name="buff"></param>
-        public void Send(SocketIndentifier sid, ClientBuffer buff)
+        public void SendPackage(SocketIndentifier sid, ClientBuffer buff)
         {
             var socket = GetSocket(sid);
             var s = socket;
@@ -586,8 +634,6 @@ namespace SunDonet
             m_workerSeamphore.Release();
         }
     }
-
-
 
     /// <summary>
     /// 可等待句柄
