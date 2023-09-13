@@ -176,7 +176,7 @@ namespace SunDonet
                 var pairSplits = paramStr.Split(new char[] { ','});
                 foreach(var pairSplit in pairSplits)
                 {
-                    var kv = pairSplit.Split(new char[] { ':' });
+                    var kv = pairSplit.Split(new char[] { '=' });
                     var k = kv[0];
                     var v = kv[1];
                     res.Add(k, v);

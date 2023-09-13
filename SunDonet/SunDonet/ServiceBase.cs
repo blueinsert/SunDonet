@@ -36,6 +36,28 @@ namespace SunDonet
             m_paramDic = paramDic;
         }
 
+        public string GetStringParam(string key)
+        {
+            if (m_paramDic.ContainsKey(key))
+            {
+                return m_paramDic[key];
+            }
+            return null;
+        }
+
+        public int GetIntParam(string key)
+        {
+            if (m_paramDic.ContainsKey(key))
+            {
+                var value = m_paramDic[key];
+                if(int.TryParse(value,out var res))
+                {
+                    return res;
+                }
+            }
+            return -1;
+        }
+
         /// <summary>
         /// second
         /// </summary>

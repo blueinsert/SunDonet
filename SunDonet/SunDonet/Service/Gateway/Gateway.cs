@@ -32,7 +32,9 @@ namespace SunDonet
             m_loginService = SunNet.Instance.FindSingletonServiceByName("Login");
             m_agentMgrId = SunNet.Instance.FindSingletonServiceByName("AgentMgr");
 
-            SunNet.Instance.Listen(8888,this.m_id);
+            var ip = GetStringParam("IP");
+            var port = GetIntParam("Port");
+            SunNet.Instance.Listen(port, this.m_id);
 
             RegisterServiceMsgNtfHandler<S2SGatewaySendPackageNtf>(HandleSendPackage);
             RegisterServiceMsgNtfHandler<S2SGatewaySendPackageListNtf>(HandleSendPackageList);
