@@ -58,7 +58,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SunDonet\SunDonet.csproj">
+    <ProjectReference Include="..\..\SunDonet\SunDonet.csproj">
       <Project>{375dd008-1a7a-4629-87cc-a6a5826f041a}</Project>
       <Name>SunDonet</Name>
     </ProjectReference>
