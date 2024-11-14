@@ -1,6 +1,7 @@
 ﻿using bluebean.SimpleGameServer.ServiceProtocol;
 using Google.Protobuf;
 using MongoDB.Driver;
+using SimpleGameServer.Protocol;
 using SunDonet;
 using SunDonet.DB;
 using SunDonet.Protocol;
@@ -78,7 +79,7 @@ namespace bluebean.SimpleGameServer
             int id = SimpleGameServer.Instance.ProtocolDic.GetIdByType(req.GetType());
             switch (id)
             {
-                case SunDonetProtocolDictionary.MsgId_PlayerInfoInitReq:
+                case SimpleGameServerProtocolDictionary.MsgId_PlayerInfoInitReq:
                     await HandleAgentInfoInitReq(req as PlayerInfoInitReq);
                     break;
             }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Google.Protobuf;
 using bluebean.SimpleGameServer.ServiceProtocol;
 using SunDonet.Protocol;
+using SimpleGameServer.Protocol;
 
 namespace bluebean.SimpleGameServer
 {
@@ -58,12 +59,12 @@ namespace bluebean.SimpleGameServer
         {
             //SunNet.Instance.Log.Info(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
             var msgId = SimpleGameServer.Instance.ProtocolDic.GetIdByType(msg.GetType());
-            if (msgId == SunDonetProtocolDictionary.MsgId_LoginReq)
+            if (msgId == SimpleGameServerProtocolDictionary.MsgId_LoginReq)
             {
 
                 await DispatchLoginReq(s, msg as LoginReq);
             }
-            else if (msgId == SunDonetProtocolDictionary.MsgId_CreateAccountReq)
+            else if (msgId == SimpleGameServerProtocolDictionary.MsgId_CreateAccountReq)
             {
                 await DispatchCreateReq(s, msg as CreateAccountReq);
             }

@@ -1,4 +1,5 @@
 ﻿using Google.Protobuf;
+using SimpleGameServer.Protocol;
 using SunDonet.DB;
 using SunDonet.Protocol;
 using System;

@@ -1,4 +1,5 @@
 ﻿using bluebean.SimpleGameServer.ServiceProtocol;
+using SimpleGameServer.Protocol;
 using SunDonet;
 using SunDonet.Protocol;
 using System;
@@ -26,7 +27,7 @@ namespace bluebean.SimpleGameServer
 
         protected override void InitClientProtocolDic()
         {
-            m_protocolDic = new SunDonetProtocolDictionary();
+            m_protocolDic = new SimpleGameServerProtocolDictionary();
         }
 
         protected override void OnStop()

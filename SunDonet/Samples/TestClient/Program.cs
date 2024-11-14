@@ -9,6 +9,7 @@ using SunDonet.Protocol;
 using Google.Protobuf;
 using NetLibClient;
 using System.Threading;
+using SimpleGameServer.Protocol;
 
 namespace TestClient
 {
@@ -16,7 +17,7 @@ namespace TestClient
     {
         static TAck Send<TReq,TAck>(TcpClient client,TReq req) where TAck: class, IMessage where TReq:class, IMessage
         {
-            ProtocolDictionaryBase m_protocolDictionary = new SunDonetProtocolDictionary();
+            ProtocolDictionaryBase m_protocolDictionary = new SimpleGameServerProtocolDictionary();
             var ack = SunDonet.Encoder.EncodeGoogleProtobuf(req, m_protocolDictionary);
             client.GetStream().Write(ack.Buffer.m_buffer, 0, ack.Buffer.m_dataLen);
             byte[] buff = new byte[8 * 1024 * 5];

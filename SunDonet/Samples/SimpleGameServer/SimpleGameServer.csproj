@@ -58,7 +58,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\AutoGen\BasicProtocol.cs" />
-    <Compile Include="Protocol\AutoGen\SunDonetProtocolDictionary.cs" />
+    <Compile Include="Protocol\AutoGen\SimpleGameServerProtocolDictionary.cs" />
     <Compile Include="Services\AgentMgrService.cs" />
     <Compile Include="Services\Agent\AgentService.cs" />
     <Compile Include="Services\Agent\ComponentBase.cs" />

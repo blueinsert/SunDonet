@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using NetLibClient;
+using SimpleGameServer.Protocol;
 using SunDonet.Protocol;
 using Debug = System.Console;
 
@@ -17,7 +18,7 @@ namespace TestClient
 
         public PlayerContext()
         {
-            m_client = new Client(this, new SunDonetProtocolDictionary());
+            m_client = new Client(this, new SimpleGameServerProtocolDictionary());
         }
 
         public void Connect(string ip, int port)
@@ -66,19 +67,19 @@ namespace TestClient
             Debug.WriteLine(string.Format("PlayerContext:OnMessage {0} {1}", msg.GetType(), msg));
             switch (msgId)
             {
-                case SunDonetProtocolDictionary.MsgId_LoginAck:
+                case SimpleGameServerProtocolDictionary.MsgId_LoginAck:
                     HandleLoginAck(msg as LoginAck);
                     break;
-                case SunDonetProtocolDictionary.MsgId_CreateAccountAck:
+                case SimpleGameServerProtocolDictionary.MsgId_CreateAccountAck:
                     HandleCreateAccountAck(msg as CreateAccountAck);
                     break;
-                case SunDonetProtocolDictionary.MsgId_PlayerInfoInitAck:
+                case SimpleGameServerProtocolDictionary.MsgId_PlayerInfoInitAck:
                     HandlePlayerInfoInitAck(msg as PlayerInfoInitAck);
                     break;
-                case SunDonetProtocolDictionary.MsgId_PlayerBasicInfoNtf:
+                case SimpleGameServerProtocolDictionary.MsgId_PlayerBasicInfoNtf:
                     HandlePlayerBasicInfoInitNtf(msg as PlayerBasicInfoNtf);
                     break;
-                case SunDonetProtocolDictionary.MsgId_PlayerInfoInitEndNtf:
+                case SimpleGameServerProtocolDictionary.MsgId_PlayerInfoInitEndNtf:
                     HandlePlayerInfoInitEndNtf(msg as PlayerInfoInitEndNtf);
                     break;
             }

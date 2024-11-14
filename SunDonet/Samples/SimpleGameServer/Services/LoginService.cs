@@ -8,6 +8,7 @@ using SunDonet.DB;
 using SunDonet.Protocol;
 using SunDonet;
 using bluebean.SimpleGameServer.ServiceProtocol;
+using SimpleGameServer.Protocol;
 
 namespace bluebean.SimpleGameServer
 {

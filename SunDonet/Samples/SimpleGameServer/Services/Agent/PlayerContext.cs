@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SunDonet.Protocol;
 using Google.Protobuf;
+using SimpleGameServer.Protocol;
 
 namespace bluebean.SimpleGameServer
 {
