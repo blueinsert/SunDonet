@@ -1,3 +1,4 @@
   
-"Protogen.exe" Protocol/Proto Protocol/AutoGen SimpleGameServer SimpleGameServer.Protocol
+cd ProtogenExe
+"Protogen.exe" ../Protocol/Proto ../Protocol/AutoGen SimpleGameServer SimpleGameServer.Protocol
 pause

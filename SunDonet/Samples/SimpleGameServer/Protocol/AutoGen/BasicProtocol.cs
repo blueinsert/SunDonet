@@ -9,7 +9,7 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-namespace SunDonet.Protocol {
+namespace SimpleGameServer.Protocol {
 
   /// <summary>Holder for reflection information generated from BasicProtocol.proto</summary>
   [System.Serializable]
@@ -25,28 +25,28 @@ namespace SunDonet.Protocol {
     static BasicProtocolReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           @"
-            ChNCYXNpY1Byb3RvY29sLnByb3RvEhFTdW5Eb25ldC5Qcm90b2NvbCIyCghM
-            b2dpblJlcRIQCghVc2VyTmFtZRgBIAEoCRIUCgxVc2VyUGFzc3dvcmQYAiAB
-            KAkiGgoITG9naW5BY2sSDgoGUmVzdWx0GAEgASgFIjoKEENyZWF0ZUFjY291
-            bnRSZXESEAoIVXNlck5hbWUYASABKAkSFAoMVXNlclBhc3N3b3JkGAIgASgJ
-            IiIKEENyZWF0ZUFjY291bnRBY2sSDgoGUmVzdWx0GAEgASgFIhMKEVBsYXll
-            ckluZm9Jbml0UmVxIiMKEVBsYXllckluZm9Jbml0QWNrEg4KBlJlc3VsdBgB
-            IAEoBSImChRQbGF5ZXJJbmZvSW5pdEVuZE50ZhIOCgZSZXN1bHQYASABKAUi
-            gwEKElBsYXllckJhc2ljSW5mb050ZhIOCgZSZXN1bHQYASABKAUSDAoETmFt
-            ZRgCIAEoCRITCgtQbGF5ZXJMZXZlbBgDIAEoBRILCgNFeHAYBCABKAUSDgoG
-            RW5lcmd5GAUgASgFEgwKBEdvbGQYBiABKAUSDwoHVmVyc2lvbhgHIAEoBWIG
-            cHJvdG8z");
+            ChNCYXNpY1Byb3RvY29sLnByb3RvEhlTaW1wbGVHYW1lU2VydmVyLlByb3Rv
+            Y29sIjIKCExvZ2luUmVxEhAKCFVzZXJOYW1lGAEgASgJEhQKDFVzZXJQYXNz
+            d29yZBgCIAEoCSIaCghMb2dpbkFjaxIOCgZSZXN1bHQYASABKAUiOgoQQ3Jl
+            YXRlQWNjb3VudFJlcRIQCghVc2VyTmFtZRgBIAEoCRIUCgxVc2VyUGFzc3dv
+            cmQYAiABKAkiIgoQQ3JlYXRlQWNjb3VudEFjaxIOCgZSZXN1bHQYASABKAUi
+            EwoRUGxheWVySW5mb0luaXRSZXEiIwoRUGxheWVySW5mb0luaXRBY2sSDgoG
+            UmVzdWx0GAEgASgFIiYKFFBsYXllckluZm9Jbml0RW5kTnRmEg4KBlJlc3Vs
+            dBgBIAEoBSKDAQoSUGxheWVyQmFzaWNJbmZvTnRmEg4KBlJlc3VsdBgBIAEo
+            BRIMCgROYW1lGAIgASgJEhMKC1BsYXllckxldmVsGAMgASgFEgsKA0V4cBgE
+            IAEoBRIOCgZFbmVyZ3kYBSABKAUSDAoER29sZBgGIAEoBRIPCgdWZXJzaW9u
+            GAcgASgFYgZwcm90bzM=");
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.LoginReq), global::SunDonet.Protocol.LoginReq.Parser, new[]{ "UserName", "UserPassword" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.LoginAck), global::SunDonet.Protocol.LoginAck.Parser, new[]{ "Result" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.CreateAccountReq), global::SunDonet.Protocol.CreateAccountReq.Parser, new[]{ "UserName", "UserPassword" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.CreateAccountAck), global::SunDonet.Protocol.CreateAccountAck.Parser, new[]{ "Result" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerInfoInitReq), global::SunDonet.Protocol.PlayerInfoInitReq.Parser, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerInfoInitAck), global::SunDonet.Protocol.PlayerInfoInitAck.Parser, new[]{ "Result" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerInfoInitEndNtf), global::SunDonet.Protocol.PlayerInfoInitEndNtf.Parser, new[]{ "Result" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SunDonet.Protocol.PlayerBasicInfoNtf), global::SunDonet.Protocol.PlayerBasicInfoNtf.Parser, new[]{ "Result", "Name", "PlayerLevel", "Exp", "Energy", "Gold", "Version" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.LoginReq), global::SimpleGameServer.Protocol.LoginReq.Parser, new[]{ "UserName", "UserPassword" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.LoginAck), global::SimpleGameServer.Protocol.LoginAck.Parser, new[]{ "Result" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.CreateAccountReq), global::SimpleGameServer.Protocol.CreateAccountReq.Parser, new[]{ "UserName", "UserPassword" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.CreateAccountAck), global::SimpleGameServer.Protocol.CreateAccountAck.Parser, new[]{ "Result" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.PlayerInfoInitReq), global::SimpleGameServer.Protocol.PlayerInfoInitReq.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.PlayerInfoInitAck), global::SimpleGameServer.Protocol.PlayerInfoInitAck.Parser, new[]{ "Result" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.PlayerInfoInitEndNtf), global::SimpleGameServer.Protocol.PlayerInfoInitEndNtf.Parser, new[]{ "Result" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SimpleGameServer.Protocol.PlayerBasicInfoNtf), global::SimpleGameServer.Protocol.PlayerBasicInfoNtf.Parser, new[]{ "Result", "Name", "PlayerLevel", "Exp", "Energy", "Gold", "Version" }, null, null, null)
           }));
     }
     #endregion
@@ -62,7 +62,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[0]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -220,7 +220,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[1]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -350,7 +350,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[2]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -508,7 +508,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[3]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -638,7 +638,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[4]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -740,7 +740,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[5]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -870,7 +870,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[6]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1000,7 +1000,7 @@ namespace SunDonet.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SunDonet.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[7]; }
+      get { return global::SimpleGameServer.Protocol.BasicProtocolReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
