@@ -22,12 +22,26 @@ namespace SunDonet
             SunNet.Instance.Listen(8887, this.m_id);
         }
 
-        public override void OnExit()
+        protected override async Task OnSocketMsg(MsgBase msg)
         {
-            base.OnExit();
+            switch (msg.MessageType)
+            {
+                case MsgBase.MsgType.Socket_Accept:
+                    await OnClientConnect((msg as SocketAcceptMsg).Client);
+                    break;
+                case MsgBase.MsgType.Socket_Disconnect:
+                    var disconnectMsg = msg as SocketDisconnectMsg;
+                    await OnClientDisconnect(disconnectMsg.ClientId, disconnectMsg.Reason);
+                    break;
+                case MsgBase.MsgType.Socket_Data:
+                    var clientDataMsg = msg as SocketDataMsg;
+                    await OnClientData(clientDataMsg.SocketId, clientDataMsg.Buff);
+                    break;
+            }
         }
 
-        public override Task OnClientConnect(SocketIndentifier s)
+
+        protected virtual async Task OnClientConnect(SocketIndentifier s)
         {
             Debug.Log("AdminConsole:OnClientConnect {0}", s.ToString());
             if (m_currSocket == null)
@@ -43,17 +57,17 @@ namespace SunDonet
                     //s.Close();
                 }
             }
-            return base.OnClientConnect(s);
+            await Task.CompletedTask;
         }
 
-        public override Task OnClientDisconnect(SocketIndentifier s, string reason)
+        protected virtual async Task OnClientDisconnect(SocketIndentifier s, string reason)
         {
             Debug.Log("AdminConsole:OnClientDisconnect {0} {1}", s.ToString(),reason);
             if(m_currSocket == s)
             {
                 m_currSocket = null;
-            }            
-            return base.OnClientDisconnect(s, reason);
+            }
+            await Task.CompletedTask;
         }
 
         private void Send(SocketIndentifier s, string msg)
@@ -79,7 +93,7 @@ namespace SunDonet
             Send(m_currSocket, msg);
         }
 
-        public override Task OnClientData(SocketIndentifier s, ClientBuffer buff)
+        protected virtual async Task OnClientData(SocketIndentifier s, ClientBuffer buff)
         {
             Debug.Log("AdminConsole:OnClientData {0}", s.ToString());
             if (m_currSocket == s)
@@ -91,7 +105,7 @@ namespace SunDonet
             {
                 Send(s, "ignore, has another been using");
             }
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         public void ExeCommand(string command)

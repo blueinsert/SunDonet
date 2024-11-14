@@ -12,7 +12,10 @@ namespace SunDonet
     {
         public enum MsgType
         {
-            Service,//service 2 service
+            /// <summary>
+            /// 服务间消息
+            /// </summary>
+            Service2Service,//service 2 service
             Socket_Accept,
             Socket_Disconnect,
             Socket_Data,

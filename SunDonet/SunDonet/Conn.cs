@@ -47,6 +47,11 @@ namespace SunDonet
 
     public class Conn
     {
+        /// <summary>
+        /// conn的创建服务id
+        /// 目前只有gateway和admin会创建监听conn
+        /// 监听conn接受连接得到的conn的m_serviceId和监听conn的一样
+        /// </summary>
         public int m_serviceId;
 
         public SocketType m_socketType;

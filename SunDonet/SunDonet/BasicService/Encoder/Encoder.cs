@@ -9,6 +9,9 @@ using SunDonet.Protocol;
 
 namespace SunDonet
 {
+    /// <summary>
+    /// 包消息序列化和反序列化
+    /// </summary>
     public class Encoder : ServiceBase
     {
         public Encoder(int id) : base(id) { }

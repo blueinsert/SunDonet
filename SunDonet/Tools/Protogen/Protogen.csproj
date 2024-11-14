@@ -55,6 +55,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SunDonet\SunDonet.csproj">
+      <Project>{375dd008-1a7a-4629-87cc-a6a5826f041a}</Project>
+      <Name>SunDonet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">
       <Project>{76ebb14c-b6ad-4c0d-bbb5-a1d6c2686827}</Project>
       <Name>Google.Protobuf</Name>

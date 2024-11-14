@@ -19,6 +19,9 @@ namespace SunDonet
     public class Worker
     {
         public int m_id;
+        /// <summary>
+        /// 每次处理消息队列的数量
+        /// </summary>
         public int m_eachNum;
 
         public WorkerState State { get { return m_state; } }
@@ -42,6 +45,10 @@ namespace SunDonet
             m_cancelSource.Cancel();
         }
 
+        /// <summary>
+        /// 将service放回到待处理的消息队列
+        /// </summary>
+        /// <param name="service"></param>
         private void CheckAndPutGlobal(ServiceBase service)
         {
             lock (service.m_msgQueueLock)
@@ -49,7 +56,7 @@ namespace SunDonet
                 if (service.m_msgQueue.Count != 0)
                 {
                     //重新放回全局队列
-                    SunNet.Instance.PushGlobalQueue(service);
+                    SunNet.Instance.PushServiceWithWorkTodo(service);
                 }
                 else
                 {
@@ -64,7 +71,8 @@ namespace SunDonet
         {
             while (!m_cancelToken.IsCancellationRequested)
             {
-               var service =  SunNet.Instance.PopGlobalQueue();
+                //接任务
+                var service =  SunNet.Instance.PopServiceWithWorkTodo();
                 if (service == null)
                 {
                     //SunNet.Instance.Log.Info(string.Format("worker id:{0} wait", m_id));

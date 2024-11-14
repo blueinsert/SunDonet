@@ -52,9 +52,15 @@ namespace SunDonet
         private Dictionary<string, List<ServiceBase>> m_servicesByName = new Dictionary<string, List<ServiceBase>>();
 
         private object m_globalQueueLock = new object();
-        private Queue<ServiceBase> m_globalServiceQueue = new Queue<ServiceBase>();//有消息要处理的服务
+        /// <summary>
+        /// 有消息要处理的服务
+        /// </summary>
+        private Queue<ServiceBase> m_globalServiceQueueWithWorkTodo = new Queue<ServiceBase>();
 
         private Semaphore m_workerSeamphore;
+        /// <summary>
+        /// 工作线程(task)
+        /// </summary>
         private List<Worker> m_workers = new List<Worker>();
         public SocketWorker m_socketWorker = new SocketWorker();
         private BufferManager m_bufferManager;
@@ -181,6 +187,9 @@ namespace SunDonet
             SunNet.Instance.Log.Info("StartSocketWorker");
         }
 
+        /// <summary>
+        /// 开启若干个负载task(线程)，负责实际运行service
+        /// </summary>
         private void StartWorkers()
         {
             int workerNum = GetServerConfig().BasicConfig.WorkerNum;
@@ -228,6 +237,9 @@ namespace SunDonet
             m_awaitableHandleManager.Tick();
         }
 
+        /// <summary>
+        /// 根据配置，加载初始默认的service
+        /// </summary>
         private void StartInitServices()
         {
             var serviceList = GetServerConfig().InitServiceList;
@@ -334,7 +346,7 @@ namespace SunDonet
             {
                 KillService(id);
             }
-            m_globalServiceQueue.Clear();
+            m_globalServiceQueueWithWorkTodo.Clear();
             //
             List<SocketIndentifier> socketIds = new List<SocketIndentifier>();
             foreach(var pair in m_connDic)
@@ -393,7 +405,7 @@ namespace SunDonet
         {
             var conn = RemoveConn(id);
             Debug.Log("Sunnet:CloseConn:{0}", conn);
-            m_socketWorker.RemoveEvent(conn);
+            m_socketWorker.RemoveListenedConn(conn);
             var socket = conn.m_socket;
             if (dispose) {
                 DisposeSocket(id, socket);
@@ -418,7 +430,7 @@ namespace SunDonet
             socket.Listen(1024);
             SocketIndentifier id = new SocketIndentifier(string.Format("localhost:{0}",port));
             var conn = AddConn(id, socket, serviceId);
-            m_socketWorker.AddEvent(conn);
+            m_socketWorker.AddListenedConn(conn);
         }
 
         public void Wait()
@@ -524,7 +536,7 @@ namespace SunDonet
                 {
                     if (!service.m_isInGlobal)
                     {
-                        PushGlobalQueue(service);
+                        PushServiceWithWorkTodo(service);
                         service.m_isInGlobal = true;
                     }
                 }
@@ -600,23 +612,31 @@ namespace SunDonet
             ClientBuffer.BackBuffer(buff);
         }
 
-        public void PushGlobalQueue(ServiceBase service)
+        /// <summary>
+        /// 将一个有任务的service进队列
+        /// </summary>
+        /// <param name="service"></param>
+        public void PushServiceWithWorkTodo(ServiceBase service)
         {
             lock (m_globalQueueLock)
             {
-                m_globalServiceQueue.Enqueue(service);
+                m_globalServiceQueueWithWorkTodo.Enqueue(service);
             }
             CheckAndWeakUp();
         }
 
-        public ServiceBase PopGlobalQueue()
+        /// <summary>
+        /// 将一个有任务的service出队列
+        /// </summary>
+        /// <returns></returns>
+        public ServiceBase PopServiceWithWorkTodo()
         {
             ServiceBase service = null;
             lock (m_globalQueueLock)
             {
-                if (m_globalServiceQueue.Count != 0)
+                if (m_globalServiceQueueWithWorkTodo.Count != 0)
                 {
-                    service = m_globalServiceQueue.Dequeue();
+                    service = m_globalServiceQueueWithWorkTodo.Dequeue();
                 }
             }
             return service;

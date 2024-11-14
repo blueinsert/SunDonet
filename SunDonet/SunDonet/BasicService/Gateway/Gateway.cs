@@ -42,13 +42,32 @@ namespace SunDonet
             RegisterServiceMsgNtfHandler<S2SGatewaySendPackageList2Ntf>(HandleSendPackageList);
         }
 
-        public override async Task OnClientConnect(SocketIndentifier s)
+        protected override async Task OnSocketMsg(MsgBase msg)
+        {
+            switch (msg.MessageType)
+            {
+                case MsgBase.MsgType.Socket_Accept:
+                    await OnClientConnect((msg as SocketAcceptMsg).Client);
+                    break;
+                case MsgBase.MsgType.Socket_Disconnect:
+                    var disconnectMsg = msg as SocketDisconnectMsg;
+                    await OnClientDisconnect(disconnectMsg.ClientId, disconnectMsg.Reason);
+                    break;
+                case MsgBase.MsgType.Socket_Data:
+                    var clientDataMsg = msg as SocketDataMsg;
+                    await OnClientData(clientDataMsg.SocketId, clientDataMsg.Buff);
+                    break;
+            }
+        }
+
+        protected virtual async Task OnClientConnect(SocketIndentifier s)
         {
             SunNet.Instance.Log.Info("Gateway:OnClientConnect " + s.ToString());
             m_clientBuffDic.Add(s, ClientBuffer.GetBuffer(8 * 1024 * 5));
+            await Task.CompletedTask;
         }
 
-        public override async Task OnClientDisconnect(SocketIndentifier s, string reason)
+        protected virtual async Task OnClientDisconnect(SocketIndentifier s, string reason)
         {
             Debug.Log("Gateway:OnClientDisconnect {0} {1}", s.ToString(), reason);
             var clientBuff = m_clientBuffDic[s];
@@ -60,15 +79,14 @@ namespace SunDonet
                 Socket = s,
             });
             //s.Dispose();
+            await Task.CompletedTask;
         }
 
-        #region 收包与分发
-
-        public override async Task OnClientData(SocketIndentifier s, ClientBuffer buff)
+        protected virtual async Task OnClientData(SocketIndentifier s, ClientBuffer buff)
         {
             //SunNet.Instance.Log.Info("Gateway:OnClientData len:" + buff.m_dataLen);
             var sumBuff = m_clientBuffDic[s];
-            if(sumBuff.m_dataLen + buff.m_dataLen > sumBuff.m_buffer.Length)
+            if (sumBuff.m_dataLen + buff.m_dataLen > sumBuff.m_buffer.Length)
             {
                 SunNet.Instance.Log.Info("Gateway:OnClientData sumBuff need resize");
                 //todo
@@ -91,7 +109,7 @@ namespace SunDonet
                     await DispatchClientMsg(s, ack.DataObj as IMessage);
                     Array.Copy(sumBuff.m_buffer, ack.ByteLenHandled, sumBuff.m_buffer, 0, sumBuff.m_dataLen - ack.ByteLenHandled);
                     sumBuff.m_dataLen -= ack.ByteLenHandled;
-                    if(sumBuff.m_dataLen > GoogleProtobufHelper.ProtocolHeaderLen)
+                    if (sumBuff.m_dataLen > GoogleProtobufHelper.ProtocolHeaderLen)
                     {
                         doNext = true;
                     }
@@ -101,8 +119,11 @@ namespace SunDonet
                     SunNet.Instance.Log.Info("Gateway:OnClientData decode failed or ignore");
                 }
             } while (doNext);
-            
+
+            await Task.CompletedTask;
         }
+
+        #region 收包与分发
 
         private async Task DispatchClientMsg(SocketIndentifier s, IMessage msg)
         {
