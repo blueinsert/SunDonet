@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{375DD008-1A7A-4629-87CC-A6A5826F041A}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>SunDonet</RootNamespace>
     <AssemblyName>SunDonet</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
       <HintPath>..\ThirdPart\logging-log4net-rc-2.0.8-RC1\build\log4net.dll</HintPath>
@@ -54,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicService\Protocol\BasicServiceMsgs.cs" />
     <Compile Include="BufferManager.cs" />
     <Compile Include="ClassLoader.cs" />
     <Compile Include="Common\ErrorCode.cs" />
@@ -63,37 +67,19 @@
     <Compile Include="LuaService.cs" />
     <Compile Include="DB\MongoDBHelper.cs" />
     <Compile Include="Msg.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocol\AutoGen\BasicProtocol.cs" />
-    <Compile Include="Protocol\AutoGen\SunDonetProtocolDictionary.cs" />
     <Compile Include="Protocol\IProtoProvider.cs" />
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
     <Compile Include="ServiceBase.cs" />
     <Compile Include="BasicService\AdminConsole\AdminConsole.cs" />
-    <Compile Include="BasicService\AgentMgr\Msg.cs" />
-    <Compile Include="BasicService\Agent\Agent.cs" />
-    <Compile Include="BasicService\AgentMgr\AgentMgr.cs" />
-    <Compile Include="BasicService\Agent\ComponentBase.cs" />
-    <Compile Include="BasicService\Agent\Component\Base\PlayerBasicInfoComponentCommon.cs" />
-    <Compile Include="BasicService\Agent\Component\Server\IServerComponent.cs" />
-    <Compile Include="BasicService\Agent\Component\Server\PlayerBasicInfoComponent.cs" />
-    <Compile Include="BasicService\Agent\DataSectionBase.cs" />
-    <Compile Include="BasicService\Agent\DataSection\DataSectionPlayerBasicInfo.cs" />
     <Compile Include="DB\DBCollections.cs" />
     <Compile Include="DB\DBConstDefine.cs" />
     <Compile Include="DB\DBStructure.cs" />
-    <Compile Include="BasicService\Agent\Msg.cs" />
-    <Compile Include="BasicService\Agent\PlayerContext.cs" />
     <Compile Include="BasicService\Encoder\Encoder.cs" />
     <Compile Include="Protocol\GoogleProtobufHelper.cs" />
     <Compile Include="BasicService\Encoder\Msg.cs" />
-    <Compile Include="BasicService\Gateway\Gateway.cs" />
-    <Compile Include="BasicService\Gateway\Msg.cs" />
-    <Compile Include="BasicService\Login\Login.cs" />
+    <Compile Include="BasicService\Gateway\GatewayServiceBase.cs" />
     <Compile Include="BasicService\Main.cs" />
-    <Compile Include="BasicService\Login\Msg.cs" />
-    <Compile Include="BasicService\NodeMgr.cs" />
     <Compile Include="Xml\ServerConfigure.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />
@@ -136,7 +122,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Protocol\Proto\BasicProtocol.proto" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

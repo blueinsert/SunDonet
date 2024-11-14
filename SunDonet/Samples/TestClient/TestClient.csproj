@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8D782827-7F50-4FB3-B676-19ED11D47DD4}</ProjectGuid>
+    <ProjectGuid>{7C8BA1F8-D49C-427E-ADD6-2A31BD34E8DF}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestMongoDB</RootNamespace>
-    <AssemblyName>TestMongoDB</AssemblyName>
+    <RootNamespace>TestClient</RootNamespace>
+    <AssemblyName>TestClient</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -32,15 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MongoDB.Bson">
-      <HintPath>..\..\ThirdPart\MongoDB\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver">
-      <HintPath>..\..\ThirdPart\MongoDB\MongoDB.Driver.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver.Core">
-      <HintPath>..\..\ThirdPart\MongoDB\MongoDB.Driver.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,6 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetLibClient\Client.cs" />
+    <Compile Include="NetLibClient\Connection.cs" />
+    <Compile Include="NetLibClient\IClientEventHandler.cs" />
+    <Compile Include="NetLibClient\IConnectEventHandler.cs" />
+    <Compile Include="NetLibClient\MessageBlock.cs" />
+    <Compile Include="PlayerContext.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -58,9 +55,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Samples\SimpleGameServer\SimpleGameServer.csproj">
+      <Project>{771df99d-9f44-4cde-8aa8-03cf87ef43f9}</Project>
+      <Name>SimpleGameServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SunDonet\SunDonet.csproj">
       <Project>{375dd008-1a7a-4629-87cc-a6a5826f041a}</Project>
       <Name>SunDonet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">
+      <Project>{76EBB14C-B6AD-4C0D-BBB5-A1D6C2686827}</Project>
+      <Name>Google.Protobuf</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

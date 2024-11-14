@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8D782827-7F50-4FB3-B676-19ED11D47DD4}</ProjectGuid>
+    <ProjectGuid>{771DF99D-9F44-4CDE-8AA8-03CF87EF43F9}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestMongoDB</RootNamespace>
-    <AssemblyName>TestMongoDB</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <RootNamespace>SimpleGameServer</RootNamespace>
+    <AssemblyName>SimpleGameServer</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\ThirdPart\logging-log4net-rc-2.0.8-RC1\build\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\..\ThirdPart\MongoDB\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -53,14 +57,40 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol\AutoGen\BasicProtocol.cs" />
+    <Compile Include="Protocol\AutoGen\SunDonetProtocolDictionary.cs" />
+    <Compile Include="Services\AgentMgrService.cs" />
+    <Compile Include="Services\Agent\AgentService.cs" />
+    <Compile Include="Services\Agent\ComponentBase.cs" />
+    <Compile Include="Services\Agent\Component\Base\PlayerBasicInfoComponentCommon.cs" />
+    <Compile Include="Services\Agent\Component\Server\IServerComponent.cs" />
+    <Compile Include="Services\Agent\Component\Server\PlayerBasicInfoComponent.cs" />
+    <Compile Include="Services\Agent\DataSectionBase.cs" />
+    <Compile Include="Services\Agent\DataSection\DataSectionPlayerBasicInfo.cs" />
+    <Compile Include="Services\Agent\PlayerContext.cs" />
+    <Compile Include="Services\GatewayService.cs" />
+    <Compile Include="Services\LoginService.cs" />
+    <Compile Include="Services\Protocol\ServiceMsgs.cs" />
+    <Compile Include="SimpleGameServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Protocol\Proto\BasicProtocol.proto" />
+    <None Include="Protogen.bat" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Xml\Config.xml" />
+    <Content Include="Xml\LogConfigue.xml" />
+  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\SunDonet\SunDonet.csproj">
       <Project>{375dd008-1a7a-4629-87cc-a6a5826f041a}</Project>
       <Name>SunDonet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">
+      <Project>{76ebb14c-b6ad-4c0d-bbb5-a1d6c2686827}</Project>
+      <Name>Google.Protobuf</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

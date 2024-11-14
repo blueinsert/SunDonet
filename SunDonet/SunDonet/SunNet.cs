@@ -26,9 +26,9 @@ namespace SunDonet
 
     public class SunNet
     {
-        private static SunNet m_instance;
+        protected static SunNet m_instance;
         public static SunNet Instance { get { return m_instance; } }
-        private SunNet() { }
+        public SunNet() { }
 
         public const string ConfigFilePath = "./Xml/Config.xml";
 
@@ -74,7 +74,7 @@ namespace SunDonet
         private MongoDBHelper m_dbHelper = null;
 
         public ProtocolDictionaryBase ProtocolDic { get { return m_protocolDic; } }
-        private ProtocolDictionaryBase m_protocolDic = null;
+        protected ProtocolDictionaryBase m_protocolDic = null;
 
         private ServerConfig m_serverConfig = null;
 
@@ -175,8 +175,13 @@ namespace SunDonet
                 return false;
             }
 
-            m_protocolDic = new SunDonetProtocolDictionary();
+            InitClientProtocolDic();
             return true;
+        }
+
+        protected virtual void InitClientProtocolDic()
+        {
+
         }
 
 
@@ -269,34 +274,16 @@ namespace SunDonet
 
         public void Stop()
         {
-            Debug.Log("SunNet:Stop");
-            //todo
-            //Interlocked.CompareExchange
-            ServerState = ServerState.Stoping;
-            //1.停止接受新的连接
-            m_socketWorker.Stop();
-            Thread.Sleep(500);
-            //2.将所有agent踢下线
-            int agentMgr = FindSingletonServiceByName("AgentMgr");
-            int login = FindSingletonServiceByName("Login");
-            var agetMgrIns = GetService(agentMgr) as AgentMgr;
-            var agents = agetMgrIns.RegisterItemList;
-            foreach(var agent in agents)
-            {
-                Send(login, new S2SLogoutNtf()
-                {
-                    GatewayId = agent.GateWayId,
-                    Socket = agent.Socket,
-                });
-            }
-            while (agents.Count != 0)
-            {
-                Thread.Sleep(100);
-            }
-            Debug.Log("agents.Count == 0, all user has been kickout");
-            Uninitialize();
-            ServerState = ServerState.Stoped;
+            OnStop();
+        }
 
+        protected virtual void OnStop()
+        {
+
+        }
+
+        protected void DoExit()
+        {
             m_exitEvent.Set();
         }
 
@@ -493,7 +480,7 @@ namespace SunDonet
             }      
         }
 
-        private ServiceBase GetService(int id)
+        protected ServiceBase GetService(int id)
         {
             ServiceBase service = null;
             lock (m_servicesLock)

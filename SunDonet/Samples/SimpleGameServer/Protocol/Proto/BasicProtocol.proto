@@ -1,0 +1,45 @@
+﻿syntax = "proto3";
+package SimpleGameServer.Protocol;
+
+//import "CommonDefine.proto";
+
+message LoginReq
+{
+	string UserName = 1;
+	string UserPassword = 2;
+}
+
+message LoginAck
+{
+	int32 Result = 1;
+}
+
+message CreateAccountReq{
+	string UserName = 1;
+	string UserPassword = 2;
+}
+
+message CreateAccountAck{
+	int32 Result = 1;
+}
+
+message PlayerInfoInitReq{
+}
+
+message PlayerInfoInitAck{
+    int32 Result = 1;
+}
+
+message PlayerInfoInitEndNtf{
+    int32 Result = 1;
+}
+
+message PlayerBasicInfoNtf{
+	int32 Result = 1;
+	string Name = 2;
+	int32 PlayerLevel = 3;
+	int32 Exp = 4;
+	int32 Energy = 5;
+	int32 Gold = 6;
+	int32 Version = 7;
+}
