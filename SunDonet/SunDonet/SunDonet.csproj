@@ -79,7 +79,6 @@
     <Compile Include="Protocol\GoogleProtobufHelper.cs" />
     <Compile Include="BasicService\Encoder\Msg.cs" />
     <Compile Include="BasicService\Gateway\GatewayServiceBase.cs" />
-    <Compile Include="BasicService\Main.cs" />
     <Compile Include="Xml\ServerConfigure.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />

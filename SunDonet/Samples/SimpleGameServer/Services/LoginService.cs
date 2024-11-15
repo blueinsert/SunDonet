@@ -77,7 +77,7 @@ namespace bluebean.SimpleGameServer
                 }
                 if (ack.Result == ErrorCode.OK)
                 {
-                    var agentId = SimpleGameServer.Instance.NewService("Agent");
+                    var agentId = SimpleGameServer.Instance.NewService("Agent", null);
                     await Call<AgentRegisterReq, AgentRegisterAck>(m_agentMgrId, new AgentRegisterReq()
                     {
                         AgentId = agentId,

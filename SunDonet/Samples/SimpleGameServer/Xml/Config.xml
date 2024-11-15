@@ -2,13 +2,19 @@
 <Configure>
   <Basic WorkerNum="10" MaxAgentNum="100000"/>
   <Services>
-    <Service Name="Encoder" Params=""/>
-    <Service Name="AgentMgr" Params=""/>
-    <Service Name="Login" Params=""/>
-    <Service Name="Gateway" Params="IP=127.0.0.1,Port=8888"/>
+    <Service Name="Encoder" ClassName="SunDonet@SunDonet.Encoder" Params=""/>
+    <Service Name="Agent" ClassName="SimpleGameServer@bluebean.SimpleGameServer.AgentService" Params=""/>
+    <Service Name="AgentMgr" ClassName="SimpleGameServer@bluebean.SimpleGameServer.AgentMgrService" Params=""/>
+    <Service Name="Login" ClassName="SimpleGameServer@bluebean.SimpleGameServer.LoginService" Params=""/>
+    <Service Name="Gateway" ClassName="SimpleGameServer@bluebean.SimpleGameServer.GatewayService" Params="IP=127.0.0.1,Port=8888"/>
     <!--<Service Name="AdminConsole" Params=""/>-->
-    <!--<Service Name="Main" Params=""/>-->
   </Services>
+  <InitServices>
+    <Service Name="Encoder" />
+    <Service Name="AgentMgr" />
+    <Service Name="Login" />
+    <Service Name="Gateway" />
+  </InitServices>
   <Network SocketInputBufferLen="40960" SocketOutputBufferLen="40960"/>
   <Data DataPath=".\ConfigData\Data\Json"/>
   <Log LogConfigPath= "Xml/LogConfigue.xml"></Log>

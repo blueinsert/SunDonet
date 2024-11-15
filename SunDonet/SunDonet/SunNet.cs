@@ -120,8 +120,8 @@ namespace SunDonet
                 UserName = db.UserName,
                 Password = db.Password,
             };
-            if(string.IsNullOrEmpty(dbcfg.DataBase) 
-                || string.IsNullOrEmpty(dbcfg.ConnectHost) 
+            if (string.IsNullOrEmpty(dbcfg.DataBase)
+                || string.IsNullOrEmpty(dbcfg.ConnectHost)
                 || string.IsNullOrEmpty(dbcfg.Port))
             {
                 Debug.Log("SunNet:InitializeDB ignore, not configed");
@@ -135,7 +135,7 @@ namespace SunDonet
             }
             catch (Exception e)
             {
-               Debug.Log("MongoDB connect failed:{0}", e.Message);
+                Debug.Log("MongoDB connect failed:{0}", e.Message);
                 return false;
             }
         }
@@ -160,9 +160,11 @@ namespace SunDonet
             //m_globalQueueSemaphore = new SemaphoreSlim(0);
             m_bufferManager.InitBuffer();
             m_classLoader = ClassLoader.CreateClassLoader();
+            Log.Info($"begin addAssembly");
             var mainDomainAssemblyList = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in mainDomainAssemblyList)
             {
+                Log.Info($"addAssembly {assembly.GetName().Name}");
                 m_classLoader.AddAssembly(assembly);
             }
             m_awaitableHandleManager = new AwaitableHandleManager();
@@ -212,7 +214,7 @@ namespace SunDonet
 
         private void StopWorkers()
         {
-            foreach(var woker in m_workers)
+            foreach (var woker in m_workers)
             {
                 woker.Stop();
             }
@@ -229,7 +231,8 @@ namespace SunDonet
                         nostopedCount++;
                 }
                 isAllStoped = nostopedCount == 0;
-                if (waitingCount != 0 ) {
+                if (waitingCount != 0)
+                {
                     CheckAndWeakUp();
                 }
                 Thread.Sleep(50);
@@ -242,25 +245,37 @@ namespace SunDonet
             m_awaitableHandleManager.Tick();
         }
 
+        private ServiceConfig GetServiceConfigByName(string name)
+        {
+            foreach (var item in GetServerConfig().AllServiceList)
+            {
+                if (item.Name == name)
+                {
+                    return item;
+                }
+            }
+
+            Log.Error($"GetServiceConfigByName == null,name:{name}");
+
+            return null;
+        }
+
         /// <summary>
         /// 根据配置，加载初始默认的service
         /// </summary>
         private void StartInitServices()
         {
             var serviceList = GetServerConfig().InitServiceList;
-            foreach(var item in serviceList)
+            foreach (var item in serviceList)
             {
-                if (!string.IsNullOrEmpty(item.Params))
+                var serviceCfg = GetServiceConfigByName(item.Name);
+
+                if (serviceCfg != null)
                 {
-                    var dic = ConfigureUtil.ParseParamDic(item.Params);
-                    NewService(item.Name, dic);
-                }
-                else
-                {
-                    NewService(item.Name);
+                    NewService(serviceCfg, null);
                 }
             }
-           
+
         }
 
         public void Start()
@@ -325,26 +340,26 @@ namespace SunDonet
             m_workerSeamphore.Dispose();
             //
             List<int> allServiceIds = new List<int>();
-            foreach(var pair in m_serviceDic)
+            foreach (var pair in m_serviceDic)
             {
                 allServiceIds.Add(pair.Key);
             }
-            foreach(var id in allServiceIds)
+            foreach (var id in allServiceIds)
             {
                 KillService(id);
             }
             m_globalServiceQueueWithWorkTodo.Clear();
             //
             List<SocketIndentifier> socketIds = new List<SocketIndentifier>();
-            foreach(var pair in m_connDic)
+            foreach (var pair in m_connDic)
             {
                 socketIds.Add(pair.Key);
             }
-            foreach(var id in socketIds)
+            foreach (var id in socketIds)
             {
                 var conn = RemoveConn(id);
                 var socket = conn.m_socket;
-                DisposeSocket(id, socket);                
+                DisposeSocket(id, socket);
             }
             Log.Logger.Repository.Shutdown(); //此函数调用之后日志无法打印了
         }
@@ -376,7 +391,7 @@ namespace SunDonet
             var socket = m_id2SocketDic[id];
             m_id2SocketDic.Remove(id);
             m_socket2IdDic.Remove(socket);
-            Conn conn = null; 
+            Conn conn = null;
             lock (m_connsLock)
             {
                 if (m_connDic.ContainsKey(id))
@@ -394,7 +409,8 @@ namespace SunDonet
             Debug.Log("Sunnet:CloseConn:{0}", conn);
             m_socketWorker.RemoveListenedConn(conn);
             var socket = conn.m_socket;
-            if (dispose) {
+            if (dispose)
+            {
                 DisposeSocket(id, socket);
             }
         }
@@ -415,7 +431,7 @@ namespace SunDonet
                 socket.Bind(localEndPoint);
             }
             socket.Listen(1024);
-            SocketIndentifier id = new SocketIndentifier(string.Format("localhost:{0}",port));
+            SocketIndentifier id = new SocketIndentifier(string.Format("localhost:{0}", port));
             var conn = AddConn(id, socket, serviceId);
             m_socketWorker.AddListenedConn(conn);
         }
@@ -434,15 +450,15 @@ namespace SunDonet
         }
 
         //"Test","lua-test"
-        public int NewService(string name, Dictionary<string, string> paramDic = null)
+        private int NewServiceImpl(string name, string className, Dictionary<string, string> paramDic = null)
         {
-            if (name.StartsWith("lua-"))
+            if (className.StartsWith("lua-"))
             {
                 //todo
             }
             else
             {
-                var instance = m_classLoader.CreateInstance(new TypeDNName(string.Format("SunDonet@SunDonet.{0}", name)), 0);
+                var instance = m_classLoader.CreateInstance(new TypeDNName(className), 0);
                 if (instance != null)
                 {
                     var service = instance as ServiceBase;
@@ -469,6 +485,30 @@ namespace SunDonet
             return -1;
         }
 
+        public int NewService(ServiceConfig serviceCfg, Dictionary<string, string> paramDic = null)
+        {
+            if (serviceCfg != null)
+            {
+                //todo merge dic
+                if (!string.IsNullOrEmpty(serviceCfg.Params))
+                {
+                    var dic = ConfigureUtil.ParseParamDic(serviceCfg.Params);
+                    return NewServiceImpl(serviceCfg.Name, serviceCfg.ClassName, dic);
+                }
+                else
+                {
+                    return NewServiceImpl(serviceCfg.Name, serviceCfg.ClassName);
+                }
+            }
+            return -1;
+        }
+
+        public int NewService(string name, Dictionary<string, string> paramDic = null)
+        {
+            var serviceCfg = GetServiceConfigByName(name);
+            return NewService(serviceCfg, paramDic);
+        }
+
         public void KillService(int id)
         {
             Debug.Log("SunNet:KillService id:{0}", id);
@@ -477,7 +517,7 @@ namespace SunDonet
             lock (m_servicesLock)
             {
                 m_serviceDic.Remove(id);
-            }      
+            }
         }
 
         protected ServiceBase GetService(int id)

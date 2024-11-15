@@ -68,23 +68,18 @@ namespace SunDonet
                         return null;
                     }
                 }
+                if (assembly == null)
+                {
+                    SunNet.Instance.Log.Info(string.Format("Can not find type {0}, assemble {1} is null", typeDNName.m_typeFullName, typeDNName.m_assemblyName));
+                    return null;
+                }
 
                 // 从assembly获取类型
                 type = assembly.GetType(typeDNName.m_typeFullName);
                 if (type == null)
                 {
-                    assembly = m_assembleDict["Config"];
-                    if (assembly == null)
-                    {
-                        SunNet.Instance.Log.Info(string.Format("Can not find type {0}, assemble [Config] is null", typeDNName.m_typeFullName));
-                        return null;
-                    }
-                    type = assembly.GetType(typeDNName.m_typeFullName);
-                    if (type == null)
-                    {
-                        SunNet.Instance.Log.Info(string.Format("Can not find type {0}", typeDNName.m_typeFullName));
-                        return null;
-                    }
+                    SunNet.Instance.Log.Info(string.Format("Can not find type {0}", typeDNName.m_typeFullName));
+                    return null;
                 }
                 m_typeDict[typeDNName.m_typeFullName] = type;
             }
@@ -122,7 +117,7 @@ namespace SunDonet
     /// 类型附带Assembly的完整路径例如 MyDLL@MyNamespace.MyClass
     /// </summary>
     [Serializable]
-    
+
     public class TypeDNName
     {
         public TypeDNName(string typeDNName)
@@ -138,7 +133,7 @@ namespace SunDonet
             {
                 m_assemblyName = typeDNName.Substring(0, index);
                 m_typeFullName = typeDNName.Substring(index + 1);
-            }     
+            }
         }
 
         public override string ToString()

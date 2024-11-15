@@ -18,6 +18,9 @@ namespace SunDonet
         public BasicConfig BasicConfig { get; set; }
 
         [XmlArray("Services"), XmlArrayItem("Service")]
+        public ServiceConfig[] AllServiceList { get; set; }
+
+        [XmlArray("InitServices"), XmlArrayItem("Service")]
         public ServiceConfig[] InitServiceList { get; set; }
 
         [XmlElement("Network")]
@@ -162,6 +165,9 @@ namespace SunDonet
     {
         [XmlAttribute("Name")]
         public string Name { get; set; }
+
+        [XmlAttribute("ClassName")]
+        public string ClassName { get; set; }
 
         [XmlAttribute("Params")]
         public string Params { get; set; }

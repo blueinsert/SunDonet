@@ -55,10 +55,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Samples\SimpleGameServer\SimpleGameServer.csproj">
-      <Project>{771df99d-9f44-4cde-8aa8-03cf87ef43f9}</Project>
-      <Name>SimpleGameServer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\SunDonet\SunDonet.csproj">
       <Project>{375dd008-1a7a-4629-87cc-a6a5826f041a}</Project>
       <Name>SunDonet</Name>
@@ -66,6 +62,10 @@
     <ProjectReference Include="..\..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">
       <Project>{76EBB14C-B6AD-4C0D-BBB5-A1D6C2686827}</Project>
       <Name>Google.Protobuf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimpleGameServer\SimpleGameServer.csproj">
+      <Project>{771df99d-9f44-4cde-8aa8-03cf87ef43f9}</Project>
+      <Name>SimpleGameServer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

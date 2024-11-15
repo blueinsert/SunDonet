@@ -55,7 +55,7 @@ namespace bluebean.SimpleGameServer
 
         #region 客户端消息处理
 
-        protected virtual async Task DispatchClientMsg(SocketIndentifier s, IMessage msg)
+        protected override async Task DispatchClientMsg(SocketIndentifier s, IMessage msg)
         {
             //SunNet.Instance.Log.Info(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
             var msgId = SimpleGameServer.Instance.ProtocolDic.GetIdByType(msg.GetType());

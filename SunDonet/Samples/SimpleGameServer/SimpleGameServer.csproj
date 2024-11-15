@@ -8,10 +8,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>SimpleGameServer</RootNamespace>
     <AssemblyName>SimpleGameServer</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -79,8 +80,12 @@
     <None Include="Protogen.bat" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Xml\Config.xml" />
-    <Content Include="Xml\LogConfigue.xml" />
+    <Content Include="Xml\Config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Xml\LogConfigue.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
