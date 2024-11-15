@@ -374,6 +374,11 @@ namespace SunDonet
             return m_id2SocketDic[id];
         }
 
+        public Conn GetConn(SocketIndentifier id)
+        {
+            return m_connDic[id];
+        }
+
         public Conn AddConn(SocketIndentifier id, Socket socket, int serviceId = -1)
         {
             m_id2SocketDic.Add(id, socket);
@@ -601,42 +606,8 @@ namespace SunDonet
         /// <param name="buff"></param>
         public void SendPackage(SocketIndentifier sid, ClientBuffer buff)
         {
-            var socket = GetSocket(sid);
-            var s = socket;
-            s.SendTimeout = 0;
-            int startTickCount = Environment.TickCount;
-            int timeout = 20;
-            int sent = 0; // how many bytes is already sent
-            int offset = 0;
-            var buffer = buff.m_buffer;
-            int size = buff.m_dataLen;
-            do
-            {
-                if (Environment.TickCount > startTickCount + timeout)
-                {
-                    throw new Exception("SunNet SendPackage to Client, Timeout.");
-                }
-                try
-                {
-                    sent += s.Send(buffer, offset + sent, size - sent, SocketFlags.None);
-                }
-                catch (SocketException ex)
-                {
-                    if (ex.SocketErrorCode == SocketError.WouldBlock ||
-                    ex.SocketErrorCode == SocketError.IOPending ||
-                    ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
-                    {
-                        // socket buffer is probably full, wait and try again
-                        SunNet.Instance.Log.Info("SunNet SendPackage, sleep");
-                        Thread.Sleep(30);
-                    }
-                    else
-                    {
-                        throw ex; // any serious error occurr
-                    }
-                }
-            } while (sent < size);
-            ClientBuffer.BackBuffer(buff);
+            var conn = GetConn(sid);
+            conn?.SendPackage(buff); 
         }
 
         /// <summary>

@@ -61,12 +61,13 @@
     <Compile Include="BufferManager.cs" />
     <Compile Include="ClassLoader.cs" />
     <Compile Include="Common\ErrorCode.cs" />
-    <Compile Include="Conn.cs" />
+    <Compile Include="Network\Conn.cs" />
     <Compile Include="DB\DBMethod.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="LuaService.cs" />
     <Compile Include="DB\MongoDBHelper.cs" />
     <Compile Include="Msg.cs" />
+    <Compile Include="Network\KcpConn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\IProtoProvider.cs" />
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
@@ -127,6 +128,10 @@
     <ProjectReference Include="..\ThirdPart\Google.Protobuf\Google.Protobuf.csproj">
       <Project>{76ebb14c-b6ad-4c0d-bbb5-a1d6c2686827}</Project>
       <Name>Google.Protobuf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ThirdPart\Kcp\Kcp.csproj">
+      <Project>{59b2cfcb-8ed6-4873-9fe0-91772bba500b}</Project>
+      <Name>Kcp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
