@@ -67,7 +67,6 @@
     <Compile Include="LuaService.cs" />
     <Compile Include="DB\MongoDBHelper.cs" />
     <Compile Include="Msg.cs" />
-    <Compile Include="Network\KcpConn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\IProtoProvider.cs" />
     <Compile Include="Protocol\ProtocolDictionaryBase.cs" />
@@ -80,6 +79,11 @@
     <Compile Include="Protocol\GoogleProtobufHelper.cs" />
     <Compile Include="BasicService\Encoder\Msg.cs" />
     <Compile Include="BasicService\Gateway\GatewayServiceBase.cs" />
+    <Compile Include="ThirdPart\Kcp\AckItem.cs" />
+    <Compile Include="ThirdPart\Kcp\Kcp.cs" />
+    <Compile Include="ThirdPart\Kcp\Pool.cs" />
+    <Compile Include="ThirdPart\Kcp\Segment.cs" />
+    <Compile Include="ThirdPart\Kcp\Utils.cs" />
     <Compile Include="Xml\ServerConfigure.cs" />
     <Compile Include="SocketWorker.cs" />
     <Compile Include="SunNet.cs" />

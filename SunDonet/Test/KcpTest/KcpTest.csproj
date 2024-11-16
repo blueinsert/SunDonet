@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{59B2CFCB-8ED6-4873-9FE0-91772BBA500B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kcp</RootNamespace>
-    <AssemblyName>Kcp</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ProjectGuid>{07649617-907E-483C-9ECF-7CD85BBC855E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>KcpTest</RootNamespace>
+    <AssemblyName>KcpTest</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,9 +35,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,27 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HighLevel\Common.cs" />
-    <Compile Include="HighLevel\ErrorCode.cs" />
-    <Compile Include="HighLevel\Extensions.cs" />
-    <Compile Include="HighLevel\KcpChannel.cs" />
-    <Compile Include="HighLevel\KcpClient.cs" />
-    <Compile Include="HighLevel\KcpConfig.cs" />
-    <Compile Include="HighLevel\KcpHeader.cs" />
-    <Compile Include="HighLevel\KcpPeer.cs" />
-    <Compile Include="HighLevel\KcpServer.cs" />
-    <Compile Include="HighLevel\KcpServerConnection.cs" />
-    <Compile Include="HighLevel\KcpState.cs" />
-    <Compile Include="HighLevel\Log.cs" />
-    <Compile Include="Kcp\AckItem.cs" />
-    <Compile Include="Kcp\Kcp.cs" />
-    <Compile Include="Kcp\Pool.cs" />
-    <Compile Include="Kcp\Segment.cs" />
-    <Compile Include="Kcp\Utils.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ThirdPart\Kcp\Kcp.csproj">
+      <Project>{59b2cfcb-8ed6-4873-9fe0-91772bba500b}</Project>
+      <Name>Kcp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

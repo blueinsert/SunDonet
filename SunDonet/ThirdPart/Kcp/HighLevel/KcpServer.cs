@@ -198,6 +198,12 @@ namespace kcp2k
         // https://github.com/vis2k/where-allocation
         // bool return because not all receives may be valid.
         // for example, relay may expect a certain header.
+        /// <summary>
+        /// 从listen socket中提取原始数据
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="connectionId"></param>
+        /// <returns></returns>
         protected virtual bool RawReceiveFrom(out ArraySegment<byte> segment, out int connectionId)
         {
             segment = default;
@@ -303,6 +309,11 @@ namespace kcp2k
 
         // receive + add + process once.
         // best to call this as long as there is more data to receive.
+        /// <summary>
+        /// 将数据分发给对应的connection
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="connectionId"></param>
         void ProcessMessage(ArraySegment<byte> segment, int connectionId)
         {
             //Log.Info($"[KCP] server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
@@ -357,6 +368,7 @@ namespace kcp2k
         public virtual void TickIncoming()
         {
             // input all received messages into kcp
+            // 提取数据并分发给对应connection
             while (RawReceiveFrom(out ArraySegment<byte> segment, out int connectionId))
             {
                 ProcessMessage(segment, connectionId);
@@ -364,6 +376,7 @@ namespace kcp2k
 
             // process inputs for all server connections
             // (even if we didn't receive anything. need to tick ping etc.)
+            //驱动数据从kcp中提取，并处理
             foreach (KcpServerConnection connection in connections.Values)
             {
                 connection.TickIncoming();

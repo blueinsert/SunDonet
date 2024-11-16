@@ -138,6 +138,11 @@ namespace kcp2k
         // virtual so it may be modified for relays, etc.
         // call this while it returns true, to process all messages this tick.
         // returned ArraySegment is valid until next call to RawReceive.
+        /// <summary>
+        /// 提取网络层原始数据
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
         protected virtual bool RawReceive(out ArraySegment<byte> segment)
         {
             segment = new ArraySegment<byte>();
@@ -201,6 +206,10 @@ namespace kcp2k
         // insert raw IO. usually from socket.Receive.
         // offset is useful for relays, where we may parse a header and then
         // feed the rest to kcp.
+        /// <summary>
+        /// 输入网络层原始数据，给kcp,或者直接处理
+        /// </summary>
+        /// <param name="segment"></param>
         public void RawInput(ArraySegment<byte> segment)
         {
             // ensure valid size: at least 1 byte for channel + 4 bytes for cookie

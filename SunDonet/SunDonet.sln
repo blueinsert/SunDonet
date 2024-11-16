@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunDonet", "SunDonet\SunDonet.csproj", "{375DD008-1A7A-4629-87CC-A6A5826F041A}"
 EndProject
@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestClient", "Samples\TestC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kcp", "ThirdPart\Kcp\Kcp.csproj", "{59B2CFCB-8ED6-4873-9FE0-91772BBA500B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KcpTest", "ThirdPart\KcpTest\KcpTest.csproj", "{695F43A1-97E3-463C-8D90-1C8C9F9240E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KcpTest", "Test\KcpTest\KcpTest.csproj", "{07649617-907E-483C-9ECF-7CD85BBC855E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,10 +61,10 @@ Global
 		{59B2CFCB-8ED6-4873-9FE0-91772BBA500B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59B2CFCB-8ED6-4873-9FE0-91772BBA500B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59B2CFCB-8ED6-4873-9FE0-91772BBA500B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{695F43A1-97E3-463C-8D90-1C8C9F9240E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{695F43A1-97E3-463C-8D90-1C8C9F9240E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{695F43A1-97E3-463C-8D90-1C8C9F9240E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{695F43A1-97E3-463C-8D90-1C8C9F9240E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07649617-907E-483C-9ECF-7CD85BBC855E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07649617-907E-483C-9ECF-7CD85BBC855E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07649617-907E-483C-9ECF-7CD85BBC855E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07649617-907E-483C-9ECF-7CD85BBC855E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,7 +76,7 @@ Global
 		{771DF99D-9F44-4CDE-8AA8-03CF87EF43F9} = {D83245EF-E61E-49C9-B576-B4283083BB7F}
 		{7C8BA1F8-D49C-427E-ADD6-2A31BD34E8DF} = {D83245EF-E61E-49C9-B576-B4283083BB7F}
 		{59B2CFCB-8ED6-4873-9FE0-91772BBA500B} = {0185C254-D542-450C-AF55-CA52E1C8FD0D}
-		{695F43A1-97E3-463C-8D90-1C8C9F9240E6} = {0185C254-D542-450C-AF55-CA52E1C8FD0D}
+		{07649617-907E-483C-9ECF-7CD85BBC855E} = {7F5A6FA6-6048-4200-8EEF-0963758C8A17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {033AEED8-86F8-4E63-83A5-9DF315ADCF54}

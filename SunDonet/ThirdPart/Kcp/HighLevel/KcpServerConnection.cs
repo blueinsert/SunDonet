@@ -68,6 +68,10 @@ namespace kcp2k
         // insert raw IO. usually from socket.Receive.
         // offset is useful for relays, where we may parse a header and then
         // feed the rest to kcp.
+        /// <summary>
+        /// 输入网络层原始数据
+        /// </summary>
+        /// <param name="segment"></param>
         public void RawInput(ArraySegment<byte> segment)
         {
             // ensure valid size: at least 1 byte for channel + 4 bytes for cookie

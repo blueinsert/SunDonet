@@ -560,6 +560,10 @@ namespace kcp2k
             }
         }
 
+        /// <summary>
+        /// 将网络层数据丢给kcp进行处理
+        /// </summary>
+        /// <param name="message"></param>
         protected void OnRawInputReliable(ArraySegment<byte> message)
         {
             // input into kcp, but skip channel byte
@@ -571,6 +575,11 @@ namespace kcp2k
             }
         }
 
+        /// <summary>
+        /// 不使用kcp，
+        /// 将数据去除头数据后直接丢给应用层
+        /// </summary>
+        /// <param name="message"></param>
         protected void OnRawInputUnreliable(ArraySegment<byte> message)
         {
             // need at least one byte for the KcpHeader enum
@@ -672,6 +681,13 @@ namespace kcp2k
             RawSend(segment);
         }
 
+        /// <summary>
+        /// 通过kcp发送数据，
+        /// 应用层数据额外添加头数据：KcpHeaderReliable枚举
+        /// 网络层数据额外添加：KcpChannel.Unreliable+cookie 在kcp output回调中添加
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="content"></param>
         void SendReliable(KcpHeaderReliable header, ArraySegment<byte> content)
         {
             // 1 byte header + content needs to fit into send buffer
@@ -699,6 +715,13 @@ namespace kcp2k
             }
         }
 
+        /// <summary>
+        /// 不通过kcp，直接发包数据
+        /// 应用层数据额外添加头数据：KcpHeaderUnreliable枚举
+        /// 网络层数据额外添加：KcpChannel.Unreliable+cookie
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="content"></param>
         void SendUnreliable(KcpHeaderUnreliable header, ArraySegment<byte> content)
         {
             // message size needs to be <= unreliable max size
@@ -744,7 +767,7 @@ namespace kcp2k
 
             // GetType() shows Server/ClientConn instead of just Connection.
             Log.Info($"[KCP] {GetType()}: sending handshake to other end with cookie={cookie}");
-            SendReliable(KcpHeaderReliable.Hello, new ArraySegment<byte>());
+            SendReliable(KcpHeaderReliable.Hello, default);
         }
 
         public void SendData(ArraySegment<byte> data, KcpChannel channel)
@@ -781,7 +804,7 @@ namespace kcp2k
             // when sending ping, include the local timestamp so we can
             // calculate RTT from the pong.
             Utils.Encode32U(pingData, 0, time);
-            SendReliable(KcpHeaderReliable.Ping, pingData);
+            SendReliable(KcpHeaderReliable.Ping, new ArraySegment<byte>(pingData));
         }
 
         void SendPong(uint pingTimestamp)
@@ -789,7 +812,7 @@ namespace kcp2k
             // when sending ping, include the local timestamp so we can
             // calculate RTT from the pong.
             Utils.Encode32U(pingData, 0, pingTimestamp);
-            SendReliable(KcpHeaderReliable.Pong, pingData);
+            SendReliable(KcpHeaderReliable.Pong, new ArraySegment<byte>(pingData)); 
         }
 
         // send disconnect message
