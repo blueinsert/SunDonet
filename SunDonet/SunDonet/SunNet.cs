@@ -575,6 +575,11 @@ namespace SunDonet
             }
         }
 
+        /// <summary>
+        /// 向某个服务发生ntf消息
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="ntf"></param>
         public void Send(int to, ServiceMsgNtf ntf)
         {
             SendInternal(to, ntf);

@@ -59,6 +59,7 @@ namespace bluebean.SimpleGameServer
         {
             //SunNet.Instance.Log.Info(string.Format("GateWay:HandleClientMsg {0}", msg.ToString()));
             var msgId = SimpleGameServer.Instance.ProtocolDic.GetIdByType(msg.GetType());
+            //这两种消息类型交给loginService处理
             if (msgId == SimpleGameServerProtocolDictionary.MsgId_LoginReq)
             {
 
@@ -70,6 +71,9 @@ namespace bluebean.SimpleGameServer
             }
             else
             {
+                //其他消息类型说明已经登陆成功
+                //获取对应的agentService（用户数据及逻辑的实例）
+                //将客户端消息交给agentService
                 var searchAck = await Call<AgentSearchReq, AgentSearchAck>(m_agentMgrId, new AgentSearchReq()
                 {
                     Socket = s,
@@ -85,6 +89,12 @@ namespace bluebean.SimpleGameServer
             }
         }
 
+        /// <summary>
+        /// 向loginService发送登录请求
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="req"></param>
+        /// <returns></returns>
         private async Task DispatchLoginReq(SocketIndentifier s, LoginReq req)
         {
             SimpleGameServer.Instance.Log.Info(string.Format("GateWay:HandleLoginReq {0}", req.ToString()));
@@ -94,8 +104,15 @@ namespace bluebean.SimpleGameServer
                 Socket = s,
                 Req = req,
             });
+            await Task.CompletedTask;
         }
 
+        /// <summary>
+        /// 向loginService发送创建账户请求
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="req"></param>
+        /// <returns></returns>
         private async Task DispatchCreateReq(SocketIndentifier s, CreateAccountReq req)
         {
             SimpleGameServer.Instance.Log.Info(string.Format("GateWay:HandleCreateReq {0}", req.ToString()));
@@ -105,11 +122,14 @@ namespace bluebean.SimpleGameServer
                 Socket = s,
                 Req = req,
             });
+            await Task.CompletedTask;
         }
 
         #endregion
 
         #region 服务间消息处理
+
+        #region 网关发包请求
         private async Task HandleSendPackage(GatewaySendPackageNtf ntf)
         {
             //SunNet.Instance.Log.Info(string.Format("Gateway:HandleSendPackage {0}", ntf));
@@ -149,6 +169,9 @@ namespace bluebean.SimpleGameServer
         }
         #endregion
 
+        #endregion
+
+        #region 发包实用方法
         public static void SendPackage(int gateway, int agentId, IMessage msg)
         {
             SimpleGameServer.Instance.Send(gateway, new GatewaySendPackageNtf()
@@ -184,5 +207,7 @@ namespace bluebean.SimpleGameServer
                 Socket = socket,
             });
         }
+        #endregion
+
     }
 }

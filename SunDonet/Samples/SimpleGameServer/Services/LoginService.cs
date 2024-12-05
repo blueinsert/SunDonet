@@ -38,6 +38,7 @@ namespace bluebean.SimpleGameServer
             var userId = req.UserName;
             var password = req.UserPassword;
             var socket = ntf.Socket;
+            //查询是否已经登陆
             var loginStatusSearch = await Call<AgentSearchReq, AgentSearchAck>(m_agentMgrId, new AgentSearchReq()
             {
                 UserId = userId
@@ -46,15 +47,19 @@ namespace bluebean.SimpleGameServer
             {
                 Result = ErrorCode.OK,
             };
-            if (loginStatusSearch.Result == ErrorCode.OK)
+            if (loginStatusSearch.Result == ErrorCode.OK) //已经是登陆状态
             {
                 var registerItem = loginStatusSearch.RegisterItem;
                 if (registerItem.Socket != socket)
                 {
+                    //可能是别的设备，重复登陆
+                    //返回错误码，禁止其登陆
                     ack.Result = ErrorCode.LoginHasBeenLogin;
                 }
                 else
                 {
+                    //重复登陆，可能发生了状态错误
+                    //返回错误码，禁止其登陆
                     ack.Result = ErrorCode.LoginMultiLogin;
                 }
                 GatewayService.SendPackage(ntf.GatewayId, ntf.Socket, ack);
@@ -62,22 +67,25 @@ namespace bluebean.SimpleGameServer
             }
             else
             {
+                //检测用户名，密码是否一致
                 var dbAccount = await DBMethod.GetAccount(req.UserName);
 
                 if (dbAccount == null)
                 {
-                    ack.Result = ErrorCode.LoginAccountNotExist;
+                    ack.Result = ErrorCode.LoginAccountNotExist;//用户不存在
                 }
                 else
                 {
                     if (dbAccount.Password != req.UserPassword)
                     {
-                        ack.Result = ErrorCode.LoginPasswordError;
+                        ack.Result = ErrorCode.LoginPasswordError;//密码错误
                     }
                 }
                 if (ack.Result == ErrorCode.OK)
                 {
+                    //登录成功，创建对应的agentService对象
                     var agentId = SimpleGameServer.Instance.NewService("Agent", null);
+                    //注册agent到agentMgr
                     await Call<AgentRegisterReq, AgentRegisterAck>(m_agentMgrId, new AgentRegisterReq()
                     {
                         AgentId = agentId,
@@ -85,6 +93,7 @@ namespace bluebean.SimpleGameServer
                         GatewayId = ntf.GatewayId,
                         Socket = ntf.Socket,
                     });
+                    //agent初始化
                     await Call<AgentInitReq, AgentInitAck>(agentId, new AgentInitReq()
                     {
                         UserId = req.UserName,
@@ -115,6 +124,7 @@ namespace bluebean.SimpleGameServer
         private async Task HandleLogoutNtf(LogoutNtf ntf)
         {
             Debug.Log("Login:HandleLogoutNtf:{0}", ntf.Socket.ToString());
+            //查询是否在登录状态
             var searchResult = await Call<AgentSearchReq, AgentSearchAck>(m_agentMgrId, new AgentSearchReq()
             {
                 Socket = ntf.Socket,
@@ -122,7 +132,9 @@ namespace bluebean.SimpleGameServer
             if (searchResult != null && searchResult.Result == ErrorCode.OK)
             {
                 var agentId = searchResult.RegisterItem.AgentId;
+                //agentService执行退出流程：数据存盘，停止自身...
                 var ack = await Call<AgentExitReq, AgentExitAck>(agentId, new AgentExitReq());
+                //将agent从agentMgr中解除
                 await Call<AgentRemoveReq, AgentRemoveAck>(m_agentMgrId, new AgentRemoveReq()
                 {
                     AgentId = agentId,

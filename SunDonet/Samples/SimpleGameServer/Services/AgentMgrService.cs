@@ -19,6 +19,8 @@ namespace bluebean.SimpleGameServer
 
     /// <summary>
     /// 查询，注册 agent
+    /// 登录成功后进行注册
+    /// 登出后删除记录项
     /// </summary>
     public class AgentMgrService : ServiceBase
     {
